@@ -1,0 +1,286 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+:root {
+  --bg: #f3f0e8;
+  --fg: #111;
+  --muted: #77736a;
+  --line: #111;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: auto;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.header {
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 64px;
+  padding: 0 28px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  z-index: 20;
+  mix-blend-mode: multiply;
+}
+
+.logo {
+  color: inherit;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.header-note,
+.eyebrow,
+.stage-label,
+.scroll-hint {
+  font-size: 11px;
+  letter-spacing: .08em;
+}
+
+
+/* INTRO */
+
+.intro {
+  min-height: 100vh;
+  padding: 160px 7vw 10vh;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.intro h1 {
+  max-width: 900px;
+  margin: 18px 0 28px;
+
+  font-size: clamp(42px, 7vw, 104px);
+  line-height: .98;
+  font-weight: 400;
+  letter-spacing: -.06em;
+}
+
+.intro-copy {
+  max-width: 460px;
+  color: var(--muted);
+}
+
+
+/* SCROLL SYSTEM */
+
+.system {
+  height: 260vh;
+  position: relative;
+}
+
+.sticky-stage {
+  position: sticky;
+  top: 0;
+
+  height: 100vh;
+
+  overflow: hidden;
+}
+
+.stage-label {
+  position: absolute;
+  top: 92px;
+  left: 7vw;
+}
+
+
+/* DIAGRAM */
+
+.diagram {
+  position: absolute;
+
+  width: min(1000px, 86vw);
+  height: min(560px, 58vh);
+
+  left: 50%;
+  top: 50%;
+
+  transform: translate(-50%, -50%);
+}
+
+.connections {
+  position: absolute;
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  overflow: visible;
+}
+
+.line {
+  fill: none;
+
+  stroke: var(--line);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+}
+
+
+/* NODES */
+
+.node {
+  position: absolute;
+
+  transform: translate(-50%, -50%);
+
+  white-space: nowrap;
+}
+
+.project {
+  left: 50%;
+  top: 50%;
+
+  font-size: clamp(22px, 3vw, 38px);
+  font-weight: 500;
+}
+
+.platform {
+  top: 27%;
+
+  font-size: clamp(13px, 1.3vw, 18px);
+
+  opacity: 0;
+}
+
+.autocad {
+  left: 22%;
+}
+
+.sketchup {
+  left: 50%;
+}
+
+.indesign {
+  left: 78%;
+}
+
+
+/* SMALL LABELS */
+
+.microcopy {
+  position: absolute;
+
+  color: var(--muted);
+  opacity: 0;
+
+  font-size: 11px;
+}
+
+.copy-project {
+  left: 50%;
+  top: 59%;
+
+  transform: translateX(-50%);
+}
+
+.copy-platforms {
+  left: 50%;
+  top: 34%;
+
+  transform: translateX(-50%);
+}
+
+
+/* SCROLL HINT */
+
+.scroll-hint {
+  position: absolute;
+
+  bottom: 30px;
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  color: var(--muted);
+}
+
+
+/* OUTRO */
+
+.outro {
+  min-height: 100vh;
+
+  padding: 18vh 7vw;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.outro h2 {
+  margin: 18px 0 24px;
+
+  font-size: clamp(38px, 6vw, 82px);
+  line-height: .98;
+  font-weight: 400;
+  letter-spacing: -.05em;
+}
+
+.outro p:last-child {
+  color: var(--muted);
+  max-width: 460px;
+}
+
+
+/* MOBILE */
+
+@media (max-width: 700px) {
+
+  .header {
+    padding: 0 18px;
+  }
+
+  .intro {
+    padding: 120px 22px 40px;
+  }
+
+  .stage-label {
+    left: 22px;
+    top: 88px;
+  }
+
+  .diagram {
+    width: 92vw;
+    height: 58vh;
+  }
+
+  .platform {
+    font-size: 11px;
+  }
+
+  .autocad {
+    left: 18%;
+  }
+
+  .indesign {
+    left: 82%;
+  }
+
+  .outro {
+    padding: 18vh 22px;
+  }
+
+}
