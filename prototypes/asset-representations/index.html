@@ -25,21 +25,26 @@
       overflow-x: hidden;
     }
 
+    /* ==================================================
+       HEADER
+    ================================================== */
+
     header {
       position: fixed;
       top: 0;
       left: 0;
+
       width: 100%;
       height: 64px;
+
+      padding: 0 28px;
 
       display: flex;
       align-items: center;
       justify-content: space-between;
 
-      padding: 0 28px;
-
-      background: #f3f0e8;
       border-bottom: 1px solid #000;
+      background: #f3f0e8;
 
       z-index: 100;
     }
@@ -51,7 +56,13 @@
     .header-title {
       font-size: 12px;
       text-transform: uppercase;
+      letter-spacing: 0.04em;
     }
+
+
+    /* ==================================================
+       INTRO
+    ================================================== */
 
     .intro {
       min-height: 100vh;
@@ -60,19 +71,27 @@
       align-items: center;
       justify-content: center;
 
+      padding: 20px;
+
       font-size: clamp(28px, 5vw, 72px);
       text-align: center;
     }
 
+
+    /* ==================================================
+       MAIN SCROLL SYSTEM
+    ================================================== */
+
     .asset-system {
-      height: 650vh;
       position: relative;
+      height: 650vh;
     }
 
     .sticky-stage {
       position: sticky;
       top: 0;
 
+      width: 100%;
       height: 100vh;
 
       display: flex;
@@ -82,23 +101,30 @@
       overflow: hidden;
     }
 
-    /* ASSET CARD */
+
+    /* ==================================================
+       LIBRARY CARD
+    ================================================== */
 
     .asset-card {
       position: absolute;
 
-      width: min(360px, 70vw);
-
       left: 50%;
       top: 50%;
 
+      width: min(360px, 70vw);
+
       transform: translate(-50%, -50%);
+
+      z-index: 5;
     }
 
     .asset-card img {
       display: block;
+
       width: 100%;
       height: auto;
+
       border: 1px solid #000;
     }
 
@@ -107,11 +133,18 @@
 
       font-size: 12px;
       text-transform: uppercase;
+      letter-spacing: 0.04em;
     }
 
-    /* CONNECTOR */
 
-    .connector {
+    /* ==================================================
+       ARROW
+       
+       The arrow tip is fixed at the center.
+       Only the shaft grows upward.
+    ================================================== */
+
+    .arrow-system {
       position: absolute;
 
       left: 50%;
@@ -120,29 +153,48 @@
       width: 1px;
       height: 0;
 
-      background: #000;
-
       transform: translateX(-50%);
+
+      z-index: 4;
 
       opacity: 0;
     }
 
-    .connector-arrow {
+    .arrow-shaft {
+      position: absolute;
+
+      left: 0;
+      bottom: 0;
+
+      width: 1px;
+      height: 0;
+
+      background: #000;
+
+      transform: translateY(0);
+    }
+
+    .arrow-head {
       position: absolute;
 
       left: 50%;
       bottom: 0;
 
-      width: 9px;
-      height: 9px;
+      width: 10px;
+      height: 10px;
 
       border-right: 1px solid #000;
       border-bottom: 1px solid #000;
 
-      transform: translate(-50%, 50%) rotate(45deg);
+      transform:
+        translate(-50%, 50%)
+        rotate(45deg);
     }
 
-    /* LABEL */
+
+    /* ==================================================
+       MULTIPLE REPRESENTATIONS
+    ================================================== */
 
     .multiple-label {
       position: absolute;
@@ -150,7 +202,9 @@
       left: 50%;
       top: 50%;
 
-      transform: translate(-50%, -50%);
+      transform:
+        translate(-50%, -50%)
+        rotateY(-90deg);
 
       font-size: clamp(18px, 3vw, 36px);
 
@@ -158,9 +212,16 @@
       white-space: nowrap;
 
       opacity: 0;
+
+      transform-style: preserve-3d;
+
+      z-index: 3;
     }
 
-    /* REPRESENTATIONS */
+
+    /* ==================================================
+       REPRESENTATIONS
+    ================================================== */
 
     .representation {
       position: absolute;
@@ -174,7 +235,10 @@
       transform-origin: center center;
 
       opacity: 0;
+
       pointer-events: none;
+
+      z-index: 2;
     }
 
     .representation-image {
@@ -203,7 +267,13 @@
 
       font-size: 12px;
       text-transform: uppercase;
+      letter-spacing: 0.04em;
     }
+
+
+    /* ==================================================
+       NEXT
+    ================================================== */
 
     .next {
       min-height: 100vh;
@@ -214,13 +284,16 @@
       align-items: center;
       justify-content: center;
 
+      padding: 20px;
+
       font-size: clamp(24px, 4vw, 56px);
       text-align: center;
     }
 
-    /* --------------------------------------------------
+
+    /* ==================================================
        MOBILE
-    -------------------------------------------------- */
+    ================================================== */
 
     @media (max-width: 700px) {
 
@@ -235,13 +308,12 @@
 
       .intro {
         min-height: 100svh;
-        padding: 20px;
 
         font-size: 26px;
       }
 
       .asset-system {
-        height: 600vh;
+        height: 650vh;
       }
 
       .sticky-stage {
@@ -272,14 +344,12 @@
       }
 
       .representation-info {
-        font-size: 10px;
         margin-top: 12px;
+        font-size: 10px;
       }
 
       .next {
         min-height: 100svh;
-        padding: 20px;
-
         font-size: 26px;
       }
     }
@@ -298,21 +368,37 @@
 
 <main>
 
+
+  <!-- ==================================================
+       INTRO
+  ================================================== -->
+
   <section class="intro">
+
     <div>
       ONE PROJECT.<br>
       MULTIPLE PLATFORMS.
     </div>
+
   </section>
 
+
+
+  <!-- ==================================================
+       ASSET SYSTEM
+  ================================================== -->
 
   <section class="asset-system">
 
     <div class="sticky-stage">
 
-      <!-- ASSET -->
 
-      <div class="asset-card" id="assetCard">
+      <!-- LIBRARY CARD -->
+
+      <div
+        class="asset-card"
+        id="assetCard"
+      >
 
         <img
           src="asset-representations/library-card.png"
@@ -326,14 +412,26 @@
       </div>
 
 
-      <!-- CONNECTOR -->
 
-      <div class="connector" id="connector">
-        <div class="connector-arrow"></div>
+      <!-- ARROW -->
+
+      <div
+        class="arrow-system"
+        id="arrowSystem"
+      >
+
+        <div
+          class="arrow-shaft"
+          id="arrowShaft"
+        ></div>
+
+        <div class="arrow-head"></div>
+
       </div>
 
 
-      <!-- LABEL -->
+
+      <!-- MULTIPLE REPRESENTATIONS -->
 
       <div
         class="multiple-label"
@@ -341,6 +439,7 @@
       >
         MULTIPLE REPRESENTATIONS
       </div>
+
 
 
       <!-- REPRESENTATION -->
@@ -351,14 +450,18 @@
       >
 
         <div class="representation-image">
+
           <img
             id="representationImage"
             src="asset-representations/autocad/minimal.svg"
             alt="AutoCAD Minimal"
           >
+
         </div>
 
+
         <div class="representation-info">
+
           <span id="representationPlatform">
             AUTOCAD
           </span>
@@ -366,20 +469,31 @@
           <span id="representationType">
             MINIMAL
           </span>
+
         </div>
 
       </div>
+
 
     </div>
 
   </section>
 
 
+
+  <!-- ==================================================
+       NEXT
+  ================================================== -->
+
   <section class="next">
+
     THE SYSTEM CONTINUES.
+
   </section>
 
+
 </main>
+
 
 
 <script>
@@ -387,8 +501,11 @@
   const assetCard =
     document.getElementById("assetCard");
 
-  const connector =
-    document.getElementById("connector");
+  const arrowSystem =
+    document.getElementById("arrowSystem");
+
+  const arrowShaft =
+    document.getElementById("arrowShaft");
 
   const multipleLabel =
     document.getElementById("multipleLabel");
@@ -405,6 +522,10 @@
   const representationType =
     document.getElementById("representationType");
 
+
+  /* ==================================================
+     REPRESENTATION DATA
+  ================================================== */
 
   const representations = [
 
@@ -441,16 +562,24 @@
     {
       platform: "INDESIGN",
       type: "IMAGE",
-      src: "asset-representations/indesign/image.jpg"
+      src: "asset-representations/publishing/image.jpg"
     }
 
   ];
 
 
+  /* ==================================================
+     HELPERS
+  ================================================== */
+
   function clamp(value, min, max) {
     return Math.max(min, Math.min(max, value));
   }
 
+
+  /* ==================================================
+     ANIMATION
+  ================================================== */
 
   function updateAnimation() {
 
@@ -470,65 +599,122 @@
       passed / scrollable;
 
 
-    /* ----------------------------------------------
-       ASSET CARD
-    ---------------------------------------------- */
+
+    /* ==================================================
+       1. LIBRARY CARD
+
+       Moves upward.
+       NO FADE.
+    ================================================== */
+
+    const cardStart = 0.00;
+    const cardEnd = 0.23;
 
     const cardProgress =
       clamp(
-        progress / 0.16,
+        (progress - cardStart) /
+        (cardEnd - cardStart),
         0,
         1
       );
+
+
+    const cardTravel =
+      window.innerHeight * 0.95;
+
 
     const cardY =
-      -cardProgress * 140;
+      -cardProgress * cardTravel;
+
 
     assetCard.style.transform =
-      `translate(-50%, calc(-50% + ${cardY}px))`;
+      `
+        translate(-50%, calc(-50% + ${cardY}px))
+      `;
 
-    assetCard.style.opacity =
-      1 - cardProgress;
+    assetCard.style.opacity = 1;
 
 
-    /* ----------------------------------------------
-       CONNECTOR
-    ---------------------------------------------- */
 
-    const connectorProgress =
+    /* ==================================================
+       2. ARROW
+
+       The arrow head NEVER moves.
+
+       It stays at the center.
+
+       Only the shaft grows upward
+       from the fixed head.
+    ================================================== */
+
+    const arrowStart = 0.05;
+    const arrowEnd = 0.23;
+
+    const arrowProgress =
       clamp(
-        (progress - 0.10) / 0.14,
+        (progress - arrowStart) /
+        (arrowEnd - arrowStart),
         0,
         1
       );
 
-    connector.style.height =
-      `${connectorProgress * 150}px`;
 
-    connector.style.opacity =
-      progress < 0.28
-        ? connectorProgress
+    const arrowLength =
+      window.innerHeight * 1.25;
+
+
+    arrowSystem.style.opacity =
+      arrowProgress > 0 && progress < 0.30
+        ? 1
         : 0;
 
 
-    /* ----------------------------------------------
-       MULTIPLE REPRESENTATIONS
-    ---------------------------------------------- */
+    arrowShaft.style.height =
+      `${arrowProgress * arrowLength}px`;
+
+
+
+    /* ==================================================
+       3. MULTIPLE REPRESENTATIONS
+
+       Rotates into view from the side.
+    ================================================== */
+
+    const labelStart = 0.22;
+    const labelEnd = 0.34;
 
     const labelProgress =
       clamp(
-        (progress - 0.23) / 0.11,
+        (progress - labelStart) /
+        (labelEnd - labelStart),
         0,
         1
       );
+
+
+    const labelRotation =
+      -90 + labelProgress * 90;
+
 
     multipleLabel.style.opacity =
       labelProgress;
 
 
-    /* ----------------------------------------------
-       REPRESENTATIONS
-    ---------------------------------------------- */
+    multipleLabel.style.transform =
+      `
+        translate(-50%, -50%)
+        rotateY(${labelRotation}deg)
+      `;
+
+
+
+    /* ==================================================
+       4. REPRESENTATIONS
+
+       Six representations.
+       Each one rotates through the same
+       central axis.
+    ================================================== */
 
     const representationStart = 0.34;
     const representationEnd = 0.94;
@@ -547,17 +733,13 @@
       representation.style.opacity = 1;
 
 
-      /*
-        Six representations.
-        Each gets an equal portion of
-        the animation.
-      */
-
       const count =
         representations.length;
 
+
       const exactIndex =
         representationProgress * count;
+
 
       const index =
         Math.min(
@@ -577,16 +759,20 @@
       representationImage.src =
         current.src;
 
+
       representationPlatform.textContent =
         current.platform;
+
 
       representationType.textContent =
         current.type;
 
 
+
       /*
-        Rotate from -90° to +90°
-        during each representation.
+        Every representation starts edge-on,
+        rotates toward the viewer,
+        then becomes edge-on again.
       */
 
       const rotation =
@@ -594,8 +780,8 @@
 
 
       const scale =
-        0.9 +
-        Math.sin(localProgress * Math.PI) * 0.1;
+        0.92 +
+        Math.sin(localProgress * Math.PI) * 0.08;
 
 
       representation.style.transform =
