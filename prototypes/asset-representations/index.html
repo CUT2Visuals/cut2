@@ -1,1163 +1,888 @@
-<!doctype html>
+```html
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>CUT2 — Asset Representations</title>
-
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap');
-
-    :root {
-      --bg: #f3f0e8;
-      --fg: #111;
-      --muted: #77736a;
-      --line: #111;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    html {
-      scroll-behavior: auto;
-    }
-
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--fg);
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 14px;
-      line-height: 1.45;
-    }
-
-    .header {
-      position: fixed;
-      inset: 0 0 auto 0;
-      height: 64px;
-      padding: 0 28px;
-
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-
-      z-index: 20;
-      mix-blend-mode: multiply;
-    }
-
-    .logo {
-      color: inherit;
-      text-decoration: none;
-      font-weight: 500;
-    }
-
-    .header-note,
-    .eyebrow,
-    .stage-label,
-    .scroll-hint {
-      font-size: 11px;
-      letter-spacing: .08em;
-    }
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    /* --------------------------------------------------
-       INTRO
-    -------------------------------------------------- */
+<title>CUT2 — Asset Representations</title>
 
-    .intro {
-      min-height: 100vh;
-      padding: 160px 7vw 10vh;
-
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-    .intro h1 {
-      max-width: 900px;
-      margin: 18px 0 28px;
+<style>
 
-      font-size: clamp(42px, 7vw, 104px);
-      line-height: .98;
-      font-weight: 400;
-      letter-spacing: -.06em;
-    }
+* {
+    box-sizing: border-box;
+}
 
-    .intro-copy {
-      max-width: 460px;
-      color: var(--muted);
-    }
+html,
+body {
+    margin: 0;
+    padding: 0;
+    background: #f3f0e8;
+    color: #111;
+    font-family: "IBM Plex Mono", monospace;
+}
 
+body {
+    overflow-x: hidden;
+}
 
-    /* --------------------------------------------------
-       ASSET SYSTEM
-    -------------------------------------------------- */
+/* HEADER */
 
-    .asset-system {
-      height: 560vh;
-      position: relative;
-    }
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
 
-    .sticky-stage {
-      position: sticky;
-      top: 0;
+    width: 100%;
+    height: 64px;
 
-      height: 100vh;
+    padding: 0 28px;
 
-      overflow: hidden;
-    }
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 
-    .stage-label {
-      position: absolute;
-      top: 92px;
-      left: 7vw;
-      opacity: 1;
-    }
+    border-bottom: 1px solid #111;
 
-    .stage-counter {
-      position: absolute;
-      top: 92px;
-      right: 7vw;
+    background: #f3f0e8;
 
-      font-size: 11px;
-      color: var(--muted);
-    }
+    z-index: 100;
+}
 
+.header-left {
+    font-size: 16px;
+    font-weight: 500;
+}
 
-    /* --------------------------------------------------
-       ASSET SCENE
-    -------------------------------------------------- */
+.header-right {
+    font-size: 12px;
+}
 
-    .asset-scene {
-      position: absolute;
 
-      width: min(900px, 86vw);
-      height: 560px;
+/* INTRO */
 
-      left: 50%;
-      top: 50%;
+.intro {
+    height: 100vh;
 
-      transform: translate(-50%, -50%);
-    }
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
+    padding-top: 64px;
+}
 
-    /* --------------------------------------------------
-       ONE ASSET CARD
-    -------------------------------------------------- */
+.intro-title {
+    font-size: clamp(32px, 5vw, 72px);
+    text-align: center;
+    line-height: 1.05;
+}
 
-    .library-card {
-      position: absolute;
 
-      left: 50%;
-      top: 50%;
+/* ASSET SYSTEM */
 
-      width: 320px;
-      max-width: 72vw;
+.asset-system {
+    height: 560vh;
+}
 
-      transform:
-        translate(-50%, -50%);
+.asset-sticky {
+    position: sticky;
+    top: 0;
 
-      z-index: 5;
+    height: 100vh;
 
-      opacity: 0;
-      will-change: transform, opacity;
-    }
+    overflow: hidden;
+}
 
-    .library-card img {
-      display: block;
-      width: 100%;
-      height: auto;
-    }
+.asset-stage {
+    position: relative;
 
-    .one-asset-label {
-      position: absolute;
+    width: 100%;
+    height: 100%;
+}
 
-      left: 50%;
-      top: calc(50% + 180px);
 
-      transform: translateX(-50%);
+/* ONE ASSET */
 
-      font-size: 11px;
-      letter-spacing: .08em;
+.one-asset {
+    position: absolute;
 
-      color: var(--muted);
+    top: 50%;
+    left: 50%;
 
-      opacity: 0;
-      white-space: nowrap;
-    }
+    transform: translate(-50%, -50%);
 
+    text-align: center;
 
-    /* --------------------------------------------------
-       TRANSITION TO MULTIPLE REPRESENTATIONS
-    -------------------------------------------------- */
+    z-index: 10;
+}
 
-    .transition-label {
-      position: absolute;
+.one-asset-label {
+    margin-bottom: 20px;
 
-      left: 50%;
-      top: 50%;
+    font-size: 14px;
+}
 
-      transform:
-        translate(-50%, -50%);
+.library-card {
+    width: min(420px, 65vw);
+    height: auto;
 
-      font-size: 15px;
-      letter-spacing: .08em;
+    display: block;
 
-      white-space: nowrap;
+    border: 1px solid #111;
 
-      opacity: 0;
-      z-index: 3;
-    }
+    background: #f3f0e8;
+}
 
-    .transition-line {
-      position: absolute;
 
-      left: 50%;
-      top: calc(50% - 70px);
+/* VERTICAL TRANSITION */
 
-      width: 0;
-      height: 1px;
+.transition {
+    position: absolute;
 
-      background: var(--line);
+    top: calc(50% + 130px);
+    left: 50%;
 
-      transform-origin: left center;
+    width: 1px;
+    height: 0;
 
-      opacity: 0;
-      z-index: 2;
-    }
+    transform: translateX(-50%);
 
-    .transition-arrow {
-      position: absolute;
+    background: #111;
 
-      right: -1px;
-      top: 50%;
+    z-index: 5;
+}
 
-      width: 8px;
-      height: 8px;
+.transition-arrow {
+    position: absolute;
 
-      border-top: 1px solid var(--line);
-      border-right: 1px solid var(--line);
+    left: 50%;
+    bottom: -1px;
 
-      transform:
-        translateY(-50%)
-        rotate(45deg);
-    }
+    width: 10px;
+    height: 10px;
 
+    transform: translateX(-50%) rotate(45deg);
 
-    /* --------------------------------------------------
-       REPRESENTATION STAGE
-    -------------------------------------------------- */
+    border-right: 1px solid #111;
+    border-bottom: 1px solid #111;
+}
 
-    .representation-stage {
-      position: absolute;
+.transition-label {
+    position: absolute;
 
-      left: 50%;
-      top: 50%;
+    top: calc(50% + 300px);
+    left: 50%;
 
-      width: 300px;
-      height: 300px;
+    transform: translateX(-50%);
 
-      transform:
-        translate(-50%, -50%)
-        perspective(1000px);
+    white-space: nowrap;
 
-      opacity: 0;
-    }
+    font-size: 14px;
 
-    .representation-object {
-      position: absolute;
+    opacity: 0;
+}
 
-      left: 50%;
-      top: 50%;
 
-      width: 240px;
-      height: 240px;
+/* REPRESENTATION */
 
-      transform:
-        translate(-50%, -50%)
-        rotateY(0deg);
+.representation-system {
+    position: absolute;
 
-      transform-style: preserve-3d;
+    top: 50%;
+    left: 50%;
 
-      will-change: transform, opacity;
+    width: 1px;
+    height: 1px;
 
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+    perspective: 1200px;
 
-    .representation-object img {
-      display: block;
+    z-index: 4;
+}
 
-      max-width: 100%;
-      max-height: 100%;
+.representation {
+    position: absolute;
 
-      width: auto;
-      height: auto;
+    top: 0;
+    left: 0;
 
-      object-fit: contain;
+    width: min(500px, 70vw);
+    height: min(500px, 70vw);
 
-      backface-visibility: hidden;
-    }
+    transform: translate(-50%, -50%);
 
+    transform-style: preserve-3d;
 
-    /* --------------------------------------------------
-       REPRESENTATION INFORMATION
-    -------------------------------------------------- */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
-    .representation-info {
-      position: absolute;
+.representation img {
+    max-width: 100%;
+    max-height: 100%;
 
-      left: calc(50% + 175px);
-      top: 50%;
+    display: block;
 
-      transform: translateY(-50%);
+    object-fit: contain;
+}
 
-      width: 250px;
 
-      opacity: 0;
+/* INFO */
 
-      will-change: opacity, transform;
-    }
+.rep-info {
+    position: absolute;
 
-    .representation-name {
-      font-size: 18px;
-      margin-bottom: 8px;
-    }
+    left: calc(50% + min(300px, 32vw));
+    top: 50%;
 
-    .representation-platform {
-      font-size: 11px;
-      color: var(--muted);
-      letter-spacing: .06em;
-    }
+    transform: translateY(-50%);
 
-    .representation-description {
-      margin-top: 14px;
+    width: 220px;
 
-      max-width: 220px;
+    font-size: 12px;
+    line-height: 1.4;
 
-      font-size: 11px;
-      color: var(--muted);
-    }
+    opacity: 0;
+}
 
+.rep-info-title {
+    margin-bottom: 6px;
 
-    /* --------------------------------------------------
-       NEXT
-    -------------------------------------------------- */
+    font-size: 14px;
+}
 
-    .next {
-      min-height: 100vh;
+.rep-info-platform {
+    opacity: 0.55;
+}
 
-      padding: 18vh 7vw;
 
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
+/* ERROR */
 
-    .next h2 {
-      margin: 18px 0 24px;
+.image-error {
+    width: min(500px, 70vw);
 
-      font-size: clamp(38px, 6vw, 82px);
-      line-height: .98;
-      font-weight: 400;
-      letter-spacing: -.05em;
-    }
+    padding: 30px;
 
-    .next p:last-child {
-      color: var(--muted);
-      max-width: 460px;
-    }
+    border: 1px solid #111;
 
+    font-size: 11px;
 
-    /* --------------------------------------------------
-       MOBILE
-    -------------------------------------------------- */
+    text-align: center;
+}
 
-    @media (max-width: 700px) {
+.image-error-title {
+    margin-bottom: 12px;
 
-      .header {
-        padding: 0 18px;
-      }
+    font-size: 14px;
+}
 
-      .intro {
-        padding: 120px 22px 40px;
-      }
+.image-error-path {
+    opacity: 0.5;
 
-      .stage-label {
-        left: 22px;
-        top: 88px;
-      }
+    word-break: break-all;
+}
 
-      .stage-counter {
-        right: 22px;
-        top: 88px;
-      }
 
-      .asset-scene {
-        width: 92vw;
-        height: 520px;
-      }
+/* NEXT SECTION */
 
-      .library-card {
-        width: 270px;
-      }
+.next-section {
+    min-height: 100vh;
 
-      .one-asset-label {
-        top: calc(50% + 155px);
-      }
+    padding: 140px 28px;
 
-      .transition-label {
-        font-size: 13px;
-      }
+    border-top: 1px solid #111;
+}
 
-      .representation-stage {
-        width: 260px;
-        height: 260px;
-      }
+.next-section h2 {
+    margin: 0;
 
-      .representation-object {
-        width: 210px;
-        height: 210px;
-      }
+    font-size: clamp(32px, 5vw, 72px);
+    font-weight: 400;
+}
 
-      .representation-info {
-        left: 50%;
-        top: calc(50% + 170px);
-
-        transform: translateX(-50%);
-
-        width: 220px;
-
-        text-align: center;
-      }
-
-      .representation-description {
-        margin-left: auto;
-        margin-right: auto;
-      }
-
-      .next {
-        padding: 18vh 22px;
-      }
-    }
-
-  </style>
+</style>
 </head>
 
 
 <body>
 
+
 <header class="header">
-  <a class="logo" href="#">CUT2</a>
-  <div class="header-note">ASSET REPRESENTATIONS</div>
+
+    <div class="header-left">
+        CUT2
+    </div>
+
+    <div class="header-right">
+        ASSET REPRESENTATIONS
+    </div>
+
 </header>
 
 
-<main>
+<section class="intro">
+
+    <div class="intro-title">
+        One project.<br>
+        Multiple platforms.
+    </div>
+
+</section>
 
 
-  <!-- INTRO -->
+<section class="asset-system">
 
-  <section class="intro">
+    <div class="asset-sticky">
 
-    <p class="eyebrow">
-      CUT2
-    </p>
-
-    <h1>
-      One project.<br>
-      Multiple platforms.
-    </h1>
-
-    <p class="intro-copy">
-      A project moves across different tools.
-      Its assets need to move with it.
-    </p>
-
-  </section>
+        <div class="asset-stage">
 
 
-  <!-- ASSET SYSTEM -->
+            <!-- ONE ASSET -->
 
-  <section class="asset-system">
+            <div class="one-asset" id="oneAsset">
 
-    <div class="sticky-stage">
+                <div class="one-asset-label">
+                    ONE ASSET
+                </div>
 
-      <div class="stage-label">
-        ONE ASSET
-      </div>
+                <img
+                    class="library-card"
+                    id="libraryCard"
+                    src="library-card.png"
+                    alt="CUT2 Asset Library card"
+                >
 
-      <div class="stage-counter">
-        <span id="counter">01</span> / 06
-      </div>
-
-
-      <div class="asset-scene">
+            </div>
 
 
-        <!-- ONE ASSET -->
+            <!-- VERTICAL TRANSITION -->
 
-        <div
-          class="library-card"
-          id="libraryCard">
+            <div
+                class="transition"
+                id="transition"
+            >
 
-          <img
-            src="assets/CUT2-PLANT-AMELANCHIER-LAMARCKII-001/library-card.png"
-            alt="CUT2 Asset Library card">
+                <div class="transition-arrow"></div>
+
+            </div>
+
+
+            <div
+                class="transition-label"
+                id="transitionLabel"
+            >
+                MULTIPLE REPRESENTATIONS
+            </div>
+
+
+            <!-- REPRESENTATION -->
+
+            <div
+                class="representation-system"
+                id="representationSystem"
+            >
+
+                <div
+                    class="representation"
+                    id="representation"
+                >
+
+                    <img
+                        id="representationImage"
+                        alt=""
+                    >
+
+                </div>
+
+            </div>
+
+
+            <!-- INFO -->
+
+            <div
+                class="rep-info"
+                id="repInfo"
+            >
+
+                <div
+                    class="rep-info-title"
+                    id="repTitle"
+                ></div>
+
+                <div
+                    class="rep-info-platform"
+                    id="repPlatform"
+                ></div>
+
+            </div>
+
 
         </div>
-
-
-        <div
-          class="one-asset-label"
-          id="oneAssetLabel">
-          ONE ASSET
-        </div>
-
-
-        <!-- TRANSITION -->
-
-        <div
-          class="transition-line"
-          id="transitionLine">
-
-          <div class="transition-arrow"></div>
-
-        </div>
-
-
-        <div
-          class="transition-label"
-          id="transitionLabel">
-          MULTIPLE REPRESENTATIONS
-        </div>
-
-
-        <!-- REPRESENTATIONS -->
-
-        <div
-          class="representation-stage"
-          id="representationStage">
-
-          <div
-            class="representation-object"
-            id="representationObject">
-
-            <img
-              id="representationImage"
-              src="assets/CUT2-PLANT-AMELANCHIER-LAMARCKII-001/autocad/minimal.svg"
-              alt="Asset representation">
-
-          </div>
-
-        </div>
-
-
-        <!-- INFORMATION -->
-
-        <div
-          class="representation-info"
-          id="representationInfo">
-
-          <div
-            class="representation-name"
-            id="representationName">
-            MINIMAL
-          </div>
-
-          <div
-            class="representation-platform"
-            id="representationPlatform">
-            AUTOCAD
-          </div>
-
-          <div
-            class="representation-description"
-            id="representationDescription">
-            Minimal plan representation.
-          </div>
-
-        </div>
-
-
-      </div>
-
-
-      <div
-        class="scroll-hint"
-        id="scrollHint"
-        style="
-          position:absolute;
-          bottom:30px;
-          left:50%;
-          transform:translateX(-50%);
-          color:var(--muted);
-        ">
-        SCROLL
-      </div>
 
     </div>
 
-  </section>
+</section>
 
 
-  <!-- NEXT -->
-
-  <section class="next">
-
-    <p class="eyebrow">
-      NEXT
-    </p>
+<section class="next-section">
 
     <h2>
-      The system<br>
-      continues.
+        The system continues.
     </h2>
 
-    <p>
-      One asset can exist in different representations,
-      while remaining the same design object.
-    </p>
-
-  </section>
-
-
-</main>
+</section>
 
 
 <script>
 
-  const system =
+
+/* =========================================================
+   REPRESENTATIONS
+========================================================= */
+
+const representations = [
+
+    {
+        title: "MINIMAL",
+        platform: "AutoCAD / DWG",
+        file: "autocad/minimal.svg"
+    },
+
+    {
+        title: "CONDITIONAL",
+        platform: "AutoCAD / DWG",
+        file: "autocad/conditional.svg"
+    },
+
+    {
+        title: "REALISTIC",
+        platform: "AutoCAD / DWG",
+        file: "autocad/realistic.svg"
+    },
+
+    {
+        title: "CONDITIONAL",
+        platform: "SketchUp",
+        file: "sketchup/conditional.png"
+    },
+
+    {
+        title: "REALISTIC FACE ME",
+        platform: "SketchUp",
+        file: "sketchup/realistic-face-me.png"
+    },
+
+    {
+        title: "IMAGE",
+        platform: "InDesign",
+        file: "indesign/image.jpg"
+    }
+
+];
+
+
+/* =========================================================
+   ELEMENTS
+========================================================= */
+
+const assetSystem =
     document.querySelector(".asset-system");
 
-  const libraryCard =
-    document.querySelector("#libraryCard");
+const oneAsset =
+    document.getElementById("oneAsset");
 
-  const oneAssetLabel =
-    document.querySelector("#oneAssetLabel");
+const libraryCard =
+    document.getElementById("libraryCard");
 
-  const transitionLine =
-    document.querySelector("#transitionLine");
+const transition =
+    document.getElementById("transition");
 
-  const transitionLabel =
-    document.querySelector("#transitionLabel");
+const transitionLabel =
+    document.getElementById("transitionLabel");
 
-  const representationStage =
-    document.querySelector("#representationStage");
+const representation =
+    document.getElementById("representation");
 
-  const representationObject =
-    document.querySelector("#representationObject");
+const representationImage =
+    document.getElementById("representationImage");
 
-  const representationImage =
-    document.querySelector("#representationImage");
+const repInfo =
+    document.getElementById("repInfo");
 
-  const info =
-    document.querySelector("#representationInfo");
+const repTitle =
+    document.getElementById("repTitle");
 
-  const name =
-    document.querySelector("#representationName");
-
-  const platform =
-    document.querySelector("#representationPlatform");
-
-  const description =
-    document.querySelector("#representationDescription");
-
-  const counter =
-    document.querySelector("#counter");
-
-  const scrollHint =
-    document.querySelector("#scrollHint");
+const repPlatform =
+    document.getElementById("repPlatform");
 
 
-  /*
-    Six actual representations.
-  */
+/* =========================================================
+   LIBRARY CARD ERROR
+========================================================= */
 
-  const representations = [
+libraryCard.addEventListener("error", function() {
 
-    {
-      name: "MINIMAL",
-      platform: "AUTOCAD",
-      description:
-        "Minimal plan representation.",
-      image:
-        "assets/CUT2-PLANT-AMELANCHIER-LAMARCKII-001/autocad/minimal.svg"
-    },
+    console.error(
+        "LIBRARY CARD NOT FOUND:",
+        libraryCard.src
+    );
 
-    {
-      name: "CONDITIONAL",
-      platform: "AUTOCAD",
-      description:
-        "Conditional plan representation.",
-      image:
-        "assets/CUT2-PLANT-AMELANCHIER-LAMARCKII-001/autocad/conditional.svg"
-    },
+    libraryCard.style.display = "none";
 
-    {
-      name: "REALISTIC",
-      platform: "AUTOCAD",
-      description:
-        "Realistic plan representation.",
-      image:
-        "assets/CUT2-PLANT-AMELANCHIER-LAMARCKII-001/autocad/realistic.svg"
-    },
+    const error =
+        document.createElement("div");
 
-    {
-      name: "CONDITIONAL",
-      platform: "SKETCHUP",
-      description:
-        "Conditional three-dimensional representation.",
-      image:
-        "assets/CUT2-PLANT-AMELANCHIER-LAMARCKII-001/sketchup/conditional.png"
-    },
+    error.className = "image-error";
 
-    {
-      name: "REALISTIC FACE ME",
-      platform: "SKETCHUP",
-      description:
-        "Realistic Face Me representation.",
-      image:
-        "assets/CUT2-PLANT-AMELANCHIER-LAMARCKII-001/sketchup/realistic-face-me.png"
-    },
+    error.innerHTML = `
+        <div class="image-error-title">
+            IMAGE NOT FOUND
+        </div>
 
-    {
-      name: "IMAGE",
-      platform: "INDESIGN",
-      description:
-        "Presentation representation.",
-      image:
-        "assets/CUT2-PLANT-AMELANCHIER-LAMARCKII-001/indesign/image.jpg"
+        <div class="image-error-path">
+            library-card.png
+        </div>
+    `;
+
+    oneAsset.appendChild(error);
+
+});
+
+
+/* =========================================================
+   LOAD REPRESENTATION
+========================================================= */
+
+let currentIndex = -1;
+
+
+function showRepresentation(index) {
+
+    if (index === currentIndex) {
+        return;
     }
 
-  ];
+    currentIndex = index;
 
+    const item =
+        representations[index];
 
-  function clamp(value, min = 0, max = 1) {
+    representationImage.style.display =
+        "block";
 
-    return Math.min(
-      max,
-      Math.max(min, value)
+    representationImage.src =
+        item.file;
+
+    representationImage.alt =
+        item.title;
+
+    representation.classList.remove(
+        "image-error"
     );
 
-  }
+    repTitle.textContent =
+        item.title;
+
+    repPlatform.textContent =
+        item.platform;
 
 
-  function ease(value) {
+    representationImage.onerror =
+        function() {
 
-    return value * value * (3 - 2 * value);
+            console.error(
+                "REPRESENTATION NOT FOUND:",
+                item.file
+            );
 
-  }
+            representationImage.style.display =
+                "none";
+
+            representation.classList.add(
+                "image-error"
+            );
+
+            representation.innerHTML = `
+
+                <div class="image-error-title">
+                    IMAGE NOT FOUND
+                </div>
+
+                <div class="image-error-path">
+                    ${item.file}
+                </div>
+
+            `;
+        };
 
 
-  function sectionProgress() {
+    /*
+       Restore image element if it had
+       previously been replaced by an error.
+    */
 
-    const start =
-      system.offsetTop;
+    if (
+        !representation.contains(
+            representationImage
+        )
+    ) {
 
-    const range =
-      system.offsetHeight -
-      window.innerHeight;
+        representation.innerHTML = "";
 
-    return clamp(
-      (window.scrollY - start) / range
+        representation.appendChild(
+            representationImage
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   CLAMP
+========================================================= */
+
+function clamp(
+    value,
+    min,
+    max
+) {
+
+    return Math.max(
+        min,
+        Math.min(max, value)
     );
 
-  }
+}
 
 
-  function update() {
+/* =========================================================
+   SCROLL ANIMATION
+========================================================= */
 
-    const p =
-      sectionProgress();
+function update() {
 
+    const rect =
+        assetSystem.getBoundingClientRect();
 
-    /*
-      --------------------------------------------------
-      PHASE 1
-      ONE ASSET
-      --------------------------------------------------
-    */
+    const scrollDistance =
+        assetSystem.offsetHeight -
+        window.innerHeight;
 
-    const assetPhase =
-      clamp(p / 0.18);
-
-
-    /*
-      Card remains visible first,
-      then moves upward and disappears.
-    */
-
-    const cardMove =
-      ease(
+    const progress =
         clamp(
-          (assetPhase - 0.32) / 0.38
-        )
-      );
+            -rect.top /
+            scrollDistance,
+            0,
+            1
+        );
 
-    const cardY =
-      -cardMove * 115;
 
+    /* -----------------------------------------
+       ONE ASSET
+    ----------------------------------------- */
 
-    const cardOpacity =
-      1 -
-      ease(
+    const assetFadeStart = 0.10;
+    const assetFadeEnd = 0.25;
+
+    let assetOpacity = 1;
+
+    if (
+        progress >
+        assetFadeStart
+    ) {
+
+        assetOpacity =
+            1 -
+            (
+                progress -
+                assetFadeStart
+            ) /
+            (
+                assetFadeEnd -
+                assetFadeStart
+            );
+
+    }
+
+    oneAsset.style.opacity =
         clamp(
-          (assetPhase - 0.55) / 0.30
-        )
-      );
+            assetOpacity,
+            0,
+            1
+        );
 
 
-    libraryCard.style.opacity =
-      String(cardOpacity);
+    /* -----------------------------------------
+       VERTICAL ARROW
+    ----------------------------------------- */
 
-    libraryCard.style.transform =
-      `
-        translate(-50%, calc(-50% + ${cardY}px))
-      `;
+    const transitionStart = 0.10;
+    const transitionEnd = 0.30;
 
+    let transitionProgress =
+        (
+            progress -
+            transitionStart
+        ) /
+        (
+            transitionEnd -
+            transitionStart
+        );
 
-    /*
-      ONE ASSET label follows the card
-      and disappears with it.
-    */
-
-    const labelOpacity =
-      1 -
-      ease(
+    transitionProgress =
         clamp(
-          (assetPhase - 0.50) / 0.28
-        )
-      );
-
-    oneAssetLabel.style.opacity =
-      String(labelOpacity);
+            transitionProgress,
+            0,
+            1
+        );
 
 
-    /*
-      --------------------------------------------------
-      PHASE 2
-      LINE → MULTIPLE REPRESENTATIONS
-      --------------------------------------------------
-    */
-
-    const transitionStart =
-      0.11;
-
-    const transitionEnd =
-      0.25;
-
-    const transitionProgress =
-      ease(
-        clamp(
-          (p - transitionStart) /
-          (transitionEnd - transitionStart)
-        )
-      );
+    transition.style.height =
+        `${transitionProgress * 150}px`;
 
 
-    /*
-      Line travels from the card
-      toward the final label.
-    */
+    /* -----------------------------------------
+       TRANSITION LABEL
+    ----------------------------------------- */
 
-    transitionLine.style.opacity =
-      String(
-        transitionProgress *
-        (1 -
-          ease(
-            clamp(
-              (p - 0.22) / 0.08
-            )
-          )
-        )
-      );
+    let labelOpacity = 0;
 
+    if (progress > 0.24) {
 
-    transitionLine.style.width =
-      `${transitionProgress * 230}px`;
+        labelOpacity =
+            (
+                progress -
+                0.24
+            ) / 0.08;
 
-
-    /*
-      Label appears only after
-      the line reaches it.
-    */
-
-    const labelProgress =
-      ease(
-        clamp(
-          (p - 0.20) / 0.10
-        )
-      );
-
+    }
 
     transitionLabel.style.opacity =
-      String(
-        labelProgress *
-        (1 -
-          ease(
-            clamp(
-              (p - 0.29) / 0.07
-            )
-          )
-        )
-      );
-
-
-    /*
-      --------------------------------------------------
-      PHASE 3
-      REPRESENTATIONS
-      --------------------------------------------------
-    */
-
-    const representationStart =
-      0.30;
-
-    const representationEnd =
-      0.92;
-
-    const representationProgress =
-      clamp(
-        (p - representationStart) /
-        (representationEnd - representationStart)
-      );
-
-
-    /*
-      Representation stage appears
-      after the transition.
-    */
-
-    const stageOpacity =
-      ease(
         clamp(
-          (p - 0.28) / 0.07
-        )
-      ) *
-      (
-        1 -
-        ease(
-          clamp(
-            (p - 0.91) / 0.06
-          )
-        )
-      );
+            labelOpacity,
+            0,
+            1
+        );
 
 
-    representationStage.style.opacity =
-      String(stageOpacity);
+    /* -----------------------------------------
+       REPRESENTATIONS
+    ----------------------------------------- */
 
+    const representationsStart = 0.30;
+    const representationsEnd = 0.94;
 
-    /*
-      Determine current representation.
-    */
-
-    const stageCount =
-      representations.length;
-
-    const stageLength =
-      1 / stageCount;
-
-    let stage =
-      Math.floor(
-        representationProgress /
-        stageLength
-      );
-
-    stage =
-      Math.min(
-        stage,
-        stageCount - 1
-      );
-
-
-    const localProgress =
-      clamp(
+    let repProgress =
         (
-          representationProgress -
-          stage * stageLength
+            progress -
+            representationsStart
         ) /
-        stageLength
-      );
+        (
+            representationsEnd -
+            representationsStart
+        );
+
+    repProgress =
+        clamp(
+            repProgress,
+            0,
+            1
+        );
 
 
-    const current =
-      representations[stage];
+    const count =
+        representations.length;
 
 
-    /*
-      Swap the actual file when
-      the plane is edge-on.
+    let index =
+        Math.floor(
+            repProgress * count
+        );
 
-      0° → front
-      180° → edge
-      360° → front
-    */
 
-    const half =
-      localProgress < 0.5;
+    if (index >= count) {
+        index = count - 1;
+    }
 
+
+    if (repProgress > 0) {
+
+        showRepresentation(index);
+
+    }
+
+
+    /* -----------------------------------------
+       ROTATION
+    ----------------------------------------- */
 
     const rotation =
-      localProgress * 360;
+        repProgress * 360;
 
 
-    representationObject.style.transform =
-      `
+    representation.style.transform =
+        `
         translate(-50%, -50%)
         rotateY(${rotation}deg)
-      `;
+        `;
 
 
-    /*
-      Change source around the invisible
-      back side of the rotation.
-    */
+    /* -----------------------------------------
+       INFO
+    ----------------------------------------- */
 
-    if (
-      representationImage.dataset.stage !==
-      String(stage)
-    ) {
+    let infoOpacity = 0;
 
-      if (localProgress > 0.45) {
+    if (progress > 0.34) {
 
-        representationImage.src =
-          current.image;
-
-        representationImage.dataset.stage =
-          String(stage);
-
-      }
+        infoOpacity =
+            (
+                progress -
+                0.34
+            ) / 0.08;
 
     }
 
-
-    /*
-      First representation needs to be
-      loaded immediately.
-    */
-
-    if (
-      !representationImage.dataset.stage &&
-      stage === 0
-    ) {
-
-      representationImage.src =
-        current.image;
-
-      representationImage.dataset.stage =
-        "0";
-
-    }
-
-
-    /*
-      Information changes with the
-      representation.
-    */
-
-    name.textContent =
-      current.name;
-
-    platform.textContent =
-      current.platform;
-
-    description.textContent =
-      current.description;
-
-    counter.textContent =
-      String(stage + 1).padStart(2, "0");
-
-
-    /*
-      Fade information slightly near
-      every transition.
-    */
-
-    const infoFadeIn =
-      ease(
+    repInfo.style.opacity =
         clamp(
-          localProgress / 0.12
-        )
-      );
+            infoOpacity,
+            0,
+            1
+        );
 
-    const infoFadeOut =
-      1 -
-      ease(
-        clamp(
-          (localProgress - 0.82) / 0.18
-        )
-      );
+}
 
 
-    info.style.opacity =
-      String(
-        infoFadeIn *
-        infoFadeOut *
-        stageOpacity
-      );
+/* =========================================================
+   EVENTS
+========================================================= */
 
-
-    /*
-      --------------------------------------------------
-      SCROLL HINT
-      --------------------------------------------------
-    */
-
-    scrollHint.style.opacity =
-      String(
-        1 -
-        ease(
-          clamp(
-            p / 0.06
-          )
-        )
-      );
-
-  }
-
-
-  let ticking = false;
-
-
-  function requestUpdate() {
-
-    if (!ticking) {
-
-      requestAnimationFrame(() => {
-
-        update();
-
-        ticking = false;
-
-      });
-
-      ticking = true;
-
-    }
-
-  }
-
-
-  window.addEventListener(
+window.addEventListener(
     "scroll",
-    requestUpdate,
+    update,
     { passive: true }
-  );
+);
 
-
-  window.addEventListener(
+window.addEventListener(
     "resize",
-    requestUpdate
-  );
+    update
+);
 
 
-  update();
+/* INITIAL */
+
+update();
+
 
 </script>
 
 </body>
 </html>
+```
+
+После коммита обнови страницу с **Ctrl+F5**. Если структура действительно такая, картинки теперь должны подхватиться по относительным путям `library-card.png`, `autocad/...`, `sketchup/...`, `indesign/...`.
