@@ -25,10 +25,6 @@
       overflow-x: hidden;
     }
 
-    /* --------------------------------------------------
-       HEADER
-    -------------------------------------------------- */
-
     header {
       position: fixed;
       top: 0;
@@ -50,19 +46,12 @@
 
     .logo {
       font-size: 16px;
-      font-weight: 500;
     }
 
     .header-title {
       font-size: 12px;
       text-transform: uppercase;
-      letter-spacing: 0.04em;
     }
-
-
-    /* --------------------------------------------------
-       INTRO
-    -------------------------------------------------- */
 
     .intro {
       min-height: 100vh;
@@ -75,13 +64,8 @@
       text-align: center;
     }
 
-
-    /* --------------------------------------------------
-       ANIMATION SECTION
-    -------------------------------------------------- */
-
     .asset-system {
-      height: 500vh;
+      height: 650vh;
       position: relative;
     }
 
@@ -98,10 +82,7 @@
       overflow: hidden;
     }
 
-
-    /* --------------------------------------------------
-       ASSET CARD
-    -------------------------------------------------- */
+    /* ASSET CARD */
 
     .asset-card {
       position: absolute;
@@ -112,16 +93,12 @@
       top: 50%;
 
       transform: translate(-50%, -50%);
-
-      transition: opacity 0.1s linear;
     }
 
     .asset-card img {
       display: block;
-
       width: 100%;
       height: auto;
-
       border: 1px solid #000;
     }
 
@@ -130,13 +107,9 @@
 
       font-size: 12px;
       text-transform: uppercase;
-      letter-spacing: 0.04em;
     }
 
-
-    /* --------------------------------------------------
-       CONNECTOR
-    -------------------------------------------------- */
+    /* CONNECTOR */
 
     .connector {
       position: absolute;
@@ -169,10 +142,7 @@
       transform: translate(-50%, 50%) rotate(45deg);
     }
 
-
-    /* --------------------------------------------------
-       MULTIPLE REPRESENTATIONS
-    -------------------------------------------------- */
+    /* LABEL */
 
     .multiple-label {
       position: absolute;
@@ -190,10 +160,7 @@
       opacity: 0;
     }
 
-
-    /* --------------------------------------------------
-       REPRESENTATION
-    -------------------------------------------------- */
+    /* REPRESENTATIONS */
 
     .representation {
       position: absolute;
@@ -201,22 +168,29 @@
       left: 50%;
       top: 50%;
 
-      width: min(520px, 70vw);
+      width: min(620px, 76vw);
 
       transform-style: preserve-3d;
       transform-origin: center center;
 
       opacity: 0;
-      perspective: 1200px;
+      pointer-events: none;
     }
 
-    .representation img {
+    .representation-image {
+      width: 100%;
+      height: min(58vh, 620px);
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .representation-image img {
       display: block;
 
       width: 100%;
-      height: auto;
-
-      max-height: 60vh;
+      height: 100%;
 
       object-fit: contain;
     }
@@ -229,13 +203,7 @@
 
       font-size: 12px;
       text-transform: uppercase;
-      letter-spacing: 0.04em;
     }
-
-
-    /* --------------------------------------------------
-       NEXT SECTION
-    -------------------------------------------------- */
 
     .next {
       min-height: 100vh;
@@ -250,250 +218,409 @@
       text-align: center;
     }
 
+    /* --------------------------------------------------
+       MOBILE
+    -------------------------------------------------- */
+
+    @media (max-width: 700px) {
+
+      header {
+        height: 52px;
+        padding: 0 16px;
+      }
+
+      .header-title {
+        font-size: 10px;
+      }
+
+      .intro {
+        min-height: 100svh;
+        padding: 20px;
+
+        font-size: 26px;
+      }
+
+      .asset-system {
+        height: 600vh;
+      }
+
+      .sticky-stage {
+        height: 100svh;
+      }
+
+      .asset-card {
+        width: min(300px, 76vw);
+      }
+
+      .multiple-label {
+        width: 90vw;
+
+        white-space: normal;
+
+        text-align: center;
+
+        font-size: 20px;
+        line-height: 1.2;
+      }
+
+      .representation {
+        width: 86vw;
+      }
+
+      .representation-image {
+        height: 48svh;
+      }
+
+      .representation-info {
+        font-size: 10px;
+        margin-top: 12px;
+      }
+
+      .next {
+        min-height: 100svh;
+        padding: 20px;
+
+        font-size: 26px;
+      }
+    }
+
   </style>
 </head>
 
 
 <body>
 
-  <header>
-    <div class="logo">CUT2</div>
-    <div class="header-title">Asset Representations</div>
-  </header>
+<header>
+  <div class="logo">CUT2</div>
+  <div class="header-title">Asset Representations</div>
+</header>
 
 
-  <main>
+<main>
 
-    <!-- INTRO -->
+  <section class="intro">
+    <div>
+      ONE PROJECT.<br>
+      MULTIPLE PLATFORMS.
+    </div>
+  </section>
 
-    <section class="intro">
-      <div>
-        ONE PROJECT.<br>
-        MULTIPLE PLATFORMS.
+
+  <section class="asset-system">
+
+    <div class="sticky-stage">
+
+      <!-- ASSET -->
+
+      <div class="asset-card" id="assetCard">
+
+        <img
+          src="asset-representations/library-card.png"
+          alt="CUT2 Asset Library"
+        >
+
+        <div class="asset-label">
+          ONE ASSET
+        </div>
+
       </div>
-    </section>
 
 
-    <!-- ASSET SYSTEM -->
+      <!-- CONNECTOR -->
 
-    <section class="asset-system">
-
-      <div class="sticky-stage">
-
-        <!-- ASSET LIBRARY CARD -->
-
-        <div class="asset-card" id="assetCard">
-
-          <img
-            src="asset-representations/library-card.png"
-            alt="CUT2 Asset Library"
-          >
-
-          <div class="asset-label">
-            ONE ASSET
-          </div>
-
-        </div>
+      <div class="connector" id="connector">
+        <div class="connector-arrow"></div>
+      </div>
 
 
-        <!-- CONNECTOR -->
+      <!-- LABEL -->
 
-        <div class="connector" id="connector">
-          <div class="connector-arrow"></div>
-        </div>
-
-
-        <!-- MULTIPLE REPRESENTATIONS -->
-
-        <div
-          class="multiple-label"
-          id="multipleLabel"
-        >
-          MULTIPLE REPRESENTATIONS
-        </div>
+      <div
+        class="multiple-label"
+        id="multipleLabel"
+      >
+        MULTIPLE REPRESENTATIONS
+      </div>
 
 
-        <!-- REPRESENTATION -->
+      <!-- REPRESENTATION -->
 
-        <div
-          class="representation"
-          id="representation"
-        >
+      <div
+        class="representation"
+        id="representation"
+      >
 
+        <div class="representation-image">
           <img
             id="representationImage"
             src="asset-representations/autocad/minimal.svg"
             alt="AutoCAD Minimal"
           >
+        </div>
 
-          <div class="representation-info">
-            <span>AUTOCAD</span>
-            <span>MINIMAL</span>
-          </div>
+        <div class="representation-info">
+          <span id="representationPlatform">
+            AUTOCAD
+          </span>
 
+          <span id="representationType">
+            MINIMAL
+          </span>
         </div>
 
       </div>
 
-    </section>
+    </div>
+
+  </section>
 
 
-    <!-- NEXT -->
+  <section class="next">
+    THE SYSTEM CONTINUES.
+  </section>
 
-    <section class="next">
-      THE SYSTEM CONTINUES.
-    </section>
-
-  </main>
+</main>
 
 
-  <script>
+<script>
 
-    const assetCard = document.getElementById("assetCard");
-    const connector = document.getElementById("connector");
-    const multipleLabel = document.getElementById("multipleLabel");
-    const representation = document.getElementById("representation");
+  const assetCard =
+    document.getElementById("assetCard");
+
+  const connector =
+    document.getElementById("connector");
+
+  const multipleLabel =
+    document.getElementById("multipleLabel");
+
+  const representation =
+    document.getElementById("representation");
+
+  const representationImage =
+    document.getElementById("representationImage");
+
+  const representationPlatform =
+    document.getElementById("representationPlatform");
+
+  const representationType =
+    document.getElementById("representationType");
 
 
-    function clamp(value, min, max) {
-      return Math.max(min, Math.min(max, value));
+  const representations = [
+
+    {
+      platform: "AUTOCAD",
+      type: "MINIMAL",
+      src: "asset-representations/autocad/minimal.svg"
+    },
+
+    {
+      platform: "AUTOCAD",
+      type: "CONDITIONAL",
+      src: "asset-representations/autocad/conditional.svg"
+    },
+
+    {
+      platform: "AUTOCAD",
+      type: "REALISTIC",
+      src: "asset-representations/autocad/realistic.svg"
+    },
+
+    {
+      platform: "SKETCHUP",
+      type: "CONDITIONAL",
+      src: "asset-representations/sketchup/conditional.png"
+    },
+
+    {
+      platform: "SKETCHUP",
+      type: "REALISTIC FACE ME",
+      src: "asset-representations/sketchup/realistic-face-me.png"
+    },
+
+    {
+      platform: "INDESIGN",
+      type: "IMAGE",
+      src: "asset-representations/indesign/image.jpg"
     }
 
-
-    function updateAnimation() {
-
-      const section = document.querySelector(".asset-system");
-
-      const rect = section.getBoundingClientRect();
-
-      const scrollable =
-        section.offsetHeight - window.innerHeight;
-
-      const passed =
-        clamp(-rect.top, 0, scrollable);
-
-      const progress =
-        passed / scrollable;
+  ];
 
 
-      /* ----------------------------------------------
-         PHASE 1
-         Asset card
-      ---------------------------------------------- */
+  function clamp(value, min, max) {
+    return Math.max(min, Math.min(max, value));
+  }
 
-      const cardStart = 0.00;
-      const cardEnd = 0.16;
 
-      const cardProgress =
-        clamp(
-          (progress - cardStart) /
-          (cardEnd - cardStart),
-          0,
-          1
+  function updateAnimation() {
+
+    const section =
+      document.querySelector(".asset-system");
+
+    const rect =
+      section.getBoundingClientRect();
+
+    const scrollable =
+      section.offsetHeight - window.innerHeight;
+
+    const passed =
+      clamp(-rect.top, 0, scrollable);
+
+    const progress =
+      passed / scrollable;
+
+
+    /* ----------------------------------------------
+       ASSET CARD
+    ---------------------------------------------- */
+
+    const cardProgress =
+      clamp(
+        progress / 0.16,
+        0,
+        1
+      );
+
+    const cardY =
+      -cardProgress * 140;
+
+    assetCard.style.transform =
+      `translate(-50%, calc(-50% + ${cardY}px))`;
+
+    assetCard.style.opacity =
+      1 - cardProgress;
+
+
+    /* ----------------------------------------------
+       CONNECTOR
+    ---------------------------------------------- */
+
+    const connectorProgress =
+      clamp(
+        (progress - 0.10) / 0.14,
+        0,
+        1
+      );
+
+    connector.style.height =
+      `${connectorProgress * 150}px`;
+
+    connector.style.opacity =
+      progress < 0.28
+        ? connectorProgress
+        : 0;
+
+
+    /* ----------------------------------------------
+       MULTIPLE REPRESENTATIONS
+    ---------------------------------------------- */
+
+    const labelProgress =
+      clamp(
+        (progress - 0.23) / 0.11,
+        0,
+        1
+      );
+
+    multipleLabel.style.opacity =
+      labelProgress;
+
+
+    /* ----------------------------------------------
+       REPRESENTATIONS
+    ---------------------------------------------- */
+
+    const representationStart = 0.34;
+    const representationEnd = 0.94;
+
+    const representationProgress =
+      clamp(
+        (progress - representationStart) /
+        (representationEnd - representationStart),
+        0,
+        1
+      );
+
+
+    if (representationProgress > 0) {
+
+      representation.style.opacity = 1;
+
+
+      /*
+        Six representations.
+        Each gets an equal portion of
+        the animation.
+      */
+
+      const count =
+        representations.length;
+
+      const exactIndex =
+        representationProgress * count;
+
+      const index =
+        Math.min(
+          count - 1,
+          Math.floor(exactIndex)
         );
 
-      const cardY =
-        -cardProgress * 140;
 
-      assetCard.style.transform =
-        `translate(-50%, calc(-50% + ${cardY}px))`;
-
-      assetCard.style.opacity =
-        1 - cardProgress;
+      const localProgress =
+        exactIndex - index;
 
 
-      /* ----------------------------------------------
-         PHASE 2
-         Connector
-      ---------------------------------------------- */
-
-      const connectorStart = 0.10;
-      const connectorEnd = 0.24;
-
-      const connectorProgress =
-        clamp(
-          (progress - connectorStart) /
-          (connectorEnd - connectorStart),
-          0,
-          1
-        );
-
-      connector.style.height =
-        `${connectorProgress * 150}px`;
-
-      connector.style.opacity =
-        connectorProgress;
+      const current =
+        representations[index];
 
 
-      /* ----------------------------------------------
-         PHASE 3
-         Multiple representations
-      ---------------------------------------------- */
+      representationImage.src =
+        current.src;
 
-      const labelStart = 0.23;
-      const labelEnd = 0.34;
+      representationPlatform.textContent =
+        current.platform;
 
-      const labelProgress =
-        clamp(
-          (progress - labelStart) /
-          (labelEnd - labelStart),
-          0,
-          1
-        );
-
-      multipleLabel.style.opacity =
-        labelProgress;
+      representationType.textContent =
+        current.type;
 
 
-      /* ----------------------------------------------
-         PHASE 4
-         Representation
-      ---------------------------------------------- */
+      /*
+        Rotate from -90° to +90°
+        during each representation.
+      */
 
-      const representationStart = 0.34;
+      const rotation =
+        -90 + localProgress * 180;
 
-      const representationProgress =
-        clamp(
-          (progress - representationStart) /
-          0.20,
-          0,
-          1
-        );
 
       const scale =
-        0.8 + representationProgress * 0.2;
+        0.9 +
+        Math.sin(localProgress * Math.PI) * 0.1;
 
-      const rotate =
-        -90 + representationProgress * 90;
-
-      representation.style.opacity =
-        representationProgress;
 
       representation.style.transform =
         `
           translate(-50%, -50%)
           perspective(1200px)
-          rotateY(${rotate}deg)
+          rotateY(${rotation}deg)
           scale(${scale})
         `;
 
+    } else {
 
-      /* ----------------------------------------------
-         CONNECTOR DISAPPEARS
-      ---------------------------------------------- */
+      representation.style.opacity = 0;
 
-      if (progress > 0.28) {
-        connector.style.opacity = 0;
-      }
-
-
-      requestAnimationFrame(updateAnimation);
     }
 
 
-    updateAnimation();
+    requestAnimationFrame(updateAnimation);
 
-  </script>
+  }
+
+
+  updateAnimation();
+
+</script>
 
 </body>
 </html>
