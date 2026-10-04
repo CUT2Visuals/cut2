@@ -30,6 +30,7 @@ body {
     overflow-x: hidden;
 }
 
+
 /* HEADER */
 
 .header {
@@ -77,12 +78,12 @@ body {
 
 .intro-title {
     font-size: clamp(32px, 5vw, 72px);
-    text-align: center;
     line-height: 1.05;
+    text-align: center;
 }
 
 
-/* ASSET SYSTEM */
+/* MAIN ANIMATION */
 
 .asset-system {
     height: 560vh;
@@ -127,31 +128,31 @@ body {
 }
 
 .library-card {
+    display: block;
+
     width: min(420px, 65vw);
     height: auto;
 
-    display: block;
-
     border: 1px solid #111;
-
-    background: #f3f0e8;
 }
 
 
-/* VERTICAL TRANSITION */
+/* TRANSITION */
 
 .transition {
     position: absolute;
 
-    top: calc(50% + 130px);
+    top: calc(50% + 135px);
     left: 50%;
 
     width: 1px;
     height: 0;
 
+    background: #111;
+
     transform: translateX(-50%);
 
-    background: #111;
+    opacity: 1;
 
     z-index: 5;
 }
@@ -165,10 +166,12 @@ body {
     width: 10px;
     height: 10px;
 
-    transform: translateX(-50%) rotate(45deg);
-
     border-right: 1px solid #111;
     border-bottom: 1px solid #111;
+
+    transform:
+        translateX(-50%)
+        rotate(45deg);
 }
 
 .transition-label {
@@ -212,20 +215,22 @@ body {
     width: min(500px, 70vw);
     height: min(500px, 70vw);
 
-    transform: translate(-50%, -50%);
-
-    transform-style: preserve-3d;
-
     display: flex;
     align-items: center;
     justify-content: center;
+
+    transform:
+        translate(-50%, -50%)
+        rotateY(0deg);
+
+    transform-style: preserve-3d;
 }
 
 .representation img {
+    display: block;
+
     max-width: 100%;
     max-height: 100%;
-
-    display: block;
 
     object-fit: contain;
 }
@@ -236,12 +241,12 @@ body {
 .rep-info {
     position: absolute;
 
-    left: calc(50% + min(300px, 32vw));
     top: 50%;
-
-    transform: translateY(-50%);
+    left: calc(50% + min(300px, 32vw));
 
     width: 220px;
+
+    transform: translateY(-50%);
 
     font-size: 12px;
     line-height: 1.4;
@@ -256,38 +261,11 @@ body {
 }
 
 .rep-info-platform {
-    opacity: 0.55;
-}
-
-
-/* ERROR */
-
-.image-error {
-    width: min(500px, 70vw);
-
-    padding: 30px;
-
-    border: 1px solid #111;
-
-    font-size: 11px;
-
-    text-align: center;
-}
-
-.image-error-title {
-    margin-bottom: 12px;
-
-    font-size: 14px;
-}
-
-.image-error-path {
     opacity: 0.5;
-
-    word-break: break-all;
 }
 
 
-/* NEXT SECTION */
+/* NEXT */
 
 .next-section {
     min-height: 100vh;
@@ -343,7 +321,10 @@ body {
 
             <!-- ONE ASSET -->
 
-            <div class="one-asset" id="oneAsset">
+            <div
+                class="one-asset"
+                id="oneAsset"
+            >
 
                 <div class="one-asset-label">
                     ONE ASSET
@@ -352,14 +333,14 @@ body {
                 <img
                     class="library-card"
                     id="libraryCard"
-                    src="library-card.png"
-                    alt="CUT2 Asset Library card"
+                    src="asset-representations/library-card.png"
+                    alt="CUT2 Asset Library"
                 >
 
             </div>
 
 
-            <!-- VERTICAL TRANSITION -->
+            <!-- TRANSITION -->
 
             <div
                 class="transition"
@@ -383,7 +364,6 @@ body {
 
             <div
                 class="representation-system"
-                id="representationSystem"
             >
 
                 <div
@@ -449,37 +429,37 @@ const representations = [
     {
         title: "MINIMAL",
         platform: "AutoCAD / DWG",
-        file: "autocad/minimal.svg"
+        file: "asset-representations/autocad/minimal.svg"
     },
 
     {
         title: "CONDITIONAL",
         platform: "AutoCAD / DWG",
-        file: "autocad/conditional.svg"
+        file: "asset-representations/autocad/conditional.svg"
     },
 
     {
         title: "REALISTIC",
         platform: "AutoCAD / DWG",
-        file: "autocad/realistic.svg"
+        file: "asset-representations/autocad/realistic.svg"
     },
 
     {
         title: "CONDITIONAL",
         platform: "SketchUp",
-        file: "sketchup/conditional.png"
+        file: "asset-representations/sketchup/conditional.png"
     },
 
     {
         title: "REALISTIC FACE ME",
         platform: "SketchUp",
-        file: "sketchup/realistic-face-me.png"
+        file: "asset-representations/sketchup/realistic-face-me.png"
     },
 
     {
         title: "IMAGE",
         platform: "InDesign",
-        file: "indesign/image.jpg"
+        file: "asset-representations/indesign/image.jpg"
     }
 
 ];
@@ -494,9 +474,6 @@ const assetSystem =
 
 const oneAsset =
     document.getElementById("oneAsset");
-
-const libraryCard =
-    document.getElementById("libraryCard");
 
 const transition =
     document.getElementById("transition");
@@ -521,125 +498,20 @@ const repPlatform =
 
 
 /* =========================================================
-   LIBRARY CARD ERROR
+   IMAGE DEBUG
 ========================================================= */
 
-libraryCard.addEventListener("error", function() {
+representationImage.addEventListener(
+    "error",
+    function () {
 
-    console.error(
-        "LIBRARY CARD NOT FOUND:",
-        libraryCard.src
-    );
-
-    libraryCard.style.display = "none";
-
-    const error =
-        document.createElement("div");
-
-    error.className = "image-error";
-
-    error.innerHTML = `
-        <div class="image-error-title">
-            IMAGE NOT FOUND
-        </div>
-
-        <div class="image-error-path">
-            library-card.png
-        </div>
-    `;
-
-    oneAsset.appendChild(error);
-
-});
-
-
-/* =========================================================
-   LOAD REPRESENTATION
-========================================================= */
-
-let currentIndex = -1;
-
-
-function showRepresentation(index) {
-
-    if (index === currentIndex) {
-        return;
-    }
-
-    currentIndex = index;
-
-    const item =
-        representations[index];
-
-    representationImage.style.display =
-        "block";
-
-    representationImage.src =
-        item.file;
-
-    representationImage.alt =
-        item.title;
-
-    representation.classList.remove(
-        "image-error"
-    );
-
-    repTitle.textContent =
-        item.title;
-
-    repPlatform.textContent =
-        item.platform;
-
-
-    representationImage.onerror =
-        function() {
-
-            console.error(
-                "REPRESENTATION NOT FOUND:",
-                item.file
-            );
-
-            representationImage.style.display =
-                "none";
-
-            representation.classList.add(
-                "image-error"
-            );
-
-            representation.innerHTML = `
-
-                <div class="image-error-title">
-                    IMAGE NOT FOUND
-                </div>
-
-                <div class="image-error-path">
-                    ${item.file}
-                </div>
-
-            `;
-        };
-
-
-    /*
-       Restore image element if it had
-       previously been replaced by an error.
-    */
-
-    if (
-        !representation.contains(
-            representationImage
-        )
-    ) {
-
-        representation.innerHTML = "";
-
-        representation.appendChild(
-            representationImage
+        console.error(
+            "CUT2 image failed:",
+            representationImage.src
         );
 
     }
-
-}
+);
 
 
 /* =========================================================
@@ -661,7 +533,42 @@ function clamp(
 
 
 /* =========================================================
-   SCROLL ANIMATION
+   SHOW REPRESENTATION
+========================================================= */
+
+let currentIndex = -1;
+
+
+function showRepresentation(index) {
+
+    if (
+        index === currentIndex
+    ) {
+        return;
+    }
+
+    currentIndex = index;
+
+    const item =
+        representations[index];
+
+    representationImage.src =
+        item.file;
+
+    representationImage.alt =
+        item.title;
+
+    repTitle.textContent =
+        item.title;
+
+    repPlatform.textContent =
+        item.platform;
+
+}
+
+
+/* =========================================================
+   UPDATE
 ========================================================= */
 
 function update() {
@@ -686,105 +593,120 @@ function update() {
        ONE ASSET
     ----------------------------------------- */
 
-    const assetFadeStart = 0.10;
-    const assetFadeEnd = 0.25;
+    const assetStart = 0.08;
+    const assetEnd = 0.25;
 
-    let assetOpacity = 1;
+    let assetOpacity =
+        1 -
+        (
+            progress -
+            assetStart
+        ) /
+        (
+            assetEnd -
+            assetStart
+        );
 
-    if (
-        progress >
-        assetFadeStart
-    ) {
-
-        assetOpacity =
-            1 -
-            (
-                progress -
-                assetFadeStart
-            ) /
-            (
-                assetFadeEnd -
-                assetFadeStart
-            );
-
-    }
-
-    oneAsset.style.opacity =
+    assetOpacity =
         clamp(
             assetOpacity,
             0,
             1
         );
 
+    oneAsset.style.opacity =
+        assetOpacity;
+
 
     /* -----------------------------------------
        VERTICAL ARROW
     ----------------------------------------- */
 
-    const transitionStart = 0.10;
-    const transitionEnd = 0.30;
+    const arrowStart = 0.08;
+    const arrowEnd = 0.25;
 
-    let transitionProgress =
+    let arrowProgress =
         (
             progress -
-            transitionStart
+            arrowStart
         ) /
         (
-            transitionEnd -
-            transitionStart
+            arrowEnd -
+            arrowStart
         );
 
-    transitionProgress =
+    arrowProgress =
         clamp(
-            transitionProgress,
+            arrowProgress,
             0,
             1
         );
 
 
     transition.style.height =
-        `${transitionProgress * 150}px`;
+        `${arrowProgress * 150}px`;
 
 
-    /* -----------------------------------------
-       TRANSITION LABEL
-    ----------------------------------------- */
+    /*
+       IMPORTANT:
+       Arrow disappears after transition.
+    */
 
-    let labelOpacity = 0;
+    if (progress >= 0.28) {
 
-    if (progress > 0.24) {
+        transition.style.opacity = 0;
 
-        labelOpacity =
-            (
-                progress -
-                0.24
-            ) / 0.08;
+    } else {
+
+        transition.style.opacity = 1;
 
     }
 
-    transitionLabel.style.opacity =
+
+    /* -----------------------------------------
+       LABEL
+    ----------------------------------------- */
+
+    const labelStart = 0.20;
+    const labelEnd = 0.30;
+
+    let labelProgress =
+        (
+            progress -
+            labelStart
+        ) /
+        (
+            labelEnd -
+            labelStart
+        );
+
+    labelProgress =
         clamp(
-            labelOpacity,
+            labelProgress,
             0,
             1
         );
+
+
+    transitionLabel.style.opacity =
+        labelProgress;
 
 
     /* -----------------------------------------
        REPRESENTATIONS
     ----------------------------------------- */
 
-    const representationsStart = 0.30;
-    const representationsEnd = 0.94;
+    const repsStart = 0.30;
+    const repsEnd = 0.94;
 
     let repProgress =
         (
             progress -
-            representationsStart
+            repsStart
         ) /
         (
-            representationsEnd -
-            representationsStart
+            repsEnd -
+            repsStart
         );
 
     repProgress =
@@ -795,22 +717,27 @@ function update() {
         );
 
 
-    const count =
-        representations.length;
-
-
-    let index =
-        Math.floor(
-            repProgress * count
+    repProgress =
+        clamp(
+            repProgress,
+            0,
+            1
         );
 
 
-    if (index >= count) {
-        index = count - 1;
-    }
-
-
     if (repProgress > 0) {
+
+        const count =
+            representations.length;
+
+        let index =
+            Math.floor(
+                repProgress * count
+            );
+
+        if (index >= count) {
+            index = count - 1;
+        }
 
         showRepresentation(index);
 
@@ -824,7 +751,6 @@ function update() {
     const rotation =
         repProgress * 360;
 
-
     representation.style.transform =
         `
         translate(-50%, -50%)
@@ -836,24 +762,28 @@ function update() {
        INFO
     ----------------------------------------- */
 
-    let infoOpacity = 0;
+    const infoStart = 0.34;
+    const infoEnd = 0.42;
 
-    if (progress > 0.34) {
+    let infoOpacity =
+        (
+            progress -
+            infoStart
+        ) /
+        (
+            infoEnd -
+            infoStart
+        );
 
-        infoOpacity =
-            (
-                progress -
-                0.34
-            ) / 0.08;
-
-    }
-
-    repInfo.style.opacity =
+    infoOpacity =
         clamp(
             infoOpacity,
             0,
             1
         );
+
+    repInfo.style.opacity =
+        infoOpacity;
 
 }
 
@@ -865,7 +795,9 @@ function update() {
 window.addEventListener(
     "scroll",
     update,
-    { passive: true }
+    {
+        passive: true
+    }
 );
 
 window.addEventListener(
@@ -873,16 +805,10 @@ window.addEventListener(
     update
 );
 
-
-/* INITIAL */
-
 update();
-
 
 </script>
 
 </body>
 </html>
 ```
-
-После коммита обнови страницу с **Ctrl+F5**. Если структура действительно такая, картинки теперь должны подхватиться по относительным путям `library-card.png`, `autocad/...`, `sketchup/...`, `indesign/...`.
