@@ -95,7 +95,7 @@
     -------------------------------------------------- */
 
     .asset-system {
-      height: 420vh;
+      height: 560vh;
       position: relative;
     }
 
@@ -112,6 +112,7 @@
       position: absolute;
       top: 92px;
       left: 7vw;
+      opacity: 1;
     }
 
     .stage-counter {
@@ -142,30 +143,136 @@
 
 
     /* --------------------------------------------------
-       CENTRAL ASSET
+       ONE ASSET CARD
     -------------------------------------------------- */
 
-    .asset-container {
+    .library-card {
       position: absolute;
 
       left: 50%;
       top: 50%;
 
-      width: 180px;
-      height: 180px;
+      width: 320px;
+      max-width: 72vw;
 
       transform:
         translate(-50%, -50%);
+
+      z-index: 5;
+
+      opacity: 0;
+      will-change: transform, opacity;
     }
 
-    .asset {
+    .library-card img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .one-asset-label {
+      position: absolute;
+
+      left: 50%;
+      top: calc(50% + 180px);
+
+      transform: translateX(-50%);
+
+      font-size: 11px;
+      letter-spacing: .08em;
+
+      color: var(--muted);
+
+      opacity: 0;
+      white-space: nowrap;
+    }
+
+
+    /* --------------------------------------------------
+       TRANSITION TO MULTIPLE REPRESENTATIONS
+    -------------------------------------------------- */
+
+    .transition-label {
       position: absolute;
 
       left: 50%;
       top: 50%;
 
-      width: 150px;
-      height: 150px;
+      transform:
+        translate(-50%, -50%);
+
+      font-size: 15px;
+      letter-spacing: .08em;
+
+      white-space: nowrap;
+
+      opacity: 0;
+      z-index: 3;
+    }
+
+    .transition-line {
+      position: absolute;
+
+      left: 50%;
+      top: calc(50% - 70px);
+
+      width: 0;
+      height: 1px;
+
+      background: var(--line);
+
+      transform-origin: left center;
+
+      opacity: 0;
+      z-index: 2;
+    }
+
+    .transition-arrow {
+      position: absolute;
+
+      right: -1px;
+      top: 50%;
+
+      width: 8px;
+      height: 8px;
+
+      border-top: 1px solid var(--line);
+      border-right: 1px solid var(--line);
+
+      transform:
+        translateY(-50%)
+        rotate(45deg);
+    }
+
+
+    /* --------------------------------------------------
+       REPRESENTATION STAGE
+    -------------------------------------------------- */
+
+    .representation-stage {
+      position: absolute;
+
+      left: 50%;
+      top: 50%;
+
+      width: 300px;
+      height: 300px;
+
+      transform:
+        translate(-50%, -50%)
+        perspective(1000px);
+
+      opacity: 0;
+    }
+
+    .representation-object {
+      position: absolute;
+
+      left: 50%;
+      top: 50%;
+
+      width: 240px;
+      height: 240px;
 
       transform:
         translate(-50%, -50%)
@@ -173,75 +280,45 @@
 
       transform-style: preserve-3d;
 
+      will-change: transform, opacity;
+
       display: flex;
       align-items: center;
       justify-content: center;
     }
 
+    .representation-object img {
+      display: block;
 
-    /* --------------------------------------------------
-       PLACEHOLDER REPRESENTATIONS
-    -------------------------------------------------- */
+      max-width: 100%;
+      max-height: 100%;
 
-    .representation {
-      position: absolute;
+      width: auto;
+      height: auto;
 
-      left: 50%;
-      top: 50%;
-
-      width: 150px;
-      height: 150px;
-
-      transform: translate(-50%, -50%);
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      border: 1px solid var(--line);
-
-      font-size: 13px;
-      letter-spacing: .04em;
-
-      background: var(--bg);
+      object-fit: contain;
 
       backface-visibility: hidden;
     }
 
-    .representation::before {
-      content: "";
-
-      position: absolute;
-
-      width: 72px;
-      height: 72px;
-
-      border: 1px solid var(--line);
-
-      transform: rotate(45deg);
-    }
-
-    .representation span {
-      position: relative;
-      z-index: 2;
-    }
-
 
     /* --------------------------------------------------
-       REPRESENTATION LABEL
+       REPRESENTATION INFORMATION
     -------------------------------------------------- */
 
     .representation-info {
       position: absolute;
 
-      left: calc(50% + 130px);
+      left: calc(50% + 175px);
       top: 50%;
 
       transform: translateY(-50%);
 
-      width: 230px;
+      width: 250px;
 
       opacity: 0;
+
+      will-change: opacity, transform;
     }
 
     .representation-name {
@@ -261,48 +338,6 @@
       max-width: 220px;
 
       font-size: 11px;
-      color: var(--muted);
-    }
-
-
-    /* --------------------------------------------------
-       CONNECTOR
-    -------------------------------------------------- */
-
-    .connector {
-      position: absolute;
-
-      left: calc(50% + 85px);
-      top: 50%;
-
-      width: 100px;
-      height: 1px;
-
-      background: var(--line);
-
-      transform-origin: left center;
-
-      opacity: 0;
-    }
-
-
-    /* --------------------------------------------------
-       ONE ASSET LABEL
-    -------------------------------------------------- */
-
-    .asset-label {
-      position: absolute;
-
-      left: 50%;
-      top: calc(50% + 125px);
-
-      transform: translateX(-50%);
-
-      text-align: center;
-
-      font-size: 11px;
-      letter-spacing: .08em;
-
       color: var(--muted);
     }
 
@@ -365,23 +400,42 @@
         height: 520px;
       }
 
+      .library-card {
+        width: 270px;
+      }
+
+      .one-asset-label {
+        top: calc(50% + 155px);
+      }
+
+      .transition-label {
+        font-size: 13px;
+      }
+
+      .representation-stage {
+        width: 260px;
+        height: 260px;
+      }
+
+      .representation-object {
+        width: 210px;
+        height: 210px;
+      }
+
       .representation-info {
         left: 50%;
-        top: calc(50% + 150px);
+        top: calc(50% + 170px);
 
         transform: translateX(-50%);
 
-        width: 200px;
+        width: 220px;
 
         text-align: center;
       }
 
-      .connector {
-        display: none;
-      }
-
-      .asset-label {
-        top: calc(50% + 105px);
+      .representation-description {
+        margin-left: auto;
+        margin-right: auto;
       }
 
       .next {
@@ -436,33 +490,68 @@
       </div>
 
       <div class="stage-counter">
-        <span id="counter">01</span> / 03
+        <span id="counter">01</span> / 06
       </div>
 
 
       <div class="asset-scene">
 
 
-        <!-- CENTRAL ASSET -->
+        <!-- ONE ASSET -->
 
-        <div class="asset-container">
+        <div
+          class="library-card"
+          id="libraryCard">
 
-          <div class="asset" id="asset">
-
-            <div class="representation">
-              <span>PLAN</span>
-            </div>
-
-          </div>
+          <img
+            src="assets/CUT2-PLANT-AMELANCHIER-LAMARCKII-001/library-card.png"
+            alt="CUT2 Asset Library card">
 
         </div>
 
 
-        <!-- CONNECTOR -->
+        <div
+          class="one-asset-label"
+          id="oneAssetLabel">
+          ONE ASSET
+        </div>
+
+
+        <!-- TRANSITION -->
 
         <div
-          class="connector"
-          id="connector">
+          class="transition-line"
+          id="transitionLine">
+
+          <div class="transition-arrow"></div>
+
+        </div>
+
+
+        <div
+          class="transition-label"
+          id="transitionLabel">
+          MULTIPLE REPRESENTATIONS
+        </div>
+
+
+        <!-- REPRESENTATIONS -->
+
+        <div
+          class="representation-stage"
+          id="representationStage">
+
+          <div
+            class="representation-object"
+            id="representationObject">
+
+            <img
+              id="representationImage"
+              src="assets/CUT2-PLANT-AMELANCHIER-LAMARCKII-001/autocad/minimal.svg"
+              alt="Asset representation">
+
+          </div>
+
         </div>
 
 
@@ -475,7 +564,7 @@
           <div
             class="representation-name"
             id="representationName">
-            PLAN
+            MINIMAL
           </div>
 
           <div
@@ -487,14 +576,9 @@
           <div
             class="representation-description"
             id="representationDescription">
-            Plan representation of the same asset.
+            Minimal plan representation.
           </div>
 
-        </div>
-
-
-        <div class="asset-label">
-          CUT2 ASSET
         </div>
 
 
@@ -548,14 +632,29 @@
   const system =
     document.querySelector(".asset-system");
 
-  const asset =
-    document.querySelector("#asset");
+  const libraryCard =
+    document.querySelector("#libraryCard");
+
+  const oneAssetLabel =
+    document.querySelector("#oneAssetLabel");
+
+  const transitionLine =
+    document.querySelector("#transitionLine");
+
+  const transitionLabel =
+    document.querySelector("#transitionLabel");
+
+  const representationStage =
+    document.querySelector("#representationStage");
+
+  const representationObject =
+    document.querySelector("#representationObject");
+
+  const representationImage =
+    document.querySelector("#representationImage");
 
   const info =
     document.querySelector("#representationInfo");
-
-  const connector =
-    document.querySelector("#connector");
 
   const name =
     document.querySelector("#representationName");
@@ -573,27 +672,64 @@
     document.querySelector("#scrollHint");
 
 
+  /*
+    Six actual representations.
+  */
+
   const representations = [
 
     {
-      name: "PLAN",
+      name: "MINIMAL",
       platform: "AUTOCAD",
       description:
-        "Plan representation of the same asset."
+        "Minimal plan representation.",
+      image:
+        "assets/CUT2-PLANT-AMELANCHIER-LAMARCKII-001/autocad/minimal.svg"
     },
 
     {
-      name: "MODEL",
+      name: "CONDITIONAL",
+      platform: "AUTOCAD",
+      description:
+        "Conditional plan representation.",
+      image:
+        "assets/CUT2-PLANT-AMELANCHIER-LAMARCKII-001/autocad/conditional.svg"
+    },
+
+    {
+      name: "REALISTIC",
+      platform: "AUTOCAD",
+      description:
+        "Realistic plan representation.",
+      image:
+        "assets/CUT2-PLANT-AMELANCHIER-LAMARCKII-001/autocad/realistic.svg"
+    },
+
+    {
+      name: "CONDITIONAL",
       platform: "SKETCHUP",
       description:
-        "Three-dimensional representation of the same asset."
+        "Conditional three-dimensional representation.",
+      image:
+        "assets/CUT2-PLANT-AMELANCHIER-LAMARCKII-001/sketchup/conditional.png"
+    },
+
+    {
+      name: "REALISTIC FACE ME",
+      platform: "SKETCHUP",
+      description:
+        "Realistic Face Me representation.",
+      image:
+        "assets/CUT2-PLANT-AMELANCHIER-LAMARCKII-001/sketchup/realistic-face-me.png"
     },
 
     {
       name: "IMAGE",
       platform: "INDESIGN",
       description:
-        "Presentation representation of the same asset."
+        "Presentation representation.",
+      image:
+        "assets/CUT2-PLANT-AMELANCHIER-LAMARCKII-001/indesign/image.jpg"
     }
 
   ];
@@ -639,56 +775,211 @@
 
 
     /*
-      The first part introduces
-      the central asset.
+      --------------------------------------------------
+      PHASE 1
+      ONE ASSET
+      --------------------------------------------------
     */
 
-    const introProgress =
-      ease(
-        clamp(p / 0.12)
-      );
-
-
-    asset.style.opacity =
-      String(introProgress);
+    const assetPhase =
+      clamp(p / 0.18);
 
 
     /*
-      Three representation stages.
-      Each occupies one part of
-      the sticky scroll.
+      Card remains visible first,
+      then moves upward and disappears.
     */
 
-    const stageLength =
-      0.78 / representations.length;
-
-
-    const start =
-      0.12;
-
-
-    let stage =
-      Math.floor(
+    const cardMove =
+      ease(
         clamp(
-          (p - start) / stageLength,
-          0,
-          representations.length - 1
+          (assetPhase - 0.32) / 0.38
+        )
+      );
+
+    const cardY =
+      -cardMove * 115;
+
+
+    const cardOpacity =
+      1 -
+      ease(
+        clamp(
+          (assetPhase - 0.55) / 0.30
+        )
+      );
+
+
+    libraryCard.style.opacity =
+      String(cardOpacity);
+
+    libraryCard.style.transform =
+      `
+        translate(-50%, calc(-50% + ${cardY}px))
+      `;
+
+
+    /*
+      ONE ASSET label follows the card
+      and disappears with it.
+    */
+
+    const labelOpacity =
+      1 -
+      ease(
+        clamp(
+          (assetPhase - 0.50) / 0.28
+        )
+      );
+
+    oneAssetLabel.style.opacity =
+      String(labelOpacity);
+
+
+    /*
+      --------------------------------------------------
+      PHASE 2
+      LINE → MULTIPLE REPRESENTATIONS
+      --------------------------------------------------
+    */
+
+    const transitionStart =
+      0.11;
+
+    const transitionEnd =
+      0.25;
+
+    const transitionProgress =
+      ease(
+        clamp(
+          (p - transitionStart) /
+          (transitionEnd - transitionStart)
         )
       );
 
 
     /*
-      Progress inside the
-      current representation.
+      Line travels from the card
+      toward the final label.
     */
 
-    const localStart =
-      start +
-      stage * stageLength;
+    transitionLine.style.opacity =
+      String(
+        transitionProgress *
+        (1 -
+          ease(
+            clamp(
+              (p - 0.22) / 0.08
+            )
+          )
+        )
+      );
+
+
+    transitionLine.style.width =
+      `${transitionProgress * 230}px`;
+
+
+    /*
+      Label appears only after
+      the line reaches it.
+    */
+
+    const labelProgress =
+      ease(
+        clamp(
+          (p - 0.20) / 0.10
+        )
+      );
+
+
+    transitionLabel.style.opacity =
+      String(
+        labelProgress *
+        (1 -
+          ease(
+            clamp(
+              (p - 0.29) / 0.07
+            )
+          )
+        )
+      );
+
+
+    /*
+      --------------------------------------------------
+      PHASE 3
+      REPRESENTATIONS
+      --------------------------------------------------
+    */
+
+    const representationStart =
+      0.30;
+
+    const representationEnd =
+      0.92;
+
+    const representationProgress =
+      clamp(
+        (p - representationStart) /
+        (representationEnd - representationStart)
+      );
+
+
+    /*
+      Representation stage appears
+      after the transition.
+    */
+
+    const stageOpacity =
+      ease(
+        clamp(
+          (p - 0.28) / 0.07
+        )
+      ) *
+      (
+        1 -
+        ease(
+          clamp(
+            (p - 0.91) / 0.06
+          )
+        )
+      );
+
+
+    representationStage.style.opacity =
+      String(stageOpacity);
+
+
+    /*
+      Determine current representation.
+    */
+
+    const stageCount =
+      representations.length;
+
+    const stageLength =
+      1 / stageCount;
+
+    let stage =
+      Math.floor(
+        representationProgress /
+        stageLength
+      );
+
+    stage =
+      Math.min(
+        stage,
+        stageCount - 1
+      );
+
 
     const localProgress =
       clamp(
-        (p - localStart) /
+        (
+          representationProgress -
+          stage * stageLength
+        ) /
         stageLength
       );
 
@@ -698,16 +989,23 @@
 
 
     /*
-      The asset performs a full
-      Y-axis rotation during each
-      representation stage.
+      Swap the actual file when
+      the plane is edge-on.
+
+      0° → front
+      180° → edge
+      360° → front
     */
+
+    const half =
+      localProgress < 0.5;
+
 
     const rotation =
       localProgress * 360;
 
 
-    asset.style.transform =
+    representationObject.style.transform =
       `
         translate(-50%, -50%)
         rotateY(${rotation}deg)
@@ -715,61 +1013,50 @@
 
 
     /*
-      Scale changes very slightly
-      during the rotation.
+      Change source around the invisible
+      back side of the rotation.
     */
 
-    const scale =
-      1 +
-      0.06 *
-      Math.sin(
-        localProgress * Math.PI
-      );
+    if (
+      representationImage.dataset.stage !==
+      String(stage)
+    ) {
 
+      if (localProgress > 0.45) {
 
-    asset.style.scale =
-      String(scale);
+        representationImage.src =
+          current.image;
+
+        representationImage.dataset.stage =
+          String(stage);
+
+      }
+
+    }
 
 
     /*
-      Information fades in,
-      stays visible,
-      then fades out near
-      the representation change.
+      First representation needs to be
+      loaded immediately.
     */
 
-    const fadeIn =
-      ease(
-        clamp(
-          localProgress / 0.15
-        )
-      );
+    if (
+      !representationImage.dataset.stage &&
+      stage === 0
+    ) {
 
+      representationImage.src =
+        current.image;
 
-    const fadeOut =
-      1 -
-      ease(
-        clamp(
-          (localProgress - 0.78) / 0.22
-        )
-      );
+      representationImage.dataset.stage =
+        "0";
 
-
-    const infoOpacity =
-      fadeIn *
-      fadeOut;
-
-
-    info.style.opacity =
-      String(infoOpacity);
-
-    connector.style.opacity =
-      String(infoOpacity);
+    }
 
 
     /*
-      Update text only when
-      representation changes.
+      Information changes with the
+      representation.
     */
 
     name.textContent =
@@ -786,30 +1073,47 @@
 
 
     /*
-      Connector and information
-      follow the representation.
+      Fade information slightly near
+      every transition.
     */
 
-    const sideOffset =
-      100 +
-      25 *
-      Math.sin(
-        localProgress * Math.PI
+    const infoFadeIn =
+      ease(
+        clamp(
+          localProgress / 0.12
+        )
       );
 
-    connector.style.width =
-      `${sideOffset}px`;
+    const infoFadeOut =
+      1 -
+      ease(
+        clamp(
+          (localProgress - 0.82) / 0.18
+        )
+      );
+
+
+    info.style.opacity =
+      String(
+        infoFadeIn *
+        infoFadeOut *
+        stageOpacity
+      );
 
 
     /*
-      Hide scroll hint.
+      --------------------------------------------------
+      SCROLL HINT
+      --------------------------------------------------
     */
 
     scrollHint.style.opacity =
       String(
         1 -
         ease(
-          clamp(p / 0.08)
+          clamp(
+            p / 0.06
+          )
         )
       );
 
