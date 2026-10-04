@@ -1,0 +1,859 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CUT2 — Asset Representations</title>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+    :root {
+      --bg: #f3f0e8;
+      --fg: #111;
+      --muted: #77736a;
+      --line: #111;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: auto;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .header {
+      position: fixed;
+      inset: 0 0 auto 0;
+      height: 64px;
+      padding: 0 28px;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      z-index: 20;
+      mix-blend-mode: multiply;
+    }
+
+    .logo {
+      color: inherit;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .header-note,
+    .eyebrow,
+    .stage-label,
+    .scroll-hint {
+      font-size: 11px;
+      letter-spacing: .08em;
+    }
+
+
+    /* --------------------------------------------------
+       INTRO
+    -------------------------------------------------- */
+
+    .intro {
+      min-height: 100vh;
+      padding: 160px 7vw 10vh;
+
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .intro h1 {
+      max-width: 900px;
+      margin: 18px 0 28px;
+
+      font-size: clamp(42px, 7vw, 104px);
+      line-height: .98;
+      font-weight: 400;
+      letter-spacing: -.06em;
+    }
+
+    .intro-copy {
+      max-width: 460px;
+      color: var(--muted);
+    }
+
+
+    /* --------------------------------------------------
+       ASSET SYSTEM
+    -------------------------------------------------- */
+
+    .asset-system {
+      height: 420vh;
+      position: relative;
+    }
+
+    .sticky-stage {
+      position: sticky;
+      top: 0;
+
+      height: 100vh;
+
+      overflow: hidden;
+    }
+
+    .stage-label {
+      position: absolute;
+      top: 92px;
+      left: 7vw;
+    }
+
+    .stage-counter {
+      position: absolute;
+      top: 92px;
+      right: 7vw;
+
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+
+    /* --------------------------------------------------
+       ASSET SCENE
+    -------------------------------------------------- */
+
+    .asset-scene {
+      position: absolute;
+
+      width: min(900px, 86vw);
+      height: 560px;
+
+      left: 50%;
+      top: 50%;
+
+      transform: translate(-50%, -50%);
+    }
+
+
+    /* --------------------------------------------------
+       CENTRAL ASSET
+    -------------------------------------------------- */
+
+    .asset-container {
+      position: absolute;
+
+      left: 50%;
+      top: 50%;
+
+      width: 180px;
+      height: 180px;
+
+      transform:
+        translate(-50%, -50%);
+    }
+
+    .asset {
+      position: absolute;
+
+      left: 50%;
+      top: 50%;
+
+      width: 150px;
+      height: 150px;
+
+      transform:
+        translate(-50%, -50%)
+        rotateY(0deg);
+
+      transform-style: preserve-3d;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+
+    /* --------------------------------------------------
+       PLACEHOLDER REPRESENTATIONS
+    -------------------------------------------------- */
+
+    .representation {
+      position: absolute;
+
+      left: 50%;
+      top: 50%;
+
+      width: 150px;
+      height: 150px;
+
+      transform: translate(-50%, -50%);
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      border: 1px solid var(--line);
+
+      font-size: 13px;
+      letter-spacing: .04em;
+
+      background: var(--bg);
+
+      backface-visibility: hidden;
+    }
+
+    .representation::before {
+      content: "";
+
+      position: absolute;
+
+      width: 72px;
+      height: 72px;
+
+      border: 1px solid var(--line);
+
+      transform: rotate(45deg);
+    }
+
+    .representation span {
+      position: relative;
+      z-index: 2;
+    }
+
+
+    /* --------------------------------------------------
+       REPRESENTATION LABEL
+    -------------------------------------------------- */
+
+    .representation-info {
+      position: absolute;
+
+      left: calc(50% + 130px);
+      top: 50%;
+
+      transform: translateY(-50%);
+
+      width: 230px;
+
+      opacity: 0;
+    }
+
+    .representation-name {
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+
+    .representation-platform {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: .06em;
+    }
+
+    .representation-description {
+      margin-top: 14px;
+
+      max-width: 220px;
+
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+
+    /* --------------------------------------------------
+       CONNECTOR
+    -------------------------------------------------- */
+
+    .connector {
+      position: absolute;
+
+      left: calc(50% + 85px);
+      top: 50%;
+
+      width: 100px;
+      height: 1px;
+
+      background: var(--line);
+
+      transform-origin: left center;
+
+      opacity: 0;
+    }
+
+
+    /* --------------------------------------------------
+       ONE ASSET LABEL
+    -------------------------------------------------- */
+
+    .asset-label {
+      position: absolute;
+
+      left: 50%;
+      top: calc(50% + 125px);
+
+      transform: translateX(-50%);
+
+      text-align: center;
+
+      font-size: 11px;
+      letter-spacing: .08em;
+
+      color: var(--muted);
+    }
+
+
+    /* --------------------------------------------------
+       NEXT
+    -------------------------------------------------- */
+
+    .next {
+      min-height: 100vh;
+
+      padding: 18vh 7vw;
+
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .next h2 {
+      margin: 18px 0 24px;
+
+      font-size: clamp(38px, 6vw, 82px);
+      line-height: .98;
+      font-weight: 400;
+      letter-spacing: -.05em;
+    }
+
+    .next p:last-child {
+      color: var(--muted);
+      max-width: 460px;
+    }
+
+
+    /* --------------------------------------------------
+       MOBILE
+    -------------------------------------------------- */
+
+    @media (max-width: 700px) {
+
+      .header {
+        padding: 0 18px;
+      }
+
+      .intro {
+        padding: 120px 22px 40px;
+      }
+
+      .stage-label {
+        left: 22px;
+        top: 88px;
+      }
+
+      .stage-counter {
+        right: 22px;
+        top: 88px;
+      }
+
+      .asset-scene {
+        width: 92vw;
+        height: 520px;
+      }
+
+      .representation-info {
+        left: 50%;
+        top: calc(50% + 150px);
+
+        transform: translateX(-50%);
+
+        width: 200px;
+
+        text-align: center;
+      }
+
+      .connector {
+        display: none;
+      }
+
+      .asset-label {
+        top: calc(50% + 105px);
+      }
+
+      .next {
+        padding: 18vh 22px;
+      }
+    }
+
+  </style>
+</head>
+
+
+<body>
+
+<header class="header">
+  <a class="logo" href="#">CUT2</a>
+  <div class="header-note">ASSET REPRESENTATIONS</div>
+</header>
+
+
+<main>
+
+
+  <!-- INTRO -->
+
+  <section class="intro">
+
+    <p class="eyebrow">
+      CUT2
+    </p>
+
+    <h1>
+      One project.<br>
+      Multiple platforms.
+    </h1>
+
+    <p class="intro-copy">
+      A project moves across different tools.
+      Its assets need to move with it.
+    </p>
+
+  </section>
+
+
+  <!-- ASSET SYSTEM -->
+
+  <section class="asset-system">
+
+    <div class="sticky-stage">
+
+      <div class="stage-label">
+        ONE ASSET
+      </div>
+
+      <div class="stage-counter">
+        <span id="counter">01</span> / 03
+      </div>
+
+
+      <div class="asset-scene">
+
+
+        <!-- CENTRAL ASSET -->
+
+        <div class="asset-container">
+
+          <div class="asset" id="asset">
+
+            <div class="representation">
+              <span>PLAN</span>
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <!-- CONNECTOR -->
+
+        <div
+          class="connector"
+          id="connector">
+        </div>
+
+
+        <!-- INFORMATION -->
+
+        <div
+          class="representation-info"
+          id="representationInfo">
+
+          <div
+            class="representation-name"
+            id="representationName">
+            PLAN
+          </div>
+
+          <div
+            class="representation-platform"
+            id="representationPlatform">
+            AUTOCAD
+          </div>
+
+          <div
+            class="representation-description"
+            id="representationDescription">
+            Plan representation of the same asset.
+          </div>
+
+        </div>
+
+
+        <div class="asset-label">
+          CUT2 ASSET
+        </div>
+
+
+      </div>
+
+
+      <div
+        class="scroll-hint"
+        id="scrollHint"
+        style="
+          position:absolute;
+          bottom:30px;
+          left:50%;
+          transform:translateX(-50%);
+          color:var(--muted);
+        ">
+        SCROLL
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- NEXT -->
+
+  <section class="next">
+
+    <p class="eyebrow">
+      NEXT
+    </p>
+
+    <h2>
+      The system<br>
+      continues.
+    </h2>
+
+    <p>
+      One asset can exist in different representations,
+      while remaining the same design object.
+    </p>
+
+  </section>
+
+
+</main>
+
+
+<script>
+
+  const system =
+    document.querySelector(".asset-system");
+
+  const asset =
+    document.querySelector("#asset");
+
+  const info =
+    document.querySelector("#representationInfo");
+
+  const connector =
+    document.querySelector("#connector");
+
+  const name =
+    document.querySelector("#representationName");
+
+  const platform =
+    document.querySelector("#representationPlatform");
+
+  const description =
+    document.querySelector("#representationDescription");
+
+  const counter =
+    document.querySelector("#counter");
+
+  const scrollHint =
+    document.querySelector("#scrollHint");
+
+
+  const representations = [
+
+    {
+      name: "PLAN",
+      platform: "AUTOCAD",
+      description:
+        "Plan representation of the same asset."
+    },
+
+    {
+      name: "MODEL",
+      platform: "SKETCHUP",
+      description:
+        "Three-dimensional representation of the same asset."
+    },
+
+    {
+      name: "IMAGE",
+      platform: "INDESIGN",
+      description:
+        "Presentation representation of the same asset."
+    }
+
+  ];
+
+
+  function clamp(value, min = 0, max = 1) {
+
+    return Math.min(
+      max,
+      Math.max(min, value)
+    );
+
+  }
+
+
+  function ease(value) {
+
+    return value * value * (3 - 2 * value);
+
+  }
+
+
+  function sectionProgress() {
+
+    const start =
+      system.offsetTop;
+
+    const range =
+      system.offsetHeight -
+      window.innerHeight;
+
+    return clamp(
+      (window.scrollY - start) / range
+    );
+
+  }
+
+
+  function update() {
+
+    const p =
+      sectionProgress();
+
+
+    /*
+      The first part introduces
+      the central asset.
+    */
+
+    const introProgress =
+      ease(
+        clamp(p / 0.12)
+      );
+
+
+    asset.style.opacity =
+      String(introProgress);
+
+
+    /*
+      Three representation stages.
+      Each occupies one part of
+      the sticky scroll.
+    */
+
+    const stageLength =
+      0.78 / representations.length;
+
+
+    const start =
+      0.12;
+
+
+    let stage =
+      Math.floor(
+        clamp(
+          (p - start) / stageLength,
+          0,
+          representations.length - 1
+        )
+      );
+
+
+    /*
+      Progress inside the
+      current representation.
+    */
+
+    const localStart =
+      start +
+      stage * stageLength;
+
+    const localProgress =
+      clamp(
+        (p - localStart) /
+        stageLength
+      );
+
+
+    const current =
+      representations[stage];
+
+
+    /*
+      The asset performs a full
+      Y-axis rotation during each
+      representation stage.
+    */
+
+    const rotation =
+      localProgress * 360;
+
+
+    asset.style.transform =
+      `
+        translate(-50%, -50%)
+        rotateY(${rotation}deg)
+      `;
+
+
+    /*
+      Scale changes very slightly
+      during the rotation.
+    */
+
+    const scale =
+      1 +
+      0.06 *
+      Math.sin(
+        localProgress * Math.PI
+      );
+
+
+    asset.style.scale =
+      String(scale);
+
+
+    /*
+      Information fades in,
+      stays visible,
+      then fades out near
+      the representation change.
+    */
+
+    const fadeIn =
+      ease(
+        clamp(
+          localProgress / 0.15
+        )
+      );
+
+
+    const fadeOut =
+      1 -
+      ease(
+        clamp(
+          (localProgress - 0.78) / 0.22
+        )
+      );
+
+
+    const infoOpacity =
+      fadeIn *
+      fadeOut;
+
+
+    info.style.opacity =
+      String(infoOpacity);
+
+    connector.style.opacity =
+      String(infoOpacity);
+
+
+    /*
+      Update text only when
+      representation changes.
+    */
+
+    name.textContent =
+      current.name;
+
+    platform.textContent =
+      current.platform;
+
+    description.textContent =
+      current.description;
+
+    counter.textContent =
+      String(stage + 1).padStart(2, "0");
+
+
+    /*
+      Connector and information
+      follow the representation.
+    */
+
+    const sideOffset =
+      100 +
+      25 *
+      Math.sin(
+        localProgress * Math.PI
+      );
+
+    connector.style.width =
+      `${sideOffset}px`;
+
+
+    /*
+      Hide scroll hint.
+    */
+
+    scrollHint.style.opacity =
+      String(
+        1 -
+        ease(
+          clamp(p / 0.08)
+        )
+      );
+
+  }
+
+
+  let ticking = false;
+
+
+  function requestUpdate() {
+
+    if (!ticking) {
+
+      requestAnimationFrame(() => {
+
+        update();
+
+        ticking = false;
+
+      });
+
+      ticking = true;
+
+    }
+
+  }
+
+
+  window.addEventListener(
+    "scroll",
+    requestUpdate,
+    { passive: true }
+  );
+
+
+  window.addEventListener(
+    "resize",
+    requestUpdate
+  );
+
+
+  update();
+
+</script>
+
+</body>
+</html>
