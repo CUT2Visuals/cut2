@@ -1424,25 +1424,32 @@
 
 
     /*
-      The whole ONE ASSET composition starts below
-      the viewport:
-
-      card height
-      + label height
-      + label gap
-      + additional safety margin.
-
-      This is deliberately larger than the previous
-      calculation so the label and the card cannot
-      appear in the middle of the screen.
+      Entry path of ONE ASSET. It defines the entry
+      speed (from this point to home in 0.42–0.53).
     */
 
-    const assetStartShift =
+    const assetEntryShift =
       window.innerHeight / 2 +
       assetCardHeight +
       assetLabelHeight +
       assetLabelGap +
       40;
+
+
+    /*
+      Start position: the top of the ONE ASSET label
+      (the highest element) is 3px below the bottom
+      of the screen. The card waits here until the
+      entry path reaches it, so the arrowhead (24px
+      above the label) always stays on screen.
+    */
+
+    const assetStartShift =
+      stageRect.height / 2 +
+      assetCardHeight / 2 +
+      assetLabelGap +
+      assetLabelHeight +
+      3;
 
 
     const assetMoveStart = 0.42;
@@ -1458,10 +1465,13 @@
 
 
     const assetY =
-      lerp(
+      Math.min(
         assetStartShift,
-        assetHomeShift,
-        assetMoveProgress
+        lerp(
+          assetEntryShift,
+          assetHomeShift,
+          assetMoveProgress
+        )
       );
 
 
@@ -1574,11 +1584,27 @@
     platformArrow.style.height =
       `${platformArrowLength * platformArrowProgress}px`;
 
+    /*
+      Fades out right before ONE ASSET stops
+      (0.51 → 0.53). Invisible during the pause.
+      The tail is hidden behind the header from
+      groupMoveEnd (0.46), before the fade starts.
+    */
+
+    const platformArrowFadeStart = 0.51;
+
+    const platformArrowFade =
+      clamp(
+        (assetMoveEnd - progress) /
+        (assetMoveEnd - platformArrowFadeStart),
+        0,
+        1
+      );
+
     platformArrow.style.opacity =
       platformArrowProgress > 0 &&
-      platformArrowLength > 0 &&
-      progress < 0.56
-        ? 1
+      platformArrowLength > 0
+        ? platformArrowFade
         : 0;
 
 
