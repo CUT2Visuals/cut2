@@ -1652,8 +1652,13 @@
        9. MULTIPLE REPRESENTATIONS LABEL
     ================================================== */
 
-    const labelAppearStart = 0.66;
-    const labelAppearEnd = 0.70;
+    /*
+      Fades in while the label comes out from
+      under the bottom edge of the screen.
+    */
+
+    const labelAppearStart = 0.56;
+    const labelAppearEnd = 0.59;
 
     const labelOpacity =
       clamp(
@@ -1694,8 +1699,46 @@
       finalLabelCenter;
 
 
+    /*
+      Entry from below: starts together with the
+      ONE ASSET exit (cardStart, 0.56), the top of
+      the label starts 3px below the bottom of the
+      screen and stops in the center at 0.66.
+      Smoothstep: soft start and soft stop.
+    */
+
+    const labelEntryStart = cardStart;
+    const labelEntryEnd = 0.66;
+
+    const labelEntryProgress =
+      clamp(
+        (progress - labelEntryStart) /
+        (labelEntryEnd - labelEntryStart),
+        0,
+        1
+      );
+
+    const labelEntryEase =
+      labelEntryProgress *
+      labelEntryProgress *
+      (3 - 2 * labelEntryProgress);
+
+    const labelEntryShift =
+      window.innerHeight +
+      3 -
+      (centerY - labelHeight / 2);
+
+    const labelEntryY =
+      lerp(
+        labelEntryShift,
+        0,
+        labelEntryEase
+      );
+
+
     const labelY =
-      -labelMoveProgress *
+      labelEntryY -
+      labelMoveProgress *
       labelTravel;
 
 
@@ -1717,7 +1760,7 @@
         );
 
       multipleLabel.style.top =
-        `${mobileTop}px`;
+        `${mobileTop + labelEntryY}px`;
 
       multipleLabel.style.transform =
         `translateX(-50%)`;
@@ -1775,37 +1818,33 @@
 
     /*
       The tail stays on the bottom of the card.
-      The head moves evenly from the card bottom
-      to 24px above the resting (centered)
-      MULTIPLE REPRESENTATIONS label and reaches
-      it at arrowEnd. After that the length stays
-      the same and the arrow moves up with the
-      label until labelMoveEnd.
+      The head follows the label entering from
+      below: the arrow covers arrowProgress of the
+      distance from the card bottom to 24px above
+      the label, so it never touches the label and
+      reaches it at arrowEnd. From labelMoveStart
+      the length stays the same and the arrow
+      moves up with the label until labelMoveEnd.
     */
 
     const restingLabelTop =
       centerY -
       labelHeight / 2;
 
-    const cardBottomStart =
-      assetCard.offsetTop +
-      assetHomeShift +
-      assetCardHeight / 2;
-
-    const arrowHeadY =
-      lerp(
-        cardBottomStart,
-        restingLabelTop - arrowLabelGap,
-        arrowProgress
-      );
+    const arrowTargetTop =
+      progress < labelMoveStart
+        ? labelRect.top - stageRect.top
+        : restingLabelTop;
 
 
     const restingArrowLength =
       Math.max(
         0,
-        arrowHeadY -
+        arrowTargetTop -
+        arrowLabelGap -
         cardBottom
-      );
+      ) *
+      arrowProgress;
 
 
     arrowSystem.style.opacity =
