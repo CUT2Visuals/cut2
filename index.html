@@ -791,13 +791,51 @@
     multipleLabel.style.opacity =
       labelOpacity;
 
-    multipleLabel.style.transform =
-      `
-        translate(
-          -50%,
-          calc(-50% + ${labelY}px)
-        )
-      `;
+
+    /*
+      On mobile the label is two lines.
+
+      Position its TOP edge directly instead of
+      relying on the center-based transform.
+
+      Final position:
+      header bottom + 24px.
+    */
+
+    if (window.innerWidth <= 700) {
+
+      const mobileStartTop =
+        centerY -
+        labelHeight / 2;
+
+      const mobileTop =
+        lerp(
+          mobileStartTop,
+          finalLabelTop,
+          labelMoveProgress
+        );
+
+      multipleLabel.style.transform =
+        `
+          translate(
+            -50%,
+            ${mobileTop - centerY}px
+          )
+        `;
+
+    }
+
+    else {
+
+      multipleLabel.style.transform =
+        `
+          translate(
+            -50%,
+            calc(-50% + ${labelY}px)
+          )
+        `;
+
+    }
 
 
 
