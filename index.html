@@ -683,16 +683,16 @@
       MULTIPLE REPRESENTATIONS is visible.
 
       0.42–0.50
-      Arrow + label move upward together.
+      Arrow + label move upward.
 
       0.50
       Arrow disappears.
 
       0.50–0.96
-      Representations.
+      First five representations.
 
       0.96–1.00
-      Final InDesign remains front-facing.
+      Final InDesign enters and becomes front-facing.
     */
 
 
@@ -903,89 +903,41 @@
 
 
       /*
-        We use count - 1 intervals.
-
-        This makes the last representation
-        occupy the complete final state rather
-        than immediately jumping to another one.
+        The first five representations occupy
+        the 0.50–0.96 interval.
       */
 
-      const exactIndex =
-        representationProgress *
-        (count - 1);
+      if (progress < representationEnd) {
 
+        const firstFiveProgress =
+          representationProgress * (count - 2);
 
-      const index =
-        Math.min(
-          count - 1,
-          Math.floor(exactIndex)
-        );
-
-
-      const localProgress =
-        exactIndex - index;
-
-
-      const current =
-        representations[index];
-
-
-      representationImage.src =
-        current.src;
-
-      representationImage.alt =
-        `${current.platform} ${current.type}`;
-
-
-      representationPlatform.textContent =
-        current.platform;
-
-      representationType.textContent =
-        current.type;
-
-
-      const isLast =
-        index === count - 1;
-
-
-      /*
-        LAST REPRESENTATION
-
-        InDesign enters from -90deg
-        and ends completely front-facing.
-      */
-
-      if (isLast) {
-
-        const rotation =
-          lerp(
-            -90,
-            0,
-            localProgress
+        const index =
+          Math.min(
+            count - 2,
+            Math.floor(firstFiveProgress)
           );
 
-        const scale =
-          0.92 +
-          Math.sin(
-            localProgress * Math.PI
-          ) * 0.08;
+        const localProgress =
+          firstFiveProgress - index;
 
-        representationVisual.style.transform =
-          `
-            perspective(1200px)
-            rotateY(${rotation}deg)
-            scale(${scale})
-          `;
+        const current =
+          representations[index];
 
-      }
 
-      else {
+        representationImage.src =
+          current.src;
 
-        /*
-          Every representation enters
-          from the side and opens toward
-          the viewer.
-        */
+        representationImage.alt =
+          `${current.platform} ${current.type}`;
+
+
+        representationPlatform.textContent =
+          current.platform;
+
+        representationType.textContent =
+          current.type;
+
 
         const rotation =
           lerp(
@@ -999,6 +951,68 @@
           0.92 +
           Math.sin(
             localProgress * Math.PI
+          ) * 0.08;
+
+
+        representationVisual.style.transform =
+          `
+            perspective(1200px)
+            rotateY(${rotation}deg)
+            scale(${scale})
+          `;
+
+      }
+
+
+      /*
+        LAST REPRESENTATION
+
+        InDesign enters from -90deg
+        and becomes completely front-facing
+        during the final 0.04 of the sequence.
+      */
+
+      else {
+
+        const finalProgress =
+          clamp(
+            (progress - representationEnd) /
+            (1 - representationEnd),
+            0,
+            1
+          );
+
+
+        const current =
+          representations[count - 1];
+
+
+        representationImage.src =
+          current.src;
+
+        representationImage.alt =
+          `${current.platform} ${current.type}`;
+
+
+        representationPlatform.textContent =
+          current.platform;
+
+        representationType.textContent =
+          current.type;
+
+
+        const rotation =
+          lerp(
+            -90,
+            0,
+            finalProgress
+          );
+
+
+        const scale =
+          0.92 +
+          Math.sin(
+            finalProgress * Math.PI
           ) * 0.08;
 
 
