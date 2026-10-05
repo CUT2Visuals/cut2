@@ -979,88 +979,76 @@
 
   /* ==================================================
      FONT DATA (generated from IBM Plex Mono Regular 2.3,
-     do not edit)
-     d      – letter outline, font units (1000 = 1em),
-              y up, baseline at 0
-     L / R  – leftmost / rightmost point of the letter
-              on each row (row y = Y0 + i × STEP)
-     HL/HR  – the same with pockets closed
-     null   – no ink on that row
+     do not edit), font units (1000 = 1em), y up,
+     baseline at 0
+     ink    – the letter outline
+     outer  – outer contour, holes dropped
+              (C: outer arc + vertical x = 538)
+     closed – outer contour with pockets closed by
+              straight lines (curves kept elsewhere)
+     deep   – deepest point of the left / right edge
   ================================================== */
-
-  const GLYPH_Y0 = -300;
-  const GLYPH_STEP = 10;
 
   const GLYPHS = {
     "2": {
-      d: "M537 73L537 0L71 0L71 86L304 296Q355 342 388 390.5Q421 439 421 493L421 493L421 505Q421 568 388 602.5Q355 637 290 637L290 637Q226 637 191.5 604.5Q157 572 140 518L140 518L65 546Q75 577 92.5 606.5Q110 636 137 659Q164 682 202.5 696Q241 710 292 710L292 710Q344 710 384.5 695Q425 680 452.5 653Q480 626 494.5 589Q509 552 509 508L509 508Q509 468 497.5 433Q486 398 465.5 366Q445 334 416.5 303.5Q388 273 353 243L353 243L158 73L537 73Z",
-      L: [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,71,71,71,71,71,71,71,71,71,75,86,97,108,119,130,142,153,164,175,186,197,208,219,230,241,252,264,275,286,297,308,319,329,338,348,356,365,373,380,387,394,399,404,409,412,415,417,419,420,420,421,420,134,107,81,66,69,73,78,83,88,94,101,108,117,127,138,151,167,187,214,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-      R: [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,537,537,537,537,537,537,537,537,167,178,189,201,212,224,235,247,258,270,281,293,304,316,327,339,350,362,373,384,394,404,414,423,432,440,448,455,462,469,474,480,485,489,493,497,500,503,505,507,508,509,509,509,509,509,507,506,504,501,498,495,490,485,479,473,465,456,445,433,417,397,370,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-      HL: [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,70,70,70,70,70,70,70,70,70,70,69,69,69,69,69,69,69,69,69,68,68,68,68,68,68,68,68,68,67,67,67,67,67,67,67,67,67,66,66,66,66,66,66,66,66,66,65,65,65,65,65,65,65,65,65,66,69,73,78,83,88,94,101,108,117,127,138,151,167,187,214,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-      HR: [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,537,537,537,537,537,537,537,537,537,536,536,535,535,534,533,533,532,531,531,530,529,529,528,528,527,526,526,525,524,524,523,523,522,521,521,520,519,519,518,517,517,516,516,515,514,514,513,512,512,511,511,510,509,509,507,506,504,501,498,495,490,485,479,473,465,456,445,433,417,397,370,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      ink: "M537 73L537 0L71 0L71 86L304 296Q355 342 388 390.5Q421 439 421 493L421 505Q421 568 388 602.5Q355 637 290 637Q226 637 191.5 604.5Q157 572 140 518L65 546Q75 577 92.5 606.5Q110 636 137 659Q164 682 202.5 696Q241 710 292 710Q344 710 384.5 695Q425 680 452.5 653Q480 626 494.5 589Q509 552 509 508Q509 468 497.5 433Q486 398 465.5 366Q445 334 416.5 303.5Q388 273 353 243L158 73L537 73Z",
+      outer: "M537 73L537 0L71 0L71 86L304 296Q355 342 388 390.5Q421 439 421 493L421 505Q421 568 388 602.5Q355 637 290 637Q226 637 191.5 604.5Q157 572 140 518L65 546Q75 577 92.5 606.5Q110 636 137 659Q164 682 202.5 696Q241 710 292 710Q344 710 384.5 695Q425 680 452.5 653Q480 626 494.5 589Q509 552 509 508Q509 468 497.5 433Q486 398 465.5 366Q445 334 416.5 303.5Q388 273 353 243L158 73L537 73Z",
+      closed: "M71 0L71 0L537 0L537 73L508.49 524.25Q506.28 558.94 494.5 589Q480 626 452.5 653Q425 680 384.5 695Q344 710 292 710Q241 710 202.5 696Q164 682 137 659Q110 636 92.5 606.5Q75 577 65 546L71 0Z",
+      deep: { left: 421, right: 158.57 }
     },
     C: {
-      d: "M323-12L323-12Q195-12 132.5 81Q70 174 70 349L70 349Q70 524 132.5 617Q195 710 323 710L323 710Q371 710 406 697Q441 684 466 662Q491 640 508 612.5Q525 585 538 557L538 557L466 524Q457 547 445 567.5Q433 588 416.5 603.5Q400 619 377.5 628Q355 637 323 637L323 637Q240 637 199.5 574Q159 511 159 406L159 406L159 292Q159 187 199.5 124Q240 61 323 61L323 61Q355 61 377.5 70Q400 79 416.5 94.5Q433 110 445 130.5Q457 151 466 174L466 174L538 141Q525 112 508 85Q491 58 466 36Q441 14 406 1Q371-12 323-12Z",
-      L: [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,287,239,214,195,180,168,157,148,140,133,126,120,115,110,106,102,98,95,92,89,86,84,82,80,78,77,75,74,73,72,71,71,70,70,70,70,70,70,70,70,70,71,72,72,73,74,76,77,79,80,82,84,87,89,92,95,99,103,107,111,116,122,128,134,141,150,159,170,183,198,218,246,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-      R: [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,359,404,427,445,459,471,481,490,498,505,512,518,523,528,533,538,519,497,475,174,172,169,167,165,164,162,161,161,160,160,160,159,159,159,159,159,159,159,159,159,159,159,160,160,160,161,161,163,164,165,167,170,172,175,480,501,523,537,532,527,522,516,510,504,496,488,479,469,457,442,423,398,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-      HL: [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,287,239,214,195,180,168,157,148,140,133,126,120,115,110,106,102,98,95,92,89,86,84,82,80,78,77,75,74,73,72,71,71,70,70,70,70,70,70,70,70,70,71,72,72,73,74,76,77,79,80,82,84,87,89,92,95,99,103,107,111,116,122,128,134,141,150,159,170,183,198,218,246,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-      HR: [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,359,404,427,445,459,471,481,490,498,505,512,518,523,528,533,538,538,538,538,538,538,538,538,538,538,538,538,538,538,538,538,538,538,538,538,538,538,538,538,538,538,538,538,538,538,538,538,538,538,538,538,538,538,538,538,538,538,537,532,527,522,516,510,504,496,488,479,469,457,442,423,398,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      ink: "M323 -12Q195 -12 132.5 81Q70 174 70 349Q70 524 132.5 617Q195 710 323 710Q371 710 406 697Q441 684 466 662Q491 640 508 612.5Q525 585 538 557L466 524Q457 547 445 567.5Q433 588 416.5 603.5Q400 619 377.5 628Q355 637 323 637Q240 637 199.5 574Q159 511 159 406L159 292Q159 187 199.5 124Q240 61 323 61Q355 61 377.5 70Q400 79 416.5 94.5Q433 110 445 130.5Q457 151 466 174L538 141Q525 112 508 85Q491 58 466 36Q441 14 406 1Q371 -12 323 -12Z",
+      outer: "M323 -12Q195 -12 132.5 81Q70 174 70 349Q70 524 132.5 617Q195 710 323 710Q371 710 406 697Q441 684 466 662Q491 640 508 612.5Q525 585 538 557L538 141Q525 112 508 85Q491 58 466 36Q441 14 406 1Q371 -12 323 -12Z",
+      closed: "M323 -12Q195 -12 132.5 81Q70 174 70 349Q70 524 132.5 617Q195 710 323 710Q371 710 406 697Q441 684 466 662Q491 640 508 612.5Q525 585 538 557L538 141Q525 112 508 85Q491 58 466 36Q441 14 406 1Q371 -12 323 -12Z",
+      deep: { left: 304.68, right: 341.31 }
     },
     U: {
-      d: "M80 698L164 698L164 279Q164 228 167 188Q170 148 183 119.5Q196 91 223.5 76Q251 61 300 61L300 61Q349 61 376.5 76Q404 91 417 119.5Q430 148 433 188Q436 228 436 279L436 279L436 698L520 698L520 299Q520 221 512.5 163Q505 105 481.5 66Q458 27 414.5 7.5Q371-12 300-12L300-12Q229-12 185.5 7.5Q142 27 118.5 66Q95 105 87.5 163Q80 221 80 299L80 299L80 698Z",
-      L: [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,257,205,180,162,149,138,129,122,116,110,106,102,98,95,93,91,89,87,86,85,84,83,82,82,81,81,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-      R: [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,343,395,420,438,451,462,471,478,484,490,494,498,502,505,507,509,511,513,514,515,516,517,518,518,519,519,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-      HL: [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,257,205,180,162,149,138,129,122,116,110,106,102,98,95,93,91,89,87,86,85,84,83,82,82,81,81,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-      HR: [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,343,395,420,438,451,462,471,478,484,490,494,498,502,505,507,509,511,513,514,515,516,517,518,518,519,519,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      ink: "M80 698L164 698L164 279Q164 228 167 188Q170 148 183 119.5Q196 91 223.5 76Q251 61 300 61Q349 61 376.5 76Q404 91 417 119.5Q430 148 433 188Q436 228 436 279L436 698L520 698L520 299Q520 221 512.5 163Q505 105 481.5 66Q458 27 414.5 7.5Q371 -12 300 -12Q229 -12 185.5 7.5Q142 27 118.5 66Q95 105 87.5 163Q80 221 80 299L80 698Z",
+      outer: "M80 698L164 698L164 279Q164 228 167 188Q170 148 183 119.5Q196 91 223.5 76Q251 61 300 61Q349 61 376.5 76Q404 91 417 119.5Q430 148 433 188Q436 228 436 279L436 698L520 698L520 299Q520 221 512.5 163Q505 105 481.5 66Q458 27 414.5 7.5Q371 -12 300 -12Q229 -12 185.5 7.5Q142 27 118.5 66Q95 105 87.5 163Q80 221 80 299L80 698Z",
+      closed: "M80 698L80 698L80 299Q80 221 87.5 163Q95 105 118.5 66Q142 27 185.5 7.5Q229 -12 300 -12Q371 -12 414.5 7.5Q458 27 481.5 66Q505 105 512.5 163Q520 221 520 299L520 698L80 698Z",
+      deep: { left: 277.99, right: 322.01 }
     },
     T: {
-      d: "M575 625L342 625L342 0L258 0L258 625L25 625L25 698L575 698L575 625Z",
-      L: [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,258,258,258,258,258,258,258,258,258,258,258,258,258,258,258,258,258,258,258,258,258,258,258,258,258,258,258,258,258,258,258,258,258,258,258,258,258,258,258,258,258,258,258,258,258,258,258,258,258,258,258,258,258,258,258,258,258,258,258,258,258,258,258,25,25,25,25,25,25,25,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-      R: [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,342,342,342,342,342,342,342,342,342,342,342,342,342,342,342,342,342,342,342,342,342,342,342,342,342,342,342,342,342,342,342,342,342,342,342,342,342,342,342,342,342,342,342,342,342,342,342,342,342,342,342,342,342,342,342,342,342,342,342,342,342,342,342,575,575,575,575,575,575,575,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-      HL: [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,257,254,250,246,243,239,235,231,228,224,220,216,213,209,205,202,198,194,190,187,183,179,175,172,168,164,161,157,153,149,146,142,138,134,131,127,123,120,116,112,108,105,101,97,93,90,86,82,79,75,71,67,64,60,56,52,49,45,41,38,34,30,26,25,25,25,25,25,25,25,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-      HR: [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,343,346,350,354,357,361,365,369,372,376,380,384,387,391,395,398,402,406,410,413,417,421,425,428,432,436,439,443,447,451,454,458,462,466,469,473,477,480,484,488,492,495,499,503,507,510,514,518,521,525,529,533,536,540,544,548,551,555,559,562,566,570,574,575,575,575,575,575,575,575,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      ink: "M575 625L342 625L342 0L258 0L258 625L25 625L25 698L575 698L575 625Z",
+      outer: "M575 625L342 625L342 0L258 0L258 625L25 625L25 698L575 698L575 625Z",
+      closed: "M258 0L258 0L342 0L575 625L575 625L575 698L25 698L25 625L258 0Z",
+      deep: { left: 258, right: 342 }
     },
     O: {
-      d: "M300-12L300-12Q236-12 190 12.5Q144 37 114 83Q84 129 70 196Q56 263 56 349L56 349Q56 434 70 501.5Q84 569 114 615Q144 661 190 685.5Q236 710 300 710L300 710Q364 710 410 685.5Q456 661 486 615Q516 569 530 501.5Q544 434 544 349L544 349Q544 263 530 196Q516 129 486 83Q456 37 410 12.5Q364-12 300-12ZM300 61L300 61Q342 61 371 77.5Q400 94 419 124Q438 154 446.5 196.5Q455 239 455 292L455 292L455 406Q455 458 446.5 501Q438 544 419 574Q400 604 371 620.5Q342 637 300 637L300 637Q258 637 229 620.5Q200 604 181 574Q162 544 153.5 501Q145 458 145 406L145 406L145 292Q145 239 153.5 196.5Q162 154 181 124Q200 94 229 77.5Q258 61 300 61Z",
-      L: [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,265,219,194,177,162,150,140,131,123,116,109,103,98,93,89,85,82,79,76,73,71,69,67,65,63,62,61,60,59,58,57,57,56,56,56,56,56,56,56,56,56,57,57,58,59,60,61,62,64,65,67,69,71,74,76,79,83,86,90,94,99,104,110,117,124,132,142,152,165,180,199,225,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-      R: [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,335,381,406,423,438,450,460,469,477,484,491,497,502,507,511,515,518,521,524,527,529,531,533,535,537,538,539,540,541,542,543,543,544,544,544,544,544,544,544,544,544,543,543,542,541,540,539,538,536,535,533,531,529,526,524,521,517,514,510,506,501,496,490,483,476,468,458,448,435,420,401,375,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-      HL: [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,265,219,194,177,162,150,140,131,123,116,109,103,98,93,89,85,82,79,76,73,71,69,67,65,63,62,61,60,59,58,57,57,56,56,56,56,56,56,56,56,56,57,57,58,59,60,61,62,64,65,67,69,71,74,76,79,83,86,90,94,99,104,110,117,124,132,142,152,165,180,199,225,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-      HR: [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,335,381,406,423,438,450,460,469,477,484,491,497,502,507,511,515,518,521,524,527,529,531,533,535,537,538,539,540,541,542,543,543,544,544,544,544,544,544,544,544,544,543,543,542,541,540,539,538,536,535,533,531,529,526,524,521,517,514,510,506,501,496,490,483,476,468,458,448,435,420,401,375,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      ink: "M300 -12Q236 -12 190 12.5Q144 37 114 83Q84 129 70 196Q56 263 56 349Q56 434 70 501.5Q84 569 114 615Q144 661 190 685.5Q236 710 300 710Q364 710 410 685.5Q456 661 486 615Q516 569 530 501.5Q544 434 544 349Q544 263 530 196Q516 129 486 83Q456 37 410 12.5Q364 -12 300 -12ZM300 61Q342 61 371 77.5Q400 94 419 124Q438 154 446.5 196.5Q455 239 455 292L455 406Q455 458 446.5 501Q438 544 419 574Q400 604 371 620.5Q342 637 300 637Q258 637 229 620.5Q200 604 181 574Q162 544 153.5 501Q145 458 145 406L145 292Q145 239 153.5 196.5Q162 154 181 124Q200 94 229 77.5Q258 61 300 61Z",
+      outer: "M300 -12Q236 -12 190 12.5Q144 37 114 83Q84 129 70 196Q56 263 56 349Q56 434 70 501.5Q84 569 114 615Q144 661 190 685.5Q236 710 300 710Q364 710 410 685.5Q456 661 486 615Q516 569 530 501.5Q544 434 544 349Q544 263 530 196Q516 129 486 83Q456 37 410 12.5Q364 -12 300 -12Z",
+      closed: "M300 -12Q236 -12 190 12.5Q144 37 114 83Q84 129 70 196Q56 263 56 349Q56 434 70 501.5Q84 569 114 615Q144 661 190 685.5Q236 710 300 710Q364 710 410 685.5Q456 661 486 615Q516 569 530 501.5Q544 434 544 349Q544 263 530 196Q516 129 486 83Q456 37 410 12.5Q364 -12 300 -12Z",
+      deep: { left: 282.09, right: 317.91 }
     },
     N: {
-      d: "M401 0L163 588L156 588L156 0L80 0L80 698L199 698L437 110L444 110L444 698L520 698L520 0L401 0Z",
-      L: [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-      R: [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-      HL: [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,80,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-      HR: [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      ink: "M401 0L163 588L156 588L156 0L80 0L80 698L199 698L437 110L444 110L444 698L520 698L520 0L401 0Z",
+      outer: "M401 0L163 588L156 588L156 0L80 0L80 698L199 698L437 110L444 110L444 698L520 698L520 0L401 0Z",
+      closed: "M520 0L520 0L520 698L80 698L80 698L80 0L520 0Z",
+      deep: { left: 80, right: 520 }
     },
     E: {
-      d: "M520 0L90 0L90 698L520 698L520 625L174 625L174 390L508 390L508 317L174 317L174 73L520 73L520 0Z",
-      L: [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-      R: [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,520,520,520,520,520,520,520,520,174,174,174,174,174,174,174,174,174,174,174,174,174,174,174,174,174,174,174,174,174,174,174,174,508,508,508,508,508,508,508,174,174,174,174,174,174,174,174,174,174,174,174,174,174,174,174,174,174,174,174,174,174,174,174,520,520,520,520,520,520,520,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-      HL: [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-      HR: [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,520,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      ink: "M520 0L90 0L90 698L520 698L520 625L174 625L174 390L508 390L508 317L174 317L174 73L520 73L520 0Z",
+      outer: "M520 0L90 0L90 698L520 698L520 625L174 625L174 390L508 390L508 317L174 317L174 73L520 73L520 0Z",
+      closed: "M520 698L520 698L90 698L90 0L520 0L520 698Z",
+      deep: { left: 90, right: 174 }
     },
     P: {
-      d: "M174 0L90 0L90 698L344 698Q441 698 492 645Q543 592 543 497L543 497Q543 402 492 349Q441 296 344 296L344 296L174 296L174 0ZM174 625L174 369L342 369Q395 369 424.5 395.5Q454 422 454 471L454 471L454 523Q454 572 424.5 598.5Q395 625 342 625L342 625L174 625Z",
-      L: [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-      R: [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,174,174,174,174,174,174,174,174,174,174,174,174,174,174,174,174,174,174,174,174,174,174,174,174,174,174,174,174,174,174,394,432,454,470,483,493,502,510,516,521,526,530,533,536,538,540,541,542,543,543,543,543,543,542,541,539,537,534,531,528,523,518,512,505,497,487,476,461,442,413,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-      HL: [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-      HR: [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,175,184,193,202,211,220,229,238,247,257,266,275,284,293,302,311,320,329,339,348,357,366,375,384,393,402,411,421,430,439,448,457,466,475,484,493,502,510,516,521,526,530,533,536,538,540,541,542,543,543,543,543,543,542,541,539,537,534,531,528,523,518,512,505,497,487,476,461,442,413,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      ink: "M174 0L90 0L90 698L344 698Q441 698 492 645Q543 592 543 497Q543 402 492 349Q441 296 344 296L174 296L174 0ZM174 625L174 369L342 369Q395 369 424.5 395.5Q454 422 454 471L454 523Q454 572 424.5 598.5Q395 625 342 625L174 625Z",
+      outer: "M174 0L90 0L90 698L344 698Q441 698 492 645Q543 592 543 497Q543 402 492 349Q441 296 344 296L174 296L174 0Z",
+      closed: "M495.14 352.35Q543 404.97 543 497Q543 592 492 645Q441 698 344 698L90 698L90 0L174 0L495.14 352.35Z",
+      deep: { left: 90, right: 174 }
     },
     R: {
-      d: "M174 298L174 0L90 0L90 698L344 698Q441 698 492 645Q543 592 543 497L543 497Q543 412 499 361Q455 310 371 302L371 302L549 0L455 0L285 298L174 298ZM174 369L342 369Q395 369 424.5 395.5Q454 422 454 471L454 471L454 523Q454 572 424.5 598.5Q395 625 342 625L342 625L174 625L174 369Z",
-      L: [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-      R: [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,549,544,538,532,526,520,514,508,502,496,491,485,479,473,467,461,455,449,443,438,432,426,420,414,408,402,396,390,384,379,373,416,444,463,477,489,499,507,514,519,524,529,532,535,538,540,541,542,543,543,543,543,543,542,541,539,537,534,531,528,523,518,512,505,497,487,476,461,442,413,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-      HL: [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-      HR: [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,549,549,549,549,549,549,549,549,549,548,548,548,548,548,548,548,548,547,547,547,547,547,547,547,547,546,546,546,546,546,546,546,546,546,545,545,545,545,545,545,545,545,544,544,544,544,544,544,544,544,543,543,543,542,541,539,537,534,531,528,523,518,512,505,497,487,476,461,442,413,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      ink: "M174 298L174 0L90 0L90 698L344 698Q441 698 492 645Q543 592 543 497Q543 412 499 361Q455 310 371 302L549 0L455 0L285 298L174 298ZM174 369L342 369Q395 369 424.5 395.5Q454 422 454 471L454 523Q454 572 424.5 598.5Q395 625 342 625L174 625L174 369Z",
+      outer: "M174 298L174 0L90 0L90 698L344 698Q441 698 492 645Q543 592 543 497Q543 412 499 361Q455 310 371 302L549 0L455 0L285 298L174 298Z",
+      closed: "M549 0L542.99 499.96Q542.2 592.83 492 645Q441 698 344 698L90 698L90 0L549 0Z",
+      deep: { left: 90, right: 362.37 }
     },
     J: {
-      d: "M144 698L480 698L480 181Q480 137 465 101Q450 65 422.5 40Q395 15 357 1.5Q319-12 274-12L274-12Q194-12 142 29.5Q90 71 74 146L74 146L154 163Q159 142 167.5 123.5Q176 105 190.5 91.5Q205 78 226 70Q247 62 276 62L276 62Q333 62 364.5 94.5Q396 127 396 196L396 196L396 625L144 625L144 698Z",
-      L: [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,240,196,172,155,141,129,120,112,104,98,93,88,84,80,77,75,92,139,394,395,395,396,396,396,396,396,396,396,396,396,396,396,396,396,396,396,396,396,396,396,396,396,396,396,396,396,396,396,396,396,396,396,396,396,396,396,396,396,396,396,396,396,396,396,144,144,144,144,144,144,144,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-      R: [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,308,353,378,396,411,423,433,442,449,455,460,465,469,472,475,477,479,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-      HL: [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,240,196,172,155,141,129,120,112,104,98,93,88,84,80,77,75,74,75,77,78,79,80,82,83,84,85,87,88,89,90,92,93,94,96,97,98,99,101,102,103,104,106,107,108,110,111,112,113,115,116,117,118,120,121,122,123,125,126,127,129,130,131,132,134,135,136,137,139,140,141,142,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-      HR: [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,308,353,378,396,411,423,433,442,449,455,460,465,469,472,475,477,479,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,480,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      ink: "M144 698L480 698L480 181Q480 137 465 101Q450 65 422.5 40Q395 15 357 1.5Q319 -12 274 -12Q194 -12 142 29.5Q90 71 74 146L154 163Q159 142 167.5 123.5Q176 105 190.5 91.5Q205 78 226 70Q247 62 276 62Q333 62 364.5 94.5Q396 127 396 196L396 625L144 625L144 698Z",
+      outer: "M144 698L480 698L480 181Q480 137 465 101Q450 65 422.5 40Q395 15 357 1.5Q319 -12 274 -12Q194 -12 142 29.5Q90 71 74 146L154 163Q159 142 167.5 123.5Q176 105 190.5 91.5Q205 78 226 70Q247 62 276 62Q333 62 364.5 94.5Q396 127 396 196L396 625L144 625L144 698Z",
+      closed: "M74 146L74 146Q90 71 142 29.5Q194 -12 274 -12Q319 -12 357 1.5Q395 15 422.5 40Q450 65 465 101Q480 137 480 181L480 698L144 698L74 146Z",
+      deep: { left: 396, right: 291.05 }
     },
   };
 
@@ -1083,25 +1071,29 @@
 
 
   /*
-    Build the letters of CUT2 → ONE PROJECT as SVG.
+    Build the letters of CUT2 → ONE PROJECT.
 
-    Every moving letter has its own mask. The mask
-    hides the letter on the side of its parent:
-    everything "behind" the parent's outer edge
-    (the parent's silhouette, stretched towards the
-    parent side). Rows above/below the parent's ink
-    are cut by the straight edge of the parent cell.
-    In "rect" mode the whole cut is the straight edge.
+    Ink: SVG <text> with the page font (same rendering as
+    normal text). Every moving letter has its own vector
+    mask. The mask hides the letter "behind" its parent:
+    the parent's outer contour (holes dropped, C closed by
+    a vertical, pockets closed by straight lines when
+    closePockets is true) plus a rectangle behind the
+    deepest point of the parent's edge. In "rect" mode the
+    cut is the straight edge of the parent cell.
 
-    The glyph is pinned to the side away from its
-    parent. "startOffset" (in characters) pushes the
-    letter a bit deeper under the parent at the start,
-    so nothing sticks out of a rounded parent; it goes
+    The letter is pinned to the side away from its parent.
+    "offset" (in characters) starts it a bit deeper under
+    the parent, so nothing sticks out at the start; it goes
     to 0 when the letter is fully out.
   */
 
   const SVG_NS =
     "http://www.w3.org/2000/svg";
+
+  /* how far (px) a letter reaches under its parent's edge,
+     so no hairline shows between the two */
+  const ZONE_OVERLAP_PX = 0.3;
 
   const INTRO_WIDTH_AT = (cell, t) => {
 
@@ -1131,247 +1123,302 @@
       : "left";
 
 
-  /* Profile of a letter on one side for the chosen mode */
-  const profileOf = (char, edge, closePockets) => {
-
-    const glyph = GLYPHS[char];
-    const rows = glyph.L.length;
+  /*
+    Hidden zone of a parent letter, font units.
+    edge "left":  hides everything right of the parent's
+                  left edge (for a letter on its left)
+    edge "right": hides everything left of the parent's
+                  right edge (for a letter on its right)
+  */
+  const zoneOf = (char, edge, closePockets) => {
 
     if (CLIP_MODE === "rect") {
-      return new Array(rows).fill(null);
+      return { d: null, deep: edge === "left" ? 0 : 600 };
     }
 
-    if (edge === "left") {
-      return closePockets ? glyph.HL : glyph.L;
-    }
+    const glyph = GLYPHS[char];
 
-    return closePockets ? glyph.HR : glyph.R;
+    return {
+      d: closePockets ? glyph.closed : glyph.outer,
+      deep: glyph.deep[edge]
+    };
 
   };
 
 
-  /*
-    Hidden zone of a parent letter, font units.
-    edge "left":  hide x ≥ the parent's left outline
-    edge "right": hide x ≤ the parent's right outline
-    Each row band uses the safer of its two samples.
-  */
-  const zonePathOf = (char, edge, closePockets) => {
+  /* draws a zone (shape + rectangle behind it) on a canvas */
+  const fillZone = (g, zone, edge) => {
 
-    const profile =
-      profileOf(char, edge, closePockets);
-
-    const fallback = edge === "left" ? 0 : 600;
-    const far = edge === "left" ? 8000 : -7400;
-    const pick = edge === "left" ? Math.min : Math.max;
-
-    const value = (i) =>
-      profile[i] === null || profile[i] === undefined
-        ? fallback
-        : profile[i];
-
-    const points = [[far, 4000], [fallback, 4000]];
-
-    /* band between row i and row i + 1 */
-    for (let i = profile.length - 1; i >= 0; i--) {
-
-      const x = pick(value(i - 1), value(i), value(i + 1), value(i + 2));
-      const yBottom = GLYPH_Y0 + i * GLYPH_STEP;
-
-      points.push([x, yBottom + GLYPH_STEP], [x, yBottom]);
-
+    if (zone.d) {
+      g.fill(new Path2D(zone.d));
     }
 
-    points.push([fallback, -4000], [far, -4000]);
-
-    return "M" + points.map((p) => p.join(" ")).join("L") + "Z";
+    if (edge === "left") {
+      g.fillRect(zone.deep, -4000, 8000, 8000);
+    }
+    else {
+      g.fillRect(zone.deep - 8000, -4000, 8000, 8000);
+    }
 
   };
 
 
   /*
     How deep (in characters) a letter has to start under
-    its parent so that nothing sticks out at the start.
+    its parent so that nothing sticks out: draw the letter,
+    erase the parent's zone, look for leftovers; binary
+    search on the depth. 1 pixel = 2 font units here.
   */
   const startOffsetOf = (child, parent, side, closePockets) => {
 
-    const c = GLYPHS[child];
-    let deepest = 0;
+    if (CLIP_MODE === "rect") {
+      return 0;
+    }
 
     const edge = side === "right" ? "left" : "right";
-    const profile = profileOf(parent, edge, closePockets);
+    const zone = zoneOf(parent, edge, closePockets);
 
-    for (let i = 0; i < c.L.length; i++) {
+    const canvas = document.createElement("canvas");
+    canvas.width = 1600;
+    canvas.height = 800;
 
-      if (c.L[i] === null) {
-        continue;
-      }
+    const g = canvas.getContext("2d", { willReadFrequently: true });
+    const childPath = new Path2D(GLYPHS[child].ink);
 
-      if (side === "right") {
-        const bound = profile[i] === null ? 0 : profile[i];
-        deepest = Math.max(deepest, bound - c.L[i]);
-      }
-      else {
-        const bound = profile[i] === null ? 600 : profile[i];
-        deepest = Math.max(deepest, c.R[i] - bound);
-      }
+    const sticksOut = (depth) => {
 
-    }
+      g.globalCompositeOperation = "source-over";
+      g.setTransform(1, 0, 0, 1, 0, 0);
+      g.clearRect(0, 0, canvas.width, canvas.height);
+      g.setTransform(0.5, 0, 0, -0.5, 600, 650);
 
-    /* small safety margin, then font units → characters */
-    return deepest > 0 ? (deepest + 8) / 600 : 0;
+      g.save();
+      g.translate(side === "right" ? depth : -depth, 0);
+      g.fill(childPath);
+      g.restore();
 
-  };
+      g.globalCompositeOperation = "destination-out";
+      fillZone(g, zone, edge);
 
+      const data = g.getImageData(0, 0, canvas.width, canvas.height).data;
 
-  const svgDefs =
-    document.createElementNS(SVG_NS, "defs");
-
-  projectSvg.appendChild(svgDefs);
-
-  const zoneIds = {};
-
-  const zoneIdOf = (char, edge, closePockets) => {
-
-    const key =
-      `${char === "2" ? "two" : char}-${edge}-${closePockets ? "c" : "o"}`;
-
-    if (!zoneIds[key]) {
-
-      const path =
-        document.createElementNS(SVG_NS, "path");
-
-      path.setAttribute("id", `zone-${key}`);
-      path.setAttribute("fill", "black");
-      path.setAttribute("d", zonePathOf(char, edge, closePockets));
-
-      svgDefs.appendChild(path);
-      zoneIds[key] = `zone-${key}`;
-
-    }
-
-    return zoneIds[key];
-
-  };
-
-
-  const introLetters =
-    INTRO_CELLS.map(
-      (cell, index) => {
-
-        if (cell.char === " ") {
-          return null;
+      for (let i = 3; i < data.length; i += 4) {
+        if (data[i] > 8) {
+          return true;
         }
+      }
 
-        const path =
-          document.createElementNS(SVG_NS, "path");
+      return false;
 
-        path.setAttribute("d", GLYPHS[cell.char].d);
-        path.setAttribute("fill", "currentColor");
+    };
 
-        /* the mask sits on a wrapper, so it works in
-           label pixels, not in the letter's own units */
+    if (!sticksOut(0)) {
+      return 0;
+    }
+
+    let low = 0;
+    let high = 1200;
+
+    for (let step = 0; step < 12; step++) {
+      const mid = (low + high) / 2;
+      if (sticksOut(mid)) { low = mid; } else { high = mid; }
+    }
+
+    /* safety margin of 14 font units (covers ZONE_OVERLAP_PX), font units → characters */
+    return (high + 14) / 600;
+
+  };
+
+
+  /* filled by buildIntroLetters() once the font is ready */
+  let introLetters = [];
+
+
+  function buildIntroLetters() {
+
+    projectSvg.setAttribute("shape-rendering", "geometricPrecision");
+
+    const svgDefs =
+      document.createElementNS(SVG_NS, "defs");
+
+    projectSvg.appendChild(svgDefs);
+
+    const zoneIds = {};
+
+    const zoneIdOf = (char, edge, closePockets) => {
+
+      const key =
+        `${char === "2" ? "two" : char}-${edge}-${closePockets ? "c" : "o"}`;
+
+      if (!zoneIds[key]) {
+
+        const zone = zoneOf(char, edge, closePockets);
+
         const group =
           document.createElementNS(SVG_NS, "g");
 
-        group.appendChild(path);
-        projectSvg.appendChild(group);
+        group.setAttribute("id", `zone-${key}`);
+        group.setAttribute("fill", "black");
 
-        return { cell, index, path, group, offset: 0, users: [] };
+        if (zone.d) {
+
+          const path =
+            document.createElementNS(SVG_NS, "path");
+
+          path.setAttribute("d", zone.d);
+
+          /* the letter reaches ZONE_OVERLAP_PX under the
+             parent's edge: thin white stroke shrinks the zone */
+          path.setAttribute("stroke", "white");
+          path.setAttribute("stroke-width", String(ZONE_OVERLAP_PX * 2));
+          path.setAttribute("vector-effect", "non-scaling-stroke");
+          path.setAttribute("paint-order", "fill");
+
+          group.appendChild(path);
+
+        }
+
+        const rect =
+          document.createElementNS(SVG_NS, "rect");
+
+        rect.setAttribute("x", String(edge === "left" ? zone.deep : zone.deep - 8000));
+        rect.setAttribute("y", "-4000");
+        rect.setAttribute("width", "8000");
+        rect.setAttribute("height", "8000");
+
+        group.appendChild(rect);
+        svgDefs.appendChild(group);
+        zoneIds[key] = `zone-${key}`;
+
+      }
+
+      return zoneIds[key];
+
+    };
+
+
+    introLetters =
+      INTRO_CELLS.map(
+        (cell, index) => {
+
+          if (cell.char === " ") {
+            return null;
+          }
+
+          const text =
+            document.createElementNS(SVG_NS, "text");
+
+          text.textContent = cell.char;
+          text.setAttribute("fill", "currentColor");
+
+          /* the mask sits on a wrapper group */
+          const group =
+            document.createElementNS(SVG_NS, "g");
+
+          group.appendChild(text);
+          projectSvg.appendChild(group);
+
+          return { cell, index, text, group, offset: 0, users: [] };
+
+        }
+      );
+
+
+    INTRO_CELLS.forEach(
+      (cell, index) => {
+
+        if (cell.show === "stay" || cell.char === " ") {
+          return;
+        }
+
+        const side = parentSideOf(cell);
+        const step = side === "right" ? 1 : -1;
+
+        /* the parent: nearest letter on that side that is
+           already visible when this letter starts */
+        let parentIndex = -1;
+
+        for (let k = index + step; k >= 0 && k < INTRO_CELLS.length; k += step) {
+          if (INTRO_CELLS[k].char !== " " &&
+              INTRO_WIDTH_AT(INTRO_CELLS[k], cell.start) > 0) {
+            parentIndex = k;
+            break;
+          }
+        }
+
+        if (parentIndex < 0) {
+          return;
+        }
+
+        const letter = introLetters[index];
+
+        letter.offset =
+          startOffsetOf(
+            cell.char,
+            INTRO_CELLS[parentIndex].char,
+            side,
+            cell.closePockets
+          );
+
+        const mask =
+          document.createElementNS(SVG_NS, "mask");
+
+        mask.setAttribute("id", `mask-${index}`);
+        mask.setAttribute("maskUnits", "userSpaceOnUse");
+        mask.setAttribute("x", "-10000");
+        mask.setAttribute("y", "-10000");
+        mask.setAttribute("width", "20000");
+        mask.setAttribute("height", "20000");
+
+        const white =
+          document.createElementNS(SVG_NS, "rect");
+
+        white.setAttribute("x", "-10000");
+        white.setAttribute("y", "-10000");
+        white.setAttribute("width", "20000");
+        white.setAttribute("height", "20000");
+        white.setAttribute("fill", "white");
+
+        mask.appendChild(white);
+
+        /* every letter between this one and its parent
+           (and the parent itself) hides it */
+        for (let k = index + step; k !== parentIndex + step; k += step) {
+
+          if (INTRO_CELLS[k].char === " ") {
+            continue;
+          }
+
+          const use =
+            document.createElementNS(SVG_NS, "use");
+
+          use.setAttribute(
+            "href",
+            "#" + zoneIdOf(
+              INTRO_CELLS[k].char,
+              side === "right" ? "left" : "right",
+              cell.closePockets
+            )
+          );
+
+          mask.appendChild(use);
+          letter.users.push({ k, use });
+
+        }
+
+        svgDefs.appendChild(mask);
+        letter.group.setAttribute("mask", `url(#mask-${index})`);
 
       }
     );
 
+    updateAnimation();
 
-  INTRO_CELLS.forEach(
-    (cell, index) => {
+  }
 
-      if (cell.show === "stay" || cell.char === " ") {
-        return;
-      }
 
-      const side = parentSideOf(cell);
-      const step = side === "right" ? 1 : -1;
-
-      /* the parent: nearest letter on that side that is
-         already visible when this letter starts */
-      let parentIndex = -1;
-
-      for (let k = index + step; k >= 0 && k < INTRO_CELLS.length; k += step) {
-        if (INTRO_CELLS[k].char !== " " &&
-            INTRO_WIDTH_AT(INTRO_CELLS[k], cell.start) > 0) {
-          parentIndex = k;
-          break;
-        }
-      }
-
-      if (parentIndex < 0) {
-        return;
-      }
-
-      const letter = introLetters[index];
-
-      letter.offset =
-        CLIP_MODE === "rect"
-          ? 0
-          : startOffsetOf(
-              cell.char,
-              INTRO_CELLS[parentIndex].char,
-              side,
-              cell.closePockets
-            );
-
-      const mask =
-        document.createElementNS(SVG_NS, "mask");
-
-      mask.setAttribute("id", `mask-${index}`);
-      mask.setAttribute("maskUnits", "userSpaceOnUse");
-      mask.setAttribute("x", "-10000");
-      mask.setAttribute("y", "-10000");
-      mask.setAttribute("width", "20000");
-      mask.setAttribute("height", "20000");
-
-      const white =
-        document.createElementNS(SVG_NS, "rect");
-
-      white.setAttribute("x", "-10000");
-      white.setAttribute("y", "-10000");
-      white.setAttribute("width", "20000");
-      white.setAttribute("height", "20000");
-      white.setAttribute("fill", "white");
-
-      mask.appendChild(white);
-
-      /* every letter between this one and its parent
-         (and the parent itself) hides it */
-      for (let k = index + step; k !== parentIndex + step; k += step) {
-
-        if (INTRO_CELLS[k].char === " ") {
-          continue;
-        }
-
-        const use =
-          document.createElementNS(SVG_NS, "use");
-
-        use.setAttribute(
-          "href",
-          "#" + zoneIdOf(
-            INTRO_CELLS[k].char,
-            side === "right" ? "left" : "right",
-            cell.closePockets
-          )
-        );
-
-        mask.appendChild(use);
-        letter.users.push({ k, use });
-
-      }
-
-      svgDefs.appendChild(mask);
-      letter.group.setAttribute("mask", `url(#mask-${index})`);
-
-    }
-  );
+  /* build once the page font is ready (letters are text) */
+  document.fonts.ready.then(buildIntroLetters);
 
   const projectArrow =
     document.getElementById("projectArrow");
@@ -1509,10 +1556,16 @@
     centered in the label. Widths are in characters
     (monospace), 1 character = sizer width / 11.
     Each letter is pinned to the cell side away from
-    its parent; masks follow the letters they belong to.
+    its parent; masks follow the letters they belong to
+    (zones are in font units, hence the scale).
   */
 
   function updateIntroCells(introProgress) {
+
+    /* letters are built when the font is ready */
+    if (!introLetters.length) {
+      return;
+    }
 
     const charWidth =
       projectSizer.offsetWidth / 11;
@@ -1575,7 +1628,8 @@
 
         const w = widths[letter.index];
 
-        letter.path.setAttribute("transform", placeOf(letter.index));
+        letter.text.setAttribute("x", String(glyphX[letter.index] * charWidth));
+        letter.text.setAttribute("y", String(baseline));
 
         /* not out yet (or fully hidden): not drawn at all */
         letter.group.style.display =
