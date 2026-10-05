@@ -576,9 +576,6 @@
   const arrowSystem =
     document.getElementById("arrowSystem");
 
-  const arrowShaft =
-    document.getElementById("arrowShaft");
-
   const multipleLabel =
     document.getElementById("multipleLabel");
 
@@ -690,41 +687,6 @@
       passed / scrollable;
 
 
-    /*
-      THE SEQUENCE
-
-      0.00–0.18
-      ONE ASSET stays still.
-
-      0.18–0.30
-      ONE ASSET + CARD move upward.
-      Arrow starts at the bottom of the card
-      and grows downward.
-
-      0.30–0.34
-      MULTIPLE REPRESENTATIONS appears
-      in the center.
-      Arrow continues growing toward it.
-
-      0.34–0.42
-      Arrow pauses above
-      MULTIPLE REPRESENTATIONS.
-
-      0.42–0.50
-      MULTIPLE REPRESENTATIONS + arrow
-      move upward together.
-
-      0.50
-      Arrow disappears.
-
-      0.50–0.96
-      Five representations rotate through.
-
-      0.96–1.00
-      Final InDesign enters and becomes front-facing.
-    */
-
-
     /* ==================================================
        1. ONE ASSET + CARD
     ================================================== */
@@ -739,7 +701,6 @@
         0,
         1
       );
-
 
     const cardTravel =
       window.innerHeight * 0.82;
@@ -777,7 +738,6 @@
     const labelMoveStart = 0.42;
     const labelMoveEnd = 0.50;
 
-
     const labelMoveProgress =
       clamp(
         (progress - labelMoveStart) /
@@ -786,16 +746,6 @@
         1
       );
 
-
-    /*
-      Desktop:
-      label finishes below the fixed header.
-
-      Mobile:
-      the label is allowed to use two lines,
-      so its real height is measured and the
-      whole block is kept below the header.
-    */
 
     const header =
       document.querySelector("header");
@@ -809,13 +759,26 @@
     const labelHeight =
       multipleLabel.offsetHeight;
 
-    const finalLabelCenter =
-      headerRect.bottom +
-      headerGap +
-      labelHeight / 2;
-
     const centerY =
       window.innerHeight / 2;
+
+
+    /*
+      Calculate the final TOP edge of the label
+      directly below the fixed header.
+
+      This works for both one-line desktop
+      and two-line mobile text.
+    */
+
+    const finalLabelTop =
+      headerRect.bottom +
+      headerGap;
+
+    const finalLabelCenter =
+      finalLabelTop +
+      labelHeight / 2;
+
 
     const labelTravel =
       centerY -
@@ -827,7 +790,6 @@
 
     multipleLabel.style.opacity =
       labelOpacity;
-
 
     multipleLabel.style.transform =
       `
@@ -845,7 +807,6 @@
 
     const arrowStart = 0.18;
     const arrowEnd = 0.34;
-
 
     const arrowProgress =
       clamp(
@@ -871,11 +832,6 @@
       stageRect.top;
 
 
-    /*
-      The arrow tip stays 24px above
-      the top edge of MULTIPLE REPRESENTATIONS.
-    */
-
     const arrowLabelGap =
       24;
 
@@ -888,7 +844,17 @@
       stageRect.top;
 
 
-    const targetLength =
+    /*
+      At the end of the growth phase we freeze
+      the arrow's length.
+
+      This is the critical point:
+      afterwards the arrow is no longer recalculated
+      against the moving label. Instead its entire
+      geometry moves with the label.
+    */
+
+    const restingArrowLength =
       Math.max(
         0,
         labelTop -
@@ -904,38 +870,49 @@
         : 0;
 
 
-    /*
-      0.18–0.34:
-      arrow grows from the card to the label.
-    */
-
     if (progress < labelMoveStart) {
+
+      /*
+        Arrow grows from the bottom of the card.
+      */
 
       arrowSystem.style.top =
         `${cardBottom}px`;
 
       arrowSystem.style.height =
-        `${targetLength * arrowProgress}px`;
+        `${restingArrowLength * arrowProgress}px`;
 
     }
 
-
-    /*
-      0.42–0.50:
-      arrow is now attached to the label.
-
-      Its top and bottom both move by labelY,
-      so the distance between the arrow tip
-      and the label never changes.
-    */
-
     else {
 
+      /*
+        The label's current top edge already includes
+        its upward movement.
+
+        We place the arrow tip exactly 24px above it,
+        then keep the original arrow length.
+
+        Therefore:
+        label moves → arrow moves identically.
+        Distance stays constant.
+      */
+
+      const currentLabelTop =
+        labelRect.top -
+        stageRect.top;
+
+      const arrowTop =
+        currentLabelTop -
+        arrowLabelGap -
+        restingArrowLength;
+
+
       arrowSystem.style.top =
-        `${cardBottom + labelY}px`;
+        `${arrowTop}px`;
 
       arrowSystem.style.height =
-        `${targetLength}px`;
+        `${restingArrowLength}px`;
 
     }
 
@@ -973,12 +950,16 @@
         representations.length;
 
 
-      /*
-        First five representations each receive
-        one equal segment of the 0.50–0.96 range.
-      */
-
       if (progress < representationEnd) {
+
+        /*
+          Five non-final representations:
+          AutoCAD Minimal
+          AutoCAD Conditional
+          AutoCAD Realistic
+          SketchUp Realistic Face Me
+          SketchUp Conditional
+        */
 
         const firstFiveCount =
           count - 1;
@@ -1005,7 +986,6 @@
 
         representationImage.alt =
           `${current.platform} ${current.type}`;
-
 
         representationPlatform.textContent =
           current.platform;
@@ -1039,13 +1019,12 @@
       }
 
 
-      /*
-        Final InDesign:
-        -90° → 0°
-        only during the final 4%.
-      */
-
       else {
+
+        /*
+          Final InDesign:
+          -90° → 0°
+        */
 
         const finalProgress =
           clamp(
@@ -1065,7 +1044,6 @@
 
         representationImage.alt =
           `${current.platform} ${current.type}`;
-
 
         representationPlatform.textContent =
           current.platform;
