@@ -1,29 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>CUT2 — Asset Representations</title>
 
-  <link
-    rel="preconnect"
-    href="https://fonts.googleapis.com"
-  />
-  <link
-    rel="preconnect"
-    href="https://fonts.gstatic.com"
-    crossorigin
-  />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
     href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap"
     rel="stylesheet"
-  />
+  >
 
   <style>
+
     * {
       box-sizing: border-box;
     }
@@ -32,310 +23,455 @@
     body {
       margin: 0;
       padding: 0;
-      width: 100%;
-      min-height: 100%;
+
       background: #f3f0e8;
       color: #000;
-      font-family: "IBM Plex Mono", monospace;
-      font-weight: 400;
+
+      font-family:
+        "IBM Plex Mono",
+        "Courier New",
+        monospace;
     }
 
     body {
       overflow-x: hidden;
     }
 
+
+    /* ==================================================
+       HEADER
+    ================================================== */
+
     header {
       position: fixed;
       top: 0;
       left: 0;
+
       width: 100%;
       height: 64px;
-      padding: 0 24px;
+
+      padding: 0 28px;
+
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: #f3f0e8;
-      z-index: 100;
+
       border-bottom: 1px solid #000;
+      background: #f3f0e8;
+
+      z-index: 100;
     }
 
-    .header-logo {
-      font-size: 14px;
-      line-height: 1;
+    .logo {
+      font-size: 16px;
+      font-weight: 400;
     }
 
-    .header-nav {
-      display: flex;
-      gap: 24px;
+    .header-title {
       font-size: 12px;
-      line-height: 1;
+      font-weight: 400;
+
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
     }
 
-    .header-nav span {
-      white-space: nowrap;
+
+    /* ==================================================
+       INTRO
+    ================================================== */
+
+    .intro {
+      min-height: 100vh;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      padding: 20px;
+
+      font-size: clamp(28px, 5vw, 72px);
+      font-weight: 400;
+
+      text-align: center;
     }
+
+
+    /* ==================================================
+       MAIN SYSTEM
+    ================================================== */
 
     .asset-system {
       position: relative;
       height: 700vh;
     }
 
-    .stage {
+    .sticky-stage {
       position: sticky;
+
       top: 0;
+
       width: 100%;
       height: 100vh;
-      min-height: 600px;
+
       overflow: hidden;
     }
 
-    .intro {
-      position: absolute;
-      inset: 0;
-      z-index: 2;
-      pointer-events: none;
-    }
 
-    .intro-line {
+    /* ==================================================
+       ONE ASSET
+    ================================================== */
+
+    .asset-card {
       position: absolute;
+
       left: 50%;
       top: 50%;
-      transform: translate(-50%, -50%);
-      width: 100%;
-      text-align: center;
-      font-size: clamp(28px, 7vw, 72px);
-      line-height: 0.95;
-      white-space: nowrap;
-      transition: none;
-    }
 
-    #oneProject {
-      opacity: 1;
-    }
+      width: min(252px, 49vw);
 
-    #multiplePlatforms {
-      opacity: 0;
-    }
+      transform:
+        translate(-50%, -50%);
 
-    .asset-stage {
-      position: absolute;
-      inset: 0;
-      z-index: 3;
-      pointer-events: none;
+      z-index: 5;
     }
 
     .asset-label {
       position: absolute;
-      left: 50%;
-      top: 50%;
-      width: 100%;
-      text-align: center;
-      font-size: clamp(28px, 7vw, 72px);
-      line-height: 0.95;
-      white-space: nowrap;
-      transform: translate(-50%, -50%);
-      opacity: 0;
-    }
 
-    .asset-card {
-      position: absolute;
       left: 50%;
-      top: 50%;
-      width: min(252px, 49vw);
-      aspect-ratio: 1 / 1;
-      transform: translate(-50%, -50%);
-      opacity: 0;
-      overflow: hidden;
+      bottom: calc(100% + 28px);
+
+      transform: translateX(-50%);
+
+      font-size: clamp(28px, 5vw, 72px);
+      font-weight: 400;
+
+      text-align: center;
+      white-space: nowrap;
     }
 
     .asset-card img {
       display: block;
+
       width: 100%;
-      height: 100%;
-      object-fit: contain;
+      height: auto;
+
+      border: 1px solid #000;
     }
+
+
+    /* ==================================================
+       ARROW
+    ================================================== */
 
     .arrow-system {
       position: absolute;
+
       left: 50%;
       top: 50%;
+
       width: 1px;
+
       opacity: 0;
+
       z-index: 4;
+
       transform: translateX(-50%);
     }
 
     .arrow-shaft {
       position: absolute;
+
       left: 0;
       top: 0;
+
       width: 1px;
+
       background: #000;
     }
 
     .arrow-head {
       position: absolute;
+
       left: 50%;
       bottom: 0;
+
       width: 10px;
       height: 10px;
+
       border-right: 1px solid #000;
       border-bottom: 1px solid #000;
+
       transform:
         translate(-50%, 50%)
         rotate(45deg);
     }
 
+
+    /* ==================================================
+       MULTIPLE REPRESENTATIONS
+    ================================================== */
+
     .multiple-label {
       position: absolute;
+
       left: 50%;
       top: 50%;
-      width: 100%;
-      text-align: center;
-      font-size: clamp(28px, 7vw, 72px);
-      line-height: 0.95;
+
+      transform:
+        translate(-50%, -50%);
+
+      font-size: clamp(28px, 5vw, 72px);
+      font-weight: 400;
+
+      text-transform: uppercase;
       white-space: nowrap;
-      transform: translate(-50%, -50%);
+
       opacity: 0;
+
       z-index: 3;
     }
 
-    .representations {
-      position: absolute;
-      inset: 0;
-      z-index: 5;
-      pointer-events: none;
-    }
+
+    /* ==================================================
+       REPRESENTATIONS
+    ================================================== */
 
     .representation {
       position: absolute;
+
       left: 50%;
       top: 58%;
+
       width: min(620px, 76vw);
-      transform: translate(-50%, -50%);
+
+      transform:
+        translate(-50%, -50%);
+
       opacity: 0;
+
+      pointer-events: none;
+
+      z-index: 2;
     }
 
     .representation-visual {
       width: 100%;
+      height: min(58vh, 620px);
+
       display: flex;
-      justify-content: center;
       align-items: center;
-      transform-origin: center center;
+      justify-content: center;
+
+      transform:
+        perspective(1200px)
+        rotateY(-90deg)
+        scale(0.92);
+
       transform-style: preserve-3d;
-      backface-visibility: hidden;
+      transform-origin: center center;
     }
 
-    .representation-visual img {
+    .representation-image {
       display: block;
+
       width: 70%;
-      height: auto;
-      max-height: 52vh;
+      height: 70%;
+
       object-fit: contain;
     }
 
-    .representation-caption {
-      position: fixed;
-      left: 24px;
-      bottom: 20px;
-      z-index: 20;
+    .representation-info {
+      margin-top: 18px;
+
+      display: flex;
+      justify-content: space-between;
+
       font-size: 12px;
-      line-height: 1.4;
+      font-weight: 400;
+
       text-transform: uppercase;
-      opacity: 0;
-      pointer-events: none;
+      letter-spacing: 0.04em;
     }
 
-    .representation-caption span {
-      display: block;
+
+    /* ==================================================
+       NEXT
+    ================================================== */
+
+    .next {
+      min-height: 100vh;
+
+      border-top: 1px solid #000;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      padding: 20px;
+
+      font-size: clamp(24px, 4vw, 56px);
+      font-weight: 400;
+
+      text-align: center;
     }
+
+
+    /* ==================================================
+       MOBILE
+    ================================================== */
 
     @media (max-width: 700px) {
+
       header {
+        height: 52px;
         padding: 0 16px;
       }
 
-      .header-nav {
-        gap: 12px;
+      .header-title {
         font-size: 10px;
       }
 
-      .representation-caption {
-        left: 16px;
-        bottom: 16px;
+      .intro {
+        min-height: 100svh;
+        font-size: 26px;
+      }
+
+      .asset-system {
+        height: 700vh;
+      }
+
+      .sticky-stage {
+        height: 100svh;
+      }
+
+      .asset-card {
+        width: min(210px, 53vw);
+      }
+
+      .asset-label {
+        bottom: calc(100% + 20px);
+        font-size: 26px;
+      }
+
+      .multiple-label {
+        width: 90vw;
+
+        white-space: normal;
+
+        text-align: center;
+
+        font-size: 26px;
+        line-height: 1.2;
       }
 
       .representation {
-        top: 56%;
+        width: 86vw;
+        top: 59%;
       }
+
+      .representation-visual {
+        height: 48svh;
+      }
+
+      .representation-image {
+        width: 70%;
+        height: 70%;
+      }
+
+      .representation-info {
+        margin-top: 12px;
+        font-size: 10px;
+      }
+
+      .next {
+        min-height: 100svh;
+        font-size: 26px;
+      }
+
     }
+
   </style>
 </head>
+
 
 <body>
 
   <header>
-    <div class="header-logo">CUT2</div>
 
-    <nav class="header-nav">
-      <span>SYSTEM</span>
-      <span>ASSETS</span>
-      <span>WORKFLOW</span>
-      <span>VIDEO</span>
-      <span>ACCESS</span>
-      <span>CONTACT</span>
-    </nav>
+    <div class="logo">
+      CUT2
+    </div>
+
+    <div class="header-title">
+      Asset Representations
+    </div>
+
   </header>
 
-  <main class="asset-system">
-    <section class="stage">
 
-      <div class="intro">
-        <div
-          class="intro-line"
-          id="oneProject"
-        >
-          ONE PROJECT.
-        </div>
+  <main>
 
-        <div
-          class="intro-line"
-          id="multiplePlatforms"
-        >
-          MULTIPLE PLATFORMS.
-        </div>
+    <!-- ==================================================
+       INTRO
+    ================================================== -->
+
+    <section class="intro">
+
+      <div>
+        ONE PROJECT.<br>
+        MULTIPLE PLATFORMS.
       </div>
 
-      <div class="asset-stage">
+    </section>
 
-        <div
-          class="asset-label"
-          id="oneAsset"
-        >
-          ONE ASSET
-        </div>
+
+    <!-- ==================================================
+       ASSET SYSTEM
+    ================================================== -->
+
+    <section class="asset-system">
+
+      <div class="sticky-stage">
+
+
+        <!-- ONE ASSET -->
 
         <div
           class="asset-card"
           id="assetCard"
         >
+
+          <div class="asset-label">
+            ONE ASSET.
+          </div>
+
           <img
             src="asset-representations/library-card.png?v=3"
-            alt="CUT2 asset"
-          />
+            alt="CUT2 Asset Library"
+          >
+
         </div>
+
+
+        <!-- ARROW -->
 
         <div
           class="arrow-system"
           id="arrowSystem"
         >
+
           <div
             class="arrow-shaft"
             id="arrowShaft"
           ></div>
 
           <div class="arrow-head"></div>
+
         </div>
+
+
+        <!-- MULTIPLE REPRESENTATIONS -->
 
         <div
           class="multiple-label"
@@ -344,289 +480,261 @@
           MULTIPLE REPRESENTATIONS
         </div>
 
-      </div>
 
-      <div
-        class="representations"
-        id="representations"
-      >
+        <!-- REPRESENTATION -->
+
         <div
           class="representation"
           id="representation"
         >
+
           <div
             class="representation-visual"
             id="representationVisual"
           >
+
             <img
               id="representationImage"
-              src=""
-              alt=""
-            />
-          </div>
-        </div>
-      </div>
+              class="representation-image"
+              src="asset-representations/autocad/minimal.svg?v=3"
+              alt="AutoCAD Minimal"
+            >
 
-      <div
-        class="representation-caption"
-        id="representationCaption"
-      >
-        <span id="captionPlatform"></span>
-        <span id="captionType"></span>
+          </div>
+
+
+          <div class="representation-info">
+
+            <span id="representationPlatform">
+              AUTOCAD
+            </span>
+
+            <span id="representationType">
+              MINIMAL
+            </span>
+
+          </div>
+
+        </div>
+
+
       </div>
 
     </section>
+
+
+    <!-- ==================================================
+       NEXT
+    ================================================== -->
+
+    <section class="next">
+
+      THE SYSTEM CONTINUES.
+
+    </section>
+
   </main>
 
+
   <script>
-    const clamp = (value, min, max) =>
-      Math.min(
-        Math.max(value, min),
-        max
-      );
-
-    const lerp = (a, b, t) =>
-      a + (b - a) * t;
-
-    const oneProject =
-      document.getElementById(
-        "oneProject"
-      );
-
-    const multiplePlatforms =
-      document.getElementById(
-        "multiplePlatforms"
-      );
-
-    const oneAsset =
-      document.getElementById(
-        "oneAsset"
-      );
 
     const assetCard =
-      document.getElementById(
-        "assetCard"
-      );
+      document.getElementById("assetCard");
 
     const arrowSystem =
-      document.getElementById(
-        "arrowSystem"
-      );
+      document.getElementById("arrowSystem");
 
     const arrowShaft =
-      document.getElementById(
-        "arrowShaft"
-      );
+      document.getElementById("arrowShaft");
 
     const multipleLabel =
-      document.getElementById(
-        "multipleLabel"
-      );
+      document.getElementById("multipleLabel");
 
     const representation =
-      document.getElementById(
-        "representation"
-      );
+      document.getElementById("representation");
 
     const representationVisual =
-      document.getElementById(
-        "representationVisual"
-      );
+      document.getElementById("representationVisual");
 
     const representationImage =
-      document.getElementById(
-        "representationImage"
-      );
+      document.getElementById("representationImage");
 
-    const captionPlatform =
-      document.getElementById(
-        "captionPlatform"
-      );
+    const representationPlatform =
+      document.getElementById("representationPlatform");
 
-    const captionType =
-      document.getElementById(
-        "captionType"
-      );
+    const representationType =
+      document.getElementById("representationType");
+
+
+    /* ==================================================
+       REPRESENTATION DATA
+    ================================================== */
 
     const representations = [
+
       {
         platform: "AUTOCAD",
         type: "MINIMAL",
-        src:
-          "asset-representations/autocad/minimal.svg?v=3"
+        src: "asset-representations/autocad/minimal.svg?v=3"
       },
+
       {
         platform: "AUTOCAD",
         type: "CONDITIONAL",
-        src:
-          "asset-representations/autocad/conditional.svg?v=3"
+        src: "asset-representations/autocad/conditional.svg?v=3"
       },
+
       {
         platform: "AUTOCAD",
         type: "REALISTIC",
-        src:
-          "asset-representations/autocad/realistic.svg?v=3"
+        src: "asset-representations/autocad/realistic.svg?v=3"
       },
+
       {
         platform: "SKETCHUP",
         type: "REALISTIC FACE ME",
-        src:
-          "asset-representations/sketchup/realistic-face-me.png?v=3"
+        src: "asset-representations/sketchup/realistic-face-me.png?v=3"
       },
+
       {
         platform: "SKETCHUP",
         type: "CONDITIONAL",
-        src:
-          "asset-representations/sketchup/conditional.png?v=3"
+        src: "asset-representations/sketchup/conditional.png?v=3"
       },
+
       {
         platform: "INDESIGN",
         type: "IMAGE",
-        src:
-          "asset-representations/publishing/image.jpg?v=3"
+        src: "asset-representations/publishing/image.jpg?v=3"
       }
+
     ];
 
-    let currentCaptionIndex = -1;
 
-    function update() {
-      const maxScroll =
-        document.documentElement.scrollHeight -
-        window.innerHeight;
+    /* ==================================================
+       HELPERS
+    ================================================== */
 
-      const scrollY =
-        window.scrollY;
+    function clamp(value, min, max) {
+
+      return Math.max(
+        min,
+        Math.min(max, value)
+      );
+
+    }
+
+
+    function lerp(a, b, t) {
+
+      return a + (b - a) * t;
+
+    }
+
+
+    /* ==================================================
+       ANIMATION
+    ================================================== */
+
+    function updateAnimation() {
+
+      const section =
+        document.querySelector(".asset-system");
+
+      const rect =
+        section.getBoundingClientRect();
+
+      const scrollable =
+        section.offsetHeight - window.innerHeight;
+
+      const passed =
+        clamp(
+          -rect.top,
+          0,
+          scrollable
+        );
 
       const progress =
-        maxScroll > 0
-          ? clamp(
-              scrollY / maxScroll,
-              0,
-              1
-            )
-          : 0;
+        passed / scrollable;
 
 
       /*
-       * ------------------------------------------------------------
-       * INTRO
-       * ------------------------------------------------------------
-       */
+       THE SEQUENCE
 
-      const introStart = 0;
-      const introEnd = 0.16;
+       0.00–0.18
+       ONE ASSET stays still.
 
-      const introProgress =
+       0.18–0.30
+       ONE ASSET + CARD move upward.
+
+       0.30–0.34
+       Arrow appears and grows.
+
+       0.34–0.42
+       MULTIPLE REPRESENTATIONS is visible.
+
+       0.42–0.50
+       Arrow + label move upward together.
+
+       0.50
+       Arrow disappears.
+
+       0.50–0.96
+       Representations.
+
+       0.96–1.00
+       Final InDesign remains front-facing.
+      */
+
+
+      /* ==================================================
+         1. ONE ASSET + CARD
+      ================================================== */
+
+      const cardStart = 0.18;
+      const cardEnd = 0.30;
+
+      const cardProgress =
         clamp(
-          (progress - introStart) /
-          (introEnd - introStart),
+          (progress - cardStart) /
+          (cardEnd - cardStart),
           0,
           1
         );
 
-      oneProject.style.opacity =
-        1 - introProgress;
-
-      multiplePlatforms.style.opacity =
-        introProgress;
-
 
       /*
-       * ------------------------------------------------------------
-       * ONE ASSET + CARD
-       * ------------------------------------------------------------
-       *
-       * ONE ASSET appears together with the card.
-       * Both then move upward together.
-       */
+       The card moves upward by exactly one
+       viewport-based distance.
 
-      const assetStart = 0.16;
-      const assetEnd = 0.30;
+       The label is inside the card,
+       therefore it moves with it.
+      */
 
-      const assetProgress =
-        clamp(
-          (progress - assetStart) /
-          (assetEnd - assetStart),
-          0,
-          1
-        );
+      const cardTravel =
+        window.innerHeight * 0.82;
 
-      const assetY =
-        window.innerHeight * 0.46;
+      const cardY =
+        -cardProgress * cardTravel;
 
-      oneAsset.style.opacity =
-        assetProgress;
-
-      assetCard.style.opacity =
-        assetProgress;
-
-      oneAsset.style.transform =
-        `
-          translate(
-            -50%,
-            calc(
-              -50% +
-              ${-assetProgress * assetY}px
-            )
-          )
-        `;
 
       assetCard.style.transform =
         `
           translate(
             -50%,
-            calc(
-              -50% +
-              ${-assetProgress * assetY}px
-            )
+            calc(-50% + ${cardY}px)
           )
         `;
 
 
-      /*
-       * ------------------------------------------------------------
-       * ARROW
-       * ------------------------------------------------------------
-       */
-
-      const arrowStart = 0.30;
-      const arrowEnd = 0.42;
-
-      const arrowProgress =
-        clamp(
-          (progress - arrowStart) /
-          (arrowEnd - arrowStart),
-          0,
-          1
-        );
-
-      const arrowLength =
-        window.innerHeight * 0.38;
-
-      arrowSystem.style.opacity =
-        progress >= arrowStart &&
-        progress < 0.50
-          ? 1
-          : 0;
-
-      arrowSystem.style.transform =
-        `translateX(-50%)`;
-
-      arrowShaft.style.height =
-        `${arrowProgress * arrowLength}px`;
-
-      const arrowBaseY =
-        window.innerHeight * 0.12;
-
-      arrowSystem.style.top =
-        `calc(50% + ${arrowBaseY}px)`;
-
+      /* ==================================================
+         2. MULTIPLE REPRESENTATIONS
+      ================================================== */
 
       /*
-       * ------------------------------------------------------------
-       * MULTIPLE REPRESENTATIONS
-       * ------------------------------------------------------------
-       */
+       It first appears in the center,
+       with no rotation.
+      */
 
       const labelAppearStart = 0.30;
       const labelAppearEnd = 0.34;
@@ -639,6 +747,15 @@
           1
         );
 
+
+      /*
+       Then it moves upward.
+
+       The destination is deliberately the same
+       vertical level that ONE ASSET occupies
+       after its movement.
+      */
+
       const labelMoveStart = 0.42;
       const labelMoveEnd = 0.50;
 
@@ -650,11 +767,13 @@
           1
         );
 
+
       const labelTravel =
         window.innerHeight * 0.42;
 
       const labelY =
         -labelMoveProgress * labelTravel;
+
 
       multipleLabel.style.opacity =
         labelOpacity;
@@ -663,19 +782,81 @@
         `
           translate(
             -50%,
-            calc(
-              -50% +
-              ${labelY}px
-            )
+            calc(-50% + ${labelY}px)
           )
         `;
 
 
+      /* ==================================================
+         3. ARROW
+      ================================================== */
+
       /*
-       * ------------------------------------------------------------
-       * REPRESENTATIONS
-       * ------------------------------------------------------------
-       */
+       The arrow starts exactly below the card.
+
+       It grows downward and ends at the
+       MULTIPLE REPRESENTATIONS label.
+      */
+
+      const arrowStart = 0.30;
+      const arrowEnd = 0.42;
+
+      const arrowProgress =
+        clamp(
+          (progress - arrowStart) /
+          (arrowEnd - arrowStart),
+          0,
+          1
+        );
+
+
+      const arrowLength =
+        window.innerHeight * 0.38;
+
+
+      arrowSystem.style.opacity =
+        progress >= arrowStart &&
+        progress < 0.50
+          ? 1
+          : 0;
+
+
+      /*
+       Arrow follows the same vertical movement
+       as MULTIPLE REPRESENTATIONS.
+      */
+
+      arrowSystem.style.transform =
+        `
+          translateX(-50%)
+          translateY(${labelY}px)
+        `;
+
+
+      /*
+       The shaft reaches the exact position
+       of the arrowhead.
+      */
+
+      arrowShaft.style.height =
+        `${arrowProgress * arrowLength}px`;
+
+
+      /*
+       Position the arrow system so that its
+       top starts below the moving asset card.
+      */
+
+      const arrowBaseY =
+        window.innerHeight * 0.12;
+
+      arrowSystem.style.top =
+        `calc(50% + ${arrowBaseY}px)`;
+
+
+      /* ==================================================
+         4. REPRESENTATIONS
+      ================================================== */
 
       const representationStart = 0.50;
       const representationEnd = 0.96;
@@ -688,29 +869,51 @@
           1
         );
 
-      const count =
-        representations.length;
 
-      const exactIndex =
-        representationProgress *
-        (count - 1);
+      if (progress >= representationStart) {
 
-      const index =
-        Math.min(
-          count - 1,
-          Math.floor(exactIndex)
-        );
+        representation.style.opacity = 1;
 
-      const localProgress =
-        exactIndex - index;
 
-      const current =
-        representations[index];
+        /*
+         Arrow disappears exactly when
+         the first representation begins.
+        */
 
-      if (
-        index !== currentCaptionIndex
-      ) {
-        currentCaptionIndex = index;
+        arrowSystem.style.opacity = 0;
+
+
+        const count =
+          representations.length;
+
+
+        /*
+         We use count - 1 intervals.
+
+         This makes the last representation
+         occupy the complete final state rather
+         than immediately jumping to another one.
+        */
+
+        const exactIndex =
+          representationProgress *
+          (count - 1);
+
+
+        const index =
+          Math.min(
+            count - 1,
+            Math.floor(exactIndex)
+          );
+
+
+        const localProgress =
+          exactIndex - index;
+
+
+        const current =
+          representations[index];
+
 
         representationImage.src =
           current.src;
@@ -718,109 +921,85 @@
         representationImage.alt =
           `${current.platform} ${current.type}`;
 
-        captionPlatform.textContent =
+        representationPlatform.textContent =
           current.platform;
 
-        captionType.textContent =
+        representationType.textContent =
           current.type;
+
+
+        const isLast =
+          index === count - 1;
+
+
+        /*
+         LAST REPRESENTATION
+
+         InDesign ends completely front-facing
+         and remains there.
+        */
+
+        if (isLast) {
+
+          representationVisual.style.transform =
+            `
+              perspective(1200px)
+              rotateY(0deg)
+              scale(1)
+            `;
+
+        }
+
+        else {
+
+          /*
+           Every representation enters
+           from the side and opens toward
+           the viewer.
+          */
+
+          const rotation =
+            lerp(
+              -90,
+              90,
+              localProgress
+            );
+
+
+          const scale =
+            0.92 +
+            Math.sin(
+              localProgress * Math.PI
+            ) * 0.08;
+
+
+          representationVisual.style.transform =
+            `
+              perspective(1200px)
+              rotateY(${rotation}deg)
+              scale(${scale})
+            `;
+
+        }
+
       }
 
-      representation.style.opacity =
-        progress >= representationStart
-          ? 1
-          : 0;
+      else {
 
+        representation.style.opacity = 0;
 
-      /*
-       * ------------------------------------------------------------
-       * REPRESENTATION ROTATION
-       * ------------------------------------------------------------
-       *
-       * First five:
-       * -90° → +90°
-       *
-       * Last InDesign:
-       * -90° → 0°
-       * and then remains fixed.
-       */
-
-      const isLast =
-        index === count - 1;
-
-      if (isLast) {
-
-        const rotation =
-          lerp(
-            -90,
-            0,
-            localProgress
-          );
-
-        const scale =
-          0.92 +
-          Math.sin(
-            localProgress * Math.PI
-          ) * 0.08;
-
-        representationVisual.style.transform =
-          `
-            perspective(1200px)
-            rotateY(${rotation}deg)
-            scale(${scale})
-          `;
-
-      } else {
-
-        const rotation =
-          lerp(
-            -90,
-            90,
-            localProgress
-          );
-
-        const scale =
-          0.92 +
-          Math.sin(
-            localProgress * Math.PI
-          ) * 0.08;
-
-        representationVisual.style.transform =
-          `
-            perspective(1200px)
-            rotateY(${rotation}deg)
-            scale(${scale})
-          `;
       }
+
+
+      requestAnimationFrame(
+        updateAnimation
+      );
+
     }
 
 
-    let ticking = false;
+    updateAnimation();
 
-    function requestUpdate() {
-      if (!ticking) {
-        window.requestAnimationFrame(
-          () => {
-            update();
-            ticking = false;
-          }
-        );
-
-        ticking = true;
-      }
-    }
-
-    window.addEventListener(
-      "scroll",
-      requestUpdate,
-      { passive: true }
-    );
-
-    window.addEventListener(
-      "resize",
-      update
-    );
-
-    update();
   </script>
 
 </body>
