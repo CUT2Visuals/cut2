@@ -793,13 +793,12 @@
 
 
     /*
-      On mobile the label is two lines.
+      MOBILE:
+      Move the actual TOP coordinate instead of
+      moving vertically through transform.
 
-      Position its TOP edge directly instead of
-      relying on the center-based transform.
-
-      Final position:
-      header bottom + 24px.
+      This guarantees that the final top edge is
+      exactly 24px below the fixed header.
     */
 
     if (window.innerWidth <= 700) {
@@ -815,17 +814,18 @@
           labelMoveProgress
         );
 
+      multipleLabel.style.top =
+        `${mobileTop}px`;
+
       multipleLabel.style.transform =
-        `
-          translate(
-            -50%,
-            ${mobileTop - centerY}px
-          )
-        `;
+        `translateX(-50%)`;
 
     }
 
     else {
+
+      multipleLabel.style.top =
+        `50%`;
 
       multipleLabel.style.transform =
         `
