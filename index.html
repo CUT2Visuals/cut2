@@ -82,7 +82,7 @@
 
     .asset-system {
       position: relative;
-      height: 817vh;
+      height: 1117vh;
     }
 
     .sticky-stage {
@@ -503,6 +503,160 @@
 
 
     /* ==================================================
+       TOOLS
+    ================================================== */
+
+    .tools-label {
+      position: absolute;
+
+      left: 50%;
+      top: 0;
+
+      transform: translateX(-50%);
+
+      font-size: clamp(28px, 5vw, 72px);
+      font-weight: 400;
+
+      text-transform: uppercase;
+      white-space: nowrap;
+
+      visibility: hidden;
+
+      z-index: 3;
+    }
+
+    .tools-cloud {
+      position: absolute;
+
+      left: 0;
+      top: 0;
+
+      width: 100%;
+      height: 100%;
+
+      pointer-events: none;
+
+      z-index: 3;
+    }
+
+    /* one label of the cloud: plain text, real button */
+    .tool-label {
+      position: absolute;
+
+      left: 0;
+      top: 0;
+
+      margin: 0;
+      padding: 2px 4px;
+
+      border: 0;
+      background: none;
+      color: inherit;
+
+      font-family: inherit;
+      font-weight: 400;
+      line-height: 1.2;
+      white-space: nowrap;
+
+      cursor: pointer;
+      pointer-events: auto;
+
+      transform-origin: center center;
+
+      visibility: hidden;
+    }
+
+    .tool-label:focus {
+      outline: none;
+    }
+
+    .tool-label:focus-visible {
+      outline: 1px solid #000;
+      outline-offset: 3px;
+    }
+
+    /* small window with the tool description */
+    .tool-popup {
+      position: fixed;
+
+      left: 0;
+      top: 0;
+
+      width: 320px;
+      max-width: calc(100vw - 32px);
+
+      padding: 16px;
+
+      border: 1px solid #000;
+      background: #f3f0e8;
+      color: #000;
+
+      font-size: 12px;
+      line-height: 1.5;
+
+      z-index: 150;
+    }
+
+    .tool-popup[hidden] {
+      display: none;
+    }
+
+    .tool-popup-head {
+      display: flex;
+      align-items: center;
+
+      gap: 10px;
+
+      padding-bottom: 12px;
+      margin-bottom: 12px;
+
+      border-bottom: 1px solid #000;
+
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .tool-popup-icon {
+      width: 24px;
+      height: 24px;
+
+      object-fit: contain;
+    }
+
+    .tool-popup-title {
+      margin: 0 0 8px;
+
+      font-size: 14px;
+      font-weight: 400;
+    }
+
+    .tool-popup-text {
+      margin: 0;
+    }
+
+    /* phone: panel at the bottom, full width */
+    .tool-popup.is-sheet {
+      left: 0;
+      right: 0;
+      top: auto;
+      bottom: 0;
+
+      width: auto;
+      max-width: none;
+
+      border-width: 1px 0 0;
+    }
+
+    @media (max-width: 700px) {
+
+      .tools-label {
+        font-size: 26px;
+      }
+
+    }
+
+
+    /* ==================================================
        NEXT
     ================================================== */
 
@@ -540,7 +694,7 @@
       }
 
       .asset-system {
-        height: 817vh;
+        height: 1117vh;
       }
 
       .sticky-stage {
@@ -876,9 +1030,44 @@
       </div>
 
 
+      <!-- ==================================================
+           TOOLS
+      ================================================== -->
+
+      <div
+        class="tools-label"
+        id="toolsLabel"
+      >
+        TOOLS
+      </div>
+
+      <div
+        class="tools-cloud"
+        id="toolsCloud"
+      ></div>
+
+
     </div>
 
   </section>
+
+
+  <!-- tool description window (filled by the script) -->
+  <div
+    class="tool-popup"
+    id="toolPopup"
+    role="dialog"
+    aria-modal="false"
+    aria-labelledby="toolPopupTitle"
+    hidden
+  >
+    <div class="tool-popup-head">
+      <img class="tool-popup-icon" id="toolPopupIcon" alt="">
+      <span id="toolPopupPlatform"></span>
+    </div>
+    <h3 class="tool-popup-title" id="toolPopupTitle"></h3>
+    <p class="tool-popup-text" id="toolPopupText"></p>
+  </div>
 
 
   <!-- ==================================================
@@ -975,6 +1164,104 @@
     { char: "T", parent: "",  show: "stay", dir: "",      start: 0,    duration: 1,    closePockets: true },
     { char: "2", parent: "T", show: "out",  dir: "left",  start: 0.12, duration: 0.25, closePockets: true }
   ];
+
+
+  /* ==================================================
+     SETTINGS: TOOLS
+     (safe to tweak)
+  ================================================== */
+
+  /*
+    The tools in the cloud.
+
+    platform     "AUTOCAD" / "SKETCHUP" / "INDESIGN"
+                 (chooses the icon in the window)
+    short        text in the cloud
+    full         full name in the window
+    description  text in the window
+    depth        0 – small, 1 – medium, 2 – large label.
+                 Only a depth effect, it means nothing.
+  */
+
+  const TOOLS = [
+    { platform: "AUTOCAD",  depth: 2, short: "Очистка исходных данных",  full: "Очистка исходных данных",                                    description: "Описание будет добавлено" },
+    { platform: "AUTOCAD",  depth: 0, short: "Схема ограничений",        full: "Автоматическая схема ограничений",                           description: "Описание будет добавлено" },
+    { platform: "AUTOCAD",  depth: 1, short: "Пожарные проезды",         full: "Полуавтоматическая генерация пожарных проездов (СП / СТУ)",  description: "Описание будет добавлено" },
+    { platform: "AUTOCAD",  depth: 0, short: "Ведомости",                full: "Ведомости",                                                  description: "Описание будет добавлено" },
+    { platform: "AUTOCAD",  depth: 2, short: "Импорт в SketchUp",        full: "Импорт файла в SketchUp",                                    description: "Описание будет добавлено" },
+    { platform: "AUTOCAD",  depth: 1, short: "Автомаркировка",           full: "Автоматическая маркировка",                                  description: "Описание будет добавлено" },
+    { platform: "AUTOCAD",  depth: 0, short: "Обратная связь: мощение",  full: "Обратная связь генератора мощения из SketchUp",              description: "Описание будет добавлено" },
+    { platform: "AUTOCAD",  depth: 1, short: "Обратная связь: миксы",    full: "Обратная связь генератора миксов озеленения из SketchUp",    description: "Описание будет добавлено" },
+    { platform: "AUTOCAD",  depth: 2, short: "Генератор КДО",            full: "Генератор КДО",                                              description: "Описание будет добавлено" },
+    { platform: "SKETCHUP", depth: 1, short: "Инсоляция: солнечные часы", full: "Инсоляция — солнечные часы",                                description: "Описание будет добавлено" },
+    { platform: "SKETCHUP", depth: 0, short: "Инсоляция: конверт теней", full: "Инсоляция — конверт теней",                                  description: "Описание будет добавлено" },
+    { platform: "SKETCHUP", depth: 2, short: "Светотехническая схема",   full: "Светотехническая схема",                                     description: "Описание будет добавлено" },
+    { platform: "SKETCHUP", depth: 1, short: "2D → 3D",                  full: "2D → 3D",                                                    description: "Описание будет добавлено" },
+    { platform: "SKETCHUP", depth: 0, short: "Генератор холмов",         full: "Генератор холмов",                                           description: "Описание будет добавлено" },
+    { platform: "SKETCHUP", depth: 2, short: "Генератор мощения",        full: "Генератор мощения и паттернов",                              description: "Описание будет добавлено" },
+    { platform: "SKETCHUP", depth: 1, short: "Генератор стилей",         full: "Генератор стилей",                                           description: "Описание будет добавлено" },
+    { platform: "INDESIGN", depth: 0, short: "Переносы смет",            full: "Автоматический перенос смет из AutoCAD",                     description: "Описание будет добавлено" },
+    { platform: "INDESIGN", depth: 2, short: "Календари цветения",       full: "Автоматические календари цветения",                          description: "Описание будет добавлено" }
+  ];
+
+
+  /* Icons for the window, by platform */
+  const TOOL_ICONS = {
+    AUTOCAD:  "prototypes/asset-representations/asset-representations/platforms/autocad.svg",
+    SKETCHUP: "prototypes/asset-representations/asset-representations/platforms/sketchup.svg",
+    INDESIGN: "prototypes/asset-representations/asset-representations/platforms/indesign.svg"
+  };
+
+
+  /*
+    Scroll length of the TOOLS part, in screen heights:
+      1) representations leave, TOOLS comes from below
+      2) TOOLS rises under the header, the cloud explodes
+      3) the cloud rests and slowly drifts
+      4) the cloud and TOOLS leave under the header
+    If you change the total (now 3.0), also change the height
+    of .asset-system in CSS (two places):
+      817vh + 100vh × total   (3.0 → 1117vh)
+  */
+
+  const TOOLS_PHASES = [0.5, 0.7, 1.3, 0.5];
+
+
+  const TOOLS_SETTINGS = {
+
+    /* label size by depth (small, medium, large), px */
+    fontSizes:       [14, 18, 24],
+    fontSizesMobile: [11, 13, 16],   /* screens ≤ 700px wide */
+
+    /* free space around every label, px */
+    gap: 12,
+
+    /* distance from the screen edges, px */
+    margin: 24,
+
+    /* distance below the TOOLS title, px */
+    belowTitle: 24,
+
+    /* the layout is "random" but always the same for the
+       same seed; change the number to get another layout */
+    seed: 2024,
+
+    /* explosion: labels start as dots of this size … */
+    startScale: 0.05,
+    /* … and each one flies this part of the explosion
+       time; the starts are spread over the rest */
+    flight: 0.55,
+
+    /* drift while resting: how much the cloud spreads
+       (0.06 = 6 %) for small, medium, large labels … */
+    driftSpread: [0.03, 0.06, 0.09],
+    /* … and how far it floats up, px */
+    driftRise: 20,
+
+    /* the window closes when the page scrolls this far, px */
+    closeOnScroll: 10
+
+  };
 
 
   /* ==================================================
@@ -1695,17 +1982,35 @@
       2) the old timeline, with a pause on
          ONE ASSET: pauseLength holds the timeline
          at pauseAt.
+      3) TOOLS (TOOLS_PHASES, in screen heights;
+         1 screen height = 1/6 of the old timeline).
       Section height: 700vh + 600vh × (INTRO_LENGTH
-      + pauseLength) = 817vh. Every old block keeps
-      its length in pixels.
+      + pauseLength) + 100vh × TOOLS total = 1117vh.
+      Every old block keeps its length in pixels.
     */
 
     const pauseAt = 0.53;
     const pauseLength = 0.07;
 
+    const toolsLength =
+      TOOLS_PHASES.reduce((sum, h) => sum + h, 0) / 6;
+
     const rawTimeline =
       passed / scrollable *
-      (1 + INTRO_LENGTH + pauseLength);
+      (1 + INTRO_LENGTH + pauseLength + toolsLength);
+
+    /* time inside the TOOLS part (old timeline units) */
+    const toolsTime =
+      Math.max(
+        0,
+        rawTimeline - INTRO_LENGTH - 1 - pauseLength
+      );
+
+    /* step 1 of TOOLS: representations leave upwards */
+    const toolsLeave =
+      smoothstep(
+        clamp(toolsTime / (TOOLS_PHASES[0] / 6), 0, 1)
+      );
 
     const introProgress =
       clamp(
@@ -1723,12 +2028,15 @@
       );
 
     const progress =
-      timeline < pauseAt
-        ? timeline
-        : Math.max(
-            pauseAt,
-            timeline - pauseLength
-          );
+      Math.min(
+        1,
+        timeline < pauseAt
+          ? timeline
+          : Math.max(
+              pauseAt,
+              timeline - pauseLength
+            )
+      );
 
 
     const centerY =
@@ -2433,10 +2741,16 @@
       );
 
 
+    /* TOOLS step 1: the label leaves under the header */
+    const labelLeaveY =
+      toolsLeave *
+      (finalLabelTop + labelHeight + 20);
+
     const labelY =
       labelEntryY -
       labelMoveProgress *
-      labelTravel;
+      labelTravel -
+      labelLeaveY;
 
 
     multipleLabel.style.opacity =
@@ -2457,7 +2771,7 @@
         );
 
       multipleLabel.style.top =
-        `${mobileTop + labelEntryY}px`;
+        `${mobileTop + labelEntryY - labelLeaveY}px`;
 
       multipleLabel.style.transform =
         `translateX(-50%)`;
@@ -2603,6 +2917,16 @@
       );
 
 
+    /* TOOLS step 1: the picture leaves under the header */
+    representation.style.transform =
+      `
+        translate(
+          -50%,
+          calc(-50% - ${toolsLeave * (representation.offsetTop + representation.offsetHeight / 2 + 20)}px)
+        )
+      `;
+
+
     if (progress >= representationStart) {
 
       representation.style.opacity = 1;
@@ -2733,11 +3057,501 @@
     }
 
 
+    /* ==================================================
+       12. TOOLS
+    ================================================== */
+
+    updateTools(toolsTime);
+
+
     requestAnimationFrame(
       updateAnimation
     );
 
   }
+
+
+  /* ==================================================
+     TOOLS: cloud of labels + description window
+  ================================================== */
+
+  const toolsLabel =
+    document.getElementById("toolsLabel");
+
+  const toolsCloud =
+    document.getElementById("toolsCloud");
+
+  const toolPopup =
+    document.getElementById("toolPopup");
+
+  const toolPopupIcon =
+    document.getElementById("toolPopupIcon");
+
+  const toolPopupPlatform =
+    document.getElementById("toolPopupPlatform");
+
+  const toolPopupTitle =
+    document.getElementById("toolPopupTitle");
+
+  const toolPopupText =
+    document.getElementById("toolPopupText");
+
+
+  /* the buttons, one per tool */
+  const toolButtons =
+    TOOLS.map(
+      (tool, index) => {
+
+        const button =
+          document.createElement("button");
+
+        button.type = "button";
+        button.className = "tool-label";
+        button.textContent = tool.short;
+        button.setAttribute("aria-expanded", "false");
+        button.setAttribute("aria-controls", "toolPopup");
+
+        button.addEventListener(
+          "click",
+          () => toggleToolPopup(index)
+        );
+
+        toolsCloud.appendChild(button);
+
+        return button;
+
+      }
+    );
+
+
+  /*
+    Rest layout: centre (px) and size of every label, for the
+    current screen. Computed after the font is ready and on
+    resize (with a small delay).
+  */
+  let toolsLayout = null;
+
+
+  /* small fixed-seed random generator (same numbers every time) */
+  function seededRandom(seed) {
+
+    let a = seed >>> 0;
+
+    return () => {
+      a = (a + 0x6D2B79F5) >>> 0;
+      let t = a;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+
+  }
+
+
+  /* where a label is at drift d (0…1) */
+  function toolDriftPoint(item, layout, d) {
+
+    const k =
+      TOOLS_SETTINGS.driftSpread[item.depth] * d;
+
+    return {
+      x: layout.cx + (item.x - layout.cx) * (1 + k),
+      y: layout.cy + (item.y - layout.cy) * (1 + k) - TOOLS_SETTINGS.driftRise * d
+    };
+
+  }
+
+
+  function layoutTools() {
+
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    const mobile = width <= 700;
+
+    const sizes =
+      mobile
+        ? TOOLS_SETTINGS.fontSizesMobile
+        : TOOLS_SETTINGS.fontSizes;
+
+    const { gap, margin, belowTitle } = TOOLS_SETTINGS;
+
+    /* safe area: below the TOOLS title, inside the screen */
+    const headerBottom =
+      document.querySelector("header").getBoundingClientRect().bottom;
+
+    const area = {
+      left: margin,
+      right: width - margin,
+      top: headerBottom + 24 + toolsLabel.offsetHeight + belowTitle,
+      bottom: height - margin
+    };
+
+    const layout = {
+      cx: (area.left + area.right) / 2,
+      cy: (area.top + area.bottom) / 2,
+      items: []
+    };
+
+    /* sizes of the labels */
+    const items =
+      TOOLS.map(
+        (tool, index) => {
+
+          const button = toolButtons[index];
+          button.style.fontSize = `${sizes[tool.depth]}px`;
+
+          return {
+            index,
+            depth: tool.depth,
+            w: button.offsetWidth,
+            h: button.offsetHeight,
+            x: 0,
+            y: 0
+          };
+
+        }
+      );
+
+    /* large labels first */
+    const order =
+      items.slice().sort((a, b) => b.depth - a.depth || a.index - b.index);
+
+    const random = seededRandom(TOOLS_SETTINGS.seed);
+    const drifts = [0, 0.25, 0.5, 0.75, 1];
+    const placed = [];
+
+    const fits = (item) =>
+      drifts.every(
+        (d) => {
+
+          const p = toolDriftPoint(item, layout, d);
+
+          if (p.x - item.w / 2 < area.left || p.x + item.w / 2 > area.right ||
+              p.y - item.h / 2 < area.top || p.y + item.h / 2 > area.bottom) {
+            return false;
+          }
+
+          return placed.every(
+            (other) => {
+              const q = toolDriftPoint(other, layout, d);
+              return Math.abs(p.x - q.x) >= (item.w + other.w) / 2 + gap ||
+                     Math.abs(p.y - q.y) >= (item.h + other.h) / 2 + gap;
+            }
+          );
+
+        }
+      );
+
+    order.forEach(
+      (item) => {
+
+        /* try many fixed-random spots, keep the one that is
+           farthest from the labels already placed */
+        let best = null;
+        let bestScore = -1;
+
+        for (let attempt = 0; attempt < 600; attempt++) {
+
+          item.x = area.left + item.w / 2 + random() * Math.max(0, area.right - area.left - item.w);
+          item.y = area.top + item.h / 2 + random() * Math.max(0, area.bottom - area.top - item.h);
+
+          if (!fits(item)) {
+            continue;
+          }
+
+          const score =
+            placed.length
+              ? Math.min(...placed.map((o) => Math.hypot((item.x - o.x) / width, (item.y - o.y) / height)))
+              : 1 - Math.hypot((item.x - layout.cx) / width, (item.y - layout.cy) / height);
+
+          if (score > bestScore) {
+            bestScore = score;
+            best = { x: item.x, y: item.y };
+          }
+
+          if (attempt > 80 && best) {
+            break;
+          }
+
+        }
+
+        if (best) {
+          item.x = best.x;
+          item.y = best.y;
+        }
+        else {
+          /* no free spot: keep it in the centre and say so */
+          item.x = layout.cx;
+          item.y = layout.cy;
+          console.warn("TOOLS: no free place for", TOOLS[item.index].short);
+        }
+
+        placed.push(item);
+
+      }
+    );
+
+    layout.items = items;
+    toolsLayout = layout;
+
+  }
+
+
+  /* recompute the layout on resize, after the size settles */
+  let toolsResizeTimer = null;
+
+  window.addEventListener(
+    "resize",
+    () => {
+      clearTimeout(toolsResizeTimer);
+      toolsResizeTimer = setTimeout(layoutTools, 150);
+    }
+  );
+
+  document.fonts.ready.then(layoutTools);
+
+
+  function updateTools(toolsTime) {
+
+    const phases =
+      TOOLS_PHASES.map((h) => h / 6);
+
+    const stepOf = (n) => {
+      const start = phases.slice(0, n).reduce((s, p) => s + p, 0);
+      return clamp((toolsTime - start) / phases[n], 0, 1);
+    };
+
+    const comeIn = smoothstep(stepOf(0));
+    const explode = stepOf(1);
+    const drift = stepOf(2);
+    const leave = smoothstep(stepOf(3));
+
+    const height = window.innerHeight;
+
+    const headerBottom =
+      document.querySelector("header").getBoundingClientRect().bottom;
+
+
+    /* TOOLS title: from below to the centre, up under the
+       header, then away with the cloud */
+    const titleHeight = toolsLabel.offsetHeight;
+    const titleCenterTop = height / 2 - titleHeight / 2;
+    const titleFinalTop = headerBottom + 24;
+
+    const titleTop =
+      lerp(height + 3, titleCenterTop, comeIn) +
+      (titleFinalTop - titleCenterTop) * smoothstep(explode) -
+      leave * (titleFinalTop + titleHeight + 20);
+
+    toolsLabel.style.top = `${titleTop}px`;
+    toolsLabel.style.visibility =
+      toolsTime > 0 && leave < 1 ? "visible" : "hidden";
+
+
+    /* the cloud */
+    const cloudOn =
+      explode > 0 && leave < 1 && toolsLayout;
+
+    if (!cloudOn) {
+
+      toolButtons.forEach((b) => { b.style.visibility = "hidden"; });
+
+      if (openToolIndex >= 0) {
+        closeToolPopup(false);
+      }
+
+      return;
+
+    }
+
+    const { startScale, flight } = TOOLS_SETTINGS;
+    const count = toolButtons.length;
+
+    /* how far the cloud has to go up to be under the header */
+    let lowest = 0;
+
+    toolsLayout.items.forEach(
+      (item) => {
+        const p = toolDriftPoint(item, toolsLayout, 1);
+        lowest = Math.max(lowest, p.y + item.h / 2);
+      }
+    );
+
+    const leaveY = leave * (lowest + 20);
+
+    toolsLayout.items.forEach(
+      (item) => {
+
+        const button = toolButtons[item.index];
+
+        /* fixed, different start for every label */
+        const delay =
+          ((item.index * 7) % count) / (count - 1) * (1 - flight);
+
+        const fly =
+          smoothstep(clamp((explode - delay) / flight, 0, 1));
+
+        const rest = toolDriftPoint(item, toolsLayout, drift);
+
+        const x = lerp(window.innerWidth / 2, rest.x, fly);
+        const y = lerp(height / 2, rest.y, fly) - leaveY;
+        const scale = lerp(startScale, 1, fly);
+
+        button.style.visibility = fly > 0 ? "visible" : "hidden";
+        button.style.transform =
+          `translate(${x - item.w / 2}px, ${y - item.h / 2}px) scale(${scale})`;
+
+      }
+    );
+
+  }
+
+
+  /* ---------- description window ---------- */
+
+  let openToolIndex = -1;
+  let openToolScrollY = 0;
+
+
+  function toggleToolPopup(index) {
+
+    if (openToolIndex === index) {
+      closeToolPopup(true);
+      return;
+    }
+
+    if (openToolIndex >= 0) {
+      closeToolPopup(false);
+    }
+
+    const tool = TOOLS[index];
+    const button = toolButtons[index];
+
+    toolPopupIcon.src = TOOL_ICONS[tool.platform];
+    toolPopupPlatform.textContent = tool.platform;
+    toolPopupTitle.textContent = tool.full;
+    toolPopupText.textContent = tool.description;
+
+    toolPopup.hidden = false;
+    button.setAttribute("aria-expanded", "true");
+
+    openToolIndex = index;
+    openToolScrollY = window.scrollY;
+
+    placeToolPopup(button);
+
+  }
+
+
+  function placeToolPopup(button) {
+
+    const mobile = window.innerWidth <= 700;
+
+    toolPopup.classList.toggle("is-sheet", mobile);
+
+    if (mobile) {
+      toolPopup.style.left = "";
+      toolPopup.style.top = "";
+      return;
+    }
+
+    const edge = 16;
+    const rect = button.getBoundingClientRect();
+    const box = toolPopup.getBoundingClientRect();
+
+    const headerBottom =
+      document.querySelector("header").getBoundingClientRect().bottom;
+
+    let left = rect.left + rect.width / 2 - box.width / 2;
+    left = clamp(left, edge, window.innerWidth - box.width - edge);
+
+    /* below the label, or above it if there is no room */
+    let top = rect.bottom + 10;
+
+    if (top + box.height > window.innerHeight - edge) {
+      top = rect.top - box.height - 10;
+    }
+
+    top = clamp(top, headerBottom + 8, window.innerHeight - box.height - edge);
+
+    toolPopup.style.left = `${left}px`;
+    toolPopup.style.top = `${top}px`;
+
+  }
+
+
+  function closeToolPopup(returnFocus) {
+
+    if (openToolIndex < 0) {
+      return;
+    }
+
+    const button = toolButtons[openToolIndex];
+
+    toolPopup.hidden = true;
+    button.setAttribute("aria-expanded", "false");
+    openToolIndex = -1;
+
+    if (returnFocus) {
+      button.focus({ preventScroll: true });
+    }
+
+  }
+
+
+  /* Esc closes */
+  document.addEventListener(
+    "keydown",
+    (event) => {
+      if (event.key === "Escape" && openToolIndex >= 0) {
+        closeToolPopup(true);
+      }
+    }
+  );
+
+  /* a click outside the window (and outside its label) closes */
+  document.addEventListener(
+    "pointerdown",
+    (event) => {
+
+      if (openToolIndex < 0) {
+        return;
+      }
+
+      const button = toolButtons[openToolIndex];
+
+      if (toolPopup.contains(event.target) || button.contains(event.target)) {
+        return;
+      }
+
+      closeToolPopup(false);
+
+      /* the browser moves focus to the clicked spot after this
+         event; give it back to the label unless the click went
+         to something that takes focus itself */
+      setTimeout(
+        () => {
+          if (!document.activeElement || document.activeElement === document.body) {
+            button.focus({ preventScroll: true });
+          }
+        },
+        0
+      );
+
+    }
+  );
+
+  /* scrolling moves the cloud, so the window closes */
+  window.addEventListener(
+    "scroll",
+    () => {
+      if (openToolIndex >= 0 &&
+          Math.abs(window.scrollY - openToolScrollY) > TOOLS_SETTINGS.closeOnScroll) {
+        closeToolPopup(true);
+      }
+    },
+    { passive: true }
+  );
 
 
   updateAnimation();
