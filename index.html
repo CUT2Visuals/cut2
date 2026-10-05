@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -198,15 +199,35 @@
       left: 50%;
       bottom: 0;
 
-      width: 10px;
+      width: 16px;
       height: 10px;
 
-      border-right: 1px solid #000;
-      border-bottom: 1px solid #000;
+      transform: translateX(-50%);
+    }
 
-      transform:
-        translate(-50%, 50%)
-        rotate(45deg);
+    .arrow-head::before,
+    .arrow-head::after {
+      content: "";
+
+      position: absolute;
+
+      left: 50%;
+      bottom: 0;
+
+      width: 10px;
+      height: 1px;
+
+      background: #000;
+
+      transform-origin: left center;
+    }
+
+    .arrow-head::before {
+      transform: rotate(225deg);
+    }
+
+    .arrow-head::after {
+      transform: rotate(-45deg);
     }
 
 
@@ -680,10 +701,14 @@
       Arrow starts at the bottom of the card
       and grows downward.
 
-      0.30–0.42
+      0.30–0.34
       MULTIPLE REPRESENTATIONS appears
       in the center.
       Arrow continues growing toward it.
+
+      0.34–0.42
+      Arrow pauses above
+      MULTIPLE REPRESENTATIONS.
 
       0.42–0.50
       MULTIPLE REPRESENTATIONS + arrow
@@ -820,17 +845,22 @@
     ================================================== */
 
     /*
-      The arrow is anchored directly to the
-      bottom edge of the asset card.
+      The arrow starts at the bottom edge
+      of the asset card.
 
-      During 0.18–0.42 it grows downward.
+      0.18–0.34
+      Arrow grows toward MULTIPLE REPRESENTATIONS
+      1.5x faster than before.
 
-      During 0.42–0.50 the whole arrow moves
-      upward together with the label.
+      0.34–0.42
+      Arrow pauses above the label.
+
+      0.42–0.50
+      Arrow and label move upward together.
     */
 
     const arrowStart = 0.18;
-    const arrowEnd = 0.42;
+    const arrowEnd = 0.34;
 
     const arrowProgress =
       clamp(
@@ -850,13 +880,10 @@
     const cardRect =
       assetCard.getBoundingClientRect();
 
-    const labelRect =
-      multipleLabel.getBoundingClientRect();
-
 
     /*
-      During the growing phase the arrow starts
-      exactly at the card's bottom edge.
+      The arrow always starts exactly
+      at the bottom edge of the card.
     */
 
     const cardBottom =
@@ -864,23 +891,40 @@
       stageRect.top;
 
 
+    /*
+      Fixed gap between the arrow tip
+      and MULTIPLE REPRESENTATIONS.
+
+      This value is used identically
+      on desktop and mobile.
+    */
+
+    const arrowLabelGap =
+      24;
+
+
+    const labelRect =
+      multipleLabel.getBoundingClientRect();
+
     const labelTop =
       labelRect.top -
       stageRect.top;
 
 
+    /*
+      The bottom of the arrow container is
+      the arrow tip. The label therefore stays
+      exactly 24px below it.
+    */
+
     const targetLength =
       Math.max(
         0,
-        labelTop - cardBottom
+        labelTop -
+        cardBottom -
+        arrowLabelGap
       );
 
-
-    /*
-      After 0.42 the arrow and label move upward
-      together. We therefore calculate the same
-      geometry again from their current positions.
-    */
 
     arrowSystem.style.opacity =
       progress >= arrowStart &&
@@ -889,18 +933,31 @@
         : 0;
 
 
-    arrowSystem.style.top =
-      `${cardBottom}px`;
-
+    /*
+      During the growth phase the arrow is
+      attached to the card.
+    */
 
     if (progress < labelMoveStart) {
+
+      arrowSystem.style.top =
+        `${cardBottom}px`;
 
       arrowSystem.style.height =
         `${targetLength * arrowProgress}px`;
 
     }
 
+
+    /*
+      During the upward movement the arrow
+      translates together with the label.
+    */
+
     else {
+
+      arrowSystem.style.top =
+        `${cardBottom + labelY}px`;
 
       arrowSystem.style.height =
         `${targetLength}px`;
@@ -1073,3 +1130,4 @@
 
 </body>
 </html>
+```
