@@ -171,6 +171,7 @@
       top: 0;
 
       width: 1px;
+      height: 0;
 
       opacity: 0;
 
@@ -186,6 +187,7 @@
       top: 0;
 
       width: 1px;
+      height: 100%;
 
       background: #000;
     }
@@ -712,14 +714,6 @@
       );
 
 
-    /*
-      The card moves upward by exactly one
-      viewport-based distance.
-
-      The label is inside the card,
-      therefore it moves with it.
-    */
-
     const cardTravel =
       window.innerHeight * 0.82;
 
@@ -741,11 +735,6 @@
        2. MULTIPLE REPRESENTATIONS
     ================================================== */
 
-    /*
-      It first appears in the center,
-      with no rotation.
-    */
-
     const labelAppearStart = 0.30;
     const labelAppearEnd = 0.34;
 
@@ -757,14 +746,6 @@
         1
       );
 
-
-    /*
-      Then it moves upward.
-
-      The destination is deliberately the same
-      vertical level that ONE ASSET occupies
-      after its movement.
-    */
 
     const labelMoveStart = 0.42;
     const labelMoveEnd = 0.50;
@@ -778,8 +759,36 @@
       );
 
 
+    /*
+      The final label position is calculated from
+      the header bottom, so the text always stops
+      below the fixed header.
+    */
+
+    const header =
+      document.querySelector("header");
+
+    const headerRect =
+      header.getBoundingClientRect();
+
+    const labelHeight =
+      multipleLabel.offsetHeight;
+
+    const headerGap =
+      24;
+
+    const labelTargetCenter =
+      headerRect.bottom +
+      headerGap +
+      labelHeight / 2;
+
+    const labelCurrentCenter =
+      window.innerHeight / 2;
+
     const labelTravel =
-      window.innerHeight * 0.42;
+      labelCurrentCenter -
+      labelTargetCenter;
+
 
     const labelY =
       -labelMoveProgress * labelTravel;
@@ -804,17 +813,14 @@
     ================================================== */
 
     /*
-      The arrow is now geometrically connected
-      to the asset card and the label.
+      The arrow is geometrically connected to
+      ONE ASSET and MULTIPLE REPRESENTATIONS.
 
-      Its top is positioned at the bottom edge
-      of ONE ASSET.
+      Its top starts exactly at the bottom edge
+      of the asset card.
 
-      Its shaft grows toward the top edge
-      of MULTIPLE REPRESENTATIONS.
-
-      The arrowhead therefore always sits
-      exactly at the end of the shaft.
+      Its bottom ends exactly at the top edge
+      of the label.
     */
 
     const arrowStart = 0.30;
@@ -873,12 +879,12 @@
       `${arrowTop}px`;
 
 
+    arrowSystem.style.height =
+      `${availableLength * arrowProgress}px`;
+
+
     arrowSystem.style.transform =
       `translateX(-50%)`;
-
-
-    arrowShaft.style.height =
-      `${availableLength * arrowProgress}px`;
 
 
 
@@ -903,23 +909,12 @@
 
       representation.style.opacity = 1;
 
-
-      /*
-        Arrow disappears exactly when
-        the first representation begins.
-      */
-
       arrowSystem.style.opacity = 0;
 
 
       const count =
         representations.length;
 
-
-      /*
-        The first five representations occupy
-        the 0.50–0.96 interval.
-      */
 
       if (progress < representationEnd) {
 
@@ -977,14 +972,6 @@
 
       }
 
-
-      /*
-        LAST REPRESENTATION
-
-        InDesign enters from -90deg
-        and becomes completely front-facing
-        during the final 0.04 of the sequence.
-      */
 
       else {
 
