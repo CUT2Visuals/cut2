@@ -1424,24 +1424,10 @@
 
 
     /*
-      Entry path of ONE ASSET. It defines the entry
-      speed (from this point to home in 0.42–0.53).
-    */
-
-    const assetEntryShift =
-      window.innerHeight / 2 +
-      assetCardHeight +
-      assetLabelHeight +
-      assetLabelGap +
-      40;
-
-
-    /*
       Start position: the top of the ONE ASSET label
       (the highest element) is 3px below the bottom
-      of the screen. The card waits here until the
-      entry path reaches it, so the arrowhead (24px
-      above the label) always stays on screen.
+      of the screen, so the arrowhead (24px above
+      the label) always stays on screen.
     */
 
     const assetStartShift =
@@ -1452,7 +1438,13 @@
       3;
 
 
-    const assetMoveStart = 0.42;
+    /*
+      Entry starts together with the platform
+      arrow (0.31) and ends at 0.53.
+      Smoothstep: soft start and soft stop.
+    */
+
+    const assetMoveStart = 0.31;
     const assetMoveEnd = 0.53;
 
     const assetMoveProgress =
@@ -1463,15 +1455,17 @@
         1
       );
 
+    const assetMoveEase =
+      assetMoveProgress *
+      assetMoveProgress *
+      (3 - 2 * assetMoveProgress);
+
 
     const assetY =
-      Math.min(
+      lerp(
         assetStartShift,
-        lerp(
-          assetEntryShift,
-          assetHomeShift,
-          assetMoveProgress
-        )
+        assetHomeShift,
+        assetMoveEase
       );
 
 
@@ -1500,8 +1494,8 @@
     }
 
 
-    const assetVisibilityStart = 0.40;
-    const assetVisibilityEnd = 0.47;
+    const assetVisibilityStart = 0.31;
+    const assetVisibilityEnd = 0.38;
 
     const assetVisibility =
       clamp(
