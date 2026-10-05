@@ -957,14 +957,42 @@
 
       if (isLast) {
 
-        representationVisual.style.transform =
-          `
-            perspective(1200px)
-            rotateY(0deg)
-            scale(1)
-          `;
+  /*
+    InDesign performs the first half of the
+    normal -90deg → +90deg movement.
 
-      }
+    It enters from the side, rotates to the
+    front, then stays there.
+  */
+
+  const finalProgress =
+    clamp(
+      localProgress * 2,
+      0,
+      1
+    );
+
+  const rotation =
+    lerp(
+      -90,
+      0,
+      finalProgress
+    );
+
+  const scale =
+    0.92 +
+    Math.sin(
+      finalProgress * Math.PI
+    ) * 0.08;
+
+  representationVisual.style.transform =
+    `
+      perspective(1200px)
+      rotateY(${rotation}deg)
+      scale(${scale})
+    `;
+
+}
 
       else {
 
