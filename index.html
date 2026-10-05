@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -115,6 +114,150 @@
       height: 100vh;
 
       overflow: hidden;
+    }
+
+
+    /* ==================================================
+       UPPER SYSTEM
+    ================================================== */
+
+    .project-label {
+      position: absolute;
+
+      left: 50%;
+      top: 27%;
+
+      transform:
+        translate(-50%, -50%);
+
+      font-size: clamp(28px, 5vw, 72px);
+      font-weight: 400;
+
+      text-align: center;
+      white-space: nowrap;
+
+      z-index: 8;
+    }
+
+    .platforms-label {
+      position: absolute;
+
+      left: 50%;
+      top: 47%;
+
+      transform:
+        translate(-50%, -50%);
+
+      font-size: clamp(28px, 5vw, 72px);
+      font-weight: 400;
+
+      text-align: center;
+      white-space: nowrap;
+
+      opacity: 0;
+
+      z-index: 8;
+    }
+
+    .platforms-row {
+      position: absolute;
+
+      left: 50%;
+      top: 62%;
+
+      width: min(560px, 80vw);
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      transform:
+        translate(-50%, -50%);
+
+      opacity: 1;
+
+      z-index: 8;
+    }
+
+    .platform-icon {
+      width: 72px;
+      height: 72px;
+
+      object-fit: contain;
+
+      opacity: 0;
+
+      transform:
+        perspective(1200px)
+        rotateY(-90deg)
+        scale(0.92);
+
+      transform-style: preserve-3d;
+      transform-origin: center center;
+    }
+
+    .upper-arrow {
+      position: absolute;
+
+      left: 50%;
+
+      width: 1px;
+      height: 0;
+
+      opacity: 0;
+
+      z-index: 7;
+
+      transform: translateX(-50%);
+    }
+
+    .upper-arrow-shaft {
+      position: absolute;
+
+      left: 0;
+      top: 0;
+
+      width: 1px;
+      height: 100%;
+
+      background: #000;
+    }
+
+    .upper-arrow-head {
+      position: absolute;
+
+      left: 50%;
+      bottom: 0;
+
+      width: 16px;
+      height: 10px;
+
+      transform: translateX(-50%);
+    }
+
+    .upper-arrow-head::before,
+    .upper-arrow-head::after {
+      content: "";
+
+      position: absolute;
+
+      left: 50%;
+      bottom: 0;
+
+      width: 10px;
+      height: 1px;
+
+      background: #000;
+
+      transform-origin: left center;
+    }
+
+    .upper-arrow-head::before {
+      transform: rotate(225deg);
+    }
+
+    .upper-arrow-head::after {
+      transform: rotate(-45deg);
     }
 
 
@@ -368,6 +511,26 @@
         height: 100svh;
       }
 
+      .project-label {
+        top: 25%;
+        font-size: 26px;
+      }
+
+      .platforms-label {
+        top: 44%;
+        font-size: 26px;
+      }
+
+      .platforms-row {
+        top: 59%;
+        width: 78vw;
+      }
+
+      .platform-icon {
+        width: 52px;
+        height: 52px;
+      }
+
       .asset-card {
         width: min(210px, 53vw);
       }
@@ -461,7 +624,93 @@
     <div class="sticky-stage">
 
 
-      <!-- ONE ASSET -->
+      <!-- ==================================================
+           UPPER SYSTEM
+      ================================================== -->
+
+      <!-- ONE PROJECT -->
+
+      <div
+        class="project-label"
+        id="projectLabel"
+      >
+        ONE PROJECT.
+      </div>
+
+
+      <!-- ARROW: ONE PROJECT → MULTIPLE PLATFORMS -->
+
+      <div
+        class="upper-arrow"
+        id="projectArrow"
+      >
+
+        <div class="upper-arrow-shaft"></div>
+
+        <div class="upper-arrow-head"></div>
+
+      </div>
+
+
+      <!-- MULTIPLE PLATFORMS -->
+
+      <div
+        class="platforms-label"
+        id="platformsLabel"
+      >
+        MULTIPLE PLATFORMS
+      </div>
+
+
+      <!-- PLATFORM ICONS -->
+
+      <div
+        class="platforms-row"
+        id="platformsRow"
+      >
+
+        <img
+          class="platform-icon"
+          id="platformAutoCAD"
+          src="prototypes/asset-representations/asset-representations/platforms/autocad.svg"
+          alt="AutoCAD"
+        >
+
+        <img
+          class="platform-icon"
+          id="platformSketchUp"
+          src="prototypes/asset-representations/asset-representations/platforms/sketchup.svg"
+          alt="SketchUp"
+        >
+
+        <img
+          class="platform-icon"
+          id="platformInDesign"
+          src="prototypes/asset-representations/asset-representations/platforms/indesign.svg"
+          alt="InDesign"
+        >
+
+      </div>
+
+
+      <!-- ARROW: PLATFORMS → ONE ASSET -->
+
+      <div
+        class="upper-arrow"
+        id="platformArrow"
+      >
+
+        <div class="upper-arrow-shaft"></div>
+
+        <div class="upper-arrow-head"></div>
+
+      </div>
+
+
+
+      <!-- ==================================================
+           ONE ASSET
+      ================================================== -->
 
       <div
         class="asset-card"
@@ -481,7 +730,9 @@
 
 
 
-      <!-- ARROW -->
+      <!-- ==================================================
+           ARROW
+      ================================================== -->
 
       <div
         class="arrow-system"
@@ -499,7 +750,9 @@
 
 
 
-      <!-- MULTIPLE REPRESENTATIONS -->
+      <!-- ==================================================
+           MULTIPLE REPRESENTATIONS
+      ================================================== -->
 
       <div
         class="multiple-label"
@@ -510,7 +763,9 @@
 
 
 
-      <!-- REPRESENTATION -->
+      <!-- ==================================================
+           REPRESENTATION
+      ================================================== -->
 
       <div
         class="representation"
@@ -555,7 +810,7 @@
 
   <!-- ==================================================
        NEXT
-    ================================================== -->
+  ================================================== -->
 
   <section class="next">
 
@@ -569,6 +824,39 @@
 
 
 <script>
+
+  /* ==================================================
+     UPPER SYSTEM
+  ================================================== */
+
+  const projectLabel =
+    document.getElementById("projectLabel");
+
+  const projectArrow =
+    document.getElementById("projectArrow");
+
+  const platformsLabel =
+    document.getElementById("platformsLabel");
+
+  const platformsRow =
+    document.getElementById("platformsRow");
+
+  const platformIcons = [
+
+    document.getElementById("platformAutoCAD"),
+    document.getElementById("platformSketchUp"),
+    document.getElementById("platformInDesign")
+
+  ];
+
+  const platformArrow =
+    document.getElementById("platformArrow");
+
+
+  /* ==================================================
+     ONE ASSET + LOWER SYSTEM
+     (UNCHANGED)
+  ================================================== */
 
   const assetCard =
     document.getElementById("assetCard");
@@ -685,6 +973,291 @@
 
     const progress =
       passed / scrollable;
+
+
+    /* ==================================================
+       0. UPPER SYSTEM
+    ================================================== */
+
+    /*
+      The upper choreography occupies the beginning
+      of the same sticky sequence.
+
+      0.00–0.05
+      ONE PROJECT stays alone.
+
+      0.03–0.08
+      Arrow grows toward MULTIPLE PLATFORMS.
+
+      0.05–0.09
+      MULTIPLE PLATFORMS appears.
+
+      0.07–0.15
+      Platform icons appear one by one,
+      each rotating -90° → 0°.
+
+      0.12–0.18
+      The complete platform group moves upward.
+
+      0.14–0.18
+      Second arrow appears toward ONE ASSET.
+    */
+
+
+    const projectFadeEnd = 0.20;
+
+    const projectFade =
+      1 -
+      clamp(
+        (progress - 0.12) /
+        (projectFadeEnd - 0.12),
+        0,
+        1
+      );
+
+    projectLabel.style.opacity =
+      projectFade;
+
+
+    /* ------------------------------------------
+       FIRST ARROW
+       ONE PROJECT → MULTIPLE PLATFORMS
+    ------------------------------------------ */
+
+    const projectArrowStart = 0.03;
+    const projectArrowEnd = 0.08;
+
+    const projectArrowProgress =
+      clamp(
+        (progress - projectArrowStart) /
+        (projectArrowEnd - projectArrowStart),
+        0,
+        1
+      );
+
+
+    const projectRect =
+      projectLabel.getBoundingClientRect();
+
+    const platformsLabelRect =
+      platformsLabel.getBoundingClientRect();
+
+
+    const stage =
+      document.querySelector(".sticky-stage");
+
+    const stageRect =
+      stage.getBoundingClientRect();
+
+
+    const projectBottom =
+      projectRect.bottom -
+      stageRect.top;
+
+    const platformsLabelTop =
+      platformsLabelRect.top -
+      stageRect.top;
+
+
+    const projectArrowGap =
+      24;
+
+
+    const projectArrowLength =
+      Math.max(
+        0,
+        platformsLabelTop -
+        projectBottom -
+        projectArrowGap
+      );
+
+
+    projectArrow.style.opacity =
+      projectArrowProgress > 0 &&
+      progress < 0.12
+        ? 1
+        : 0;
+
+    projectArrow.style.top =
+      `${projectBottom}px`;
+
+    projectArrow.style.height =
+      `${projectArrowLength * projectArrowProgress}px`;
+
+
+    /* ------------------------------------------
+       MULTIPLE PLATFORMS
+    ------------------------------------------ */
+
+    const platformsAppearStart = 0.05;
+    const platformsAppearEnd = 0.09;
+
+    const platformsOpacity =
+      clamp(
+        (progress - platformsAppearStart) /
+        (platformsAppearEnd - platformsAppearStart),
+        0,
+        1
+      );
+
+
+    platformsLabel.style.opacity =
+      platformsOpacity;
+
+
+    /* ------------------------------------------
+       PLATFORM ICONS
+    ------------------------------------------ */
+
+    const iconStart = 0.07;
+    const iconStep = 0.025;
+    const iconDuration = 0.05;
+
+
+    platformIcons.forEach(
+      (icon, index) => {
+
+        const start =
+          iconStart +
+          index * iconStep;
+
+        const end =
+          start +
+          iconDuration;
+
+        const iconProgress =
+          clamp(
+            (progress - start) /
+            (end - start),
+            0,
+            1
+          );
+
+
+        const rotation =
+          lerp(
+            -90,
+            0,
+            iconProgress
+          );
+
+
+        const scale =
+          0.92 +
+          Math.sin(
+            iconProgress * Math.PI
+          ) * 0.08;
+
+
+        icon.style.opacity =
+          iconProgress;
+
+        icon.style.transform =
+          `
+            perspective(1200px)
+            rotateY(${rotation}deg)
+            scale(${scale})
+          `;
+
+      }
+    );
+
+
+    /* ------------------------------------------
+       GROUP MOVE
+       PLATFORMS → UP
+    ------------------------------------------ */
+
+    const groupMoveStart = 0.12;
+    const groupMoveEnd = 0.18;
+
+    const groupMoveProgress =
+      clamp(
+        (progress - groupMoveStart) /
+        (groupMoveEnd - groupMoveStart),
+        0,
+        1
+      );
+
+
+    const groupTravel =
+      window.innerHeight *
+      0.20;
+
+
+    const groupY =
+      -groupMoveProgress *
+      groupTravel;
+
+
+    platformsLabel.style.marginTop =
+      `${groupY}px`;
+
+    platformsRow.style.marginTop =
+      `${groupY}px`;
+
+
+    /* ------------------------------------------
+       SECOND ARROW
+       PLATFORM GROUP → ONE ASSET
+    ------------------------------------------ */
+
+    const platformArrowStart = 0.14;
+    const platformArrowEnd = 0.18;
+
+    const platformArrowProgress =
+      clamp(
+        (progress - platformArrowStart) /
+        (platformArrowEnd - platformArrowStart),
+        0,
+        1
+      );
+
+
+    const rowRect =
+      platformsRow.getBoundingClientRect();
+
+    const assetLabelElement =
+      document.querySelector(".asset-label");
+
+    const assetLabelRect =
+      assetLabelElement.getBoundingClientRect();
+
+
+    const rowBottom =
+      rowRect.bottom -
+      stageRect.top;
+
+    const assetLabelTop =
+      assetLabelRect.top -
+      stageRect.top;
+
+
+    const platformArrowGap =
+      24;
+
+
+    const platformArrowLength =
+      Math.max(
+        0,
+        assetLabelTop -
+        rowBottom -
+        platformArrowGap
+      );
+
+
+    platformArrow.style.opacity =
+      platformArrowProgress > 0 &&
+      progress < 0.30
+        ? 1
+        : 0;
+
+    platformArrow.style.top =
+      `${rowBottom}px`;
+
+    platformArrow.style.height =
+      `${platformArrowLength * platformArrowProgress}px`;
+
 
 
     /* ==================================================
@@ -854,12 +1427,6 @@
         1
       );
 
-
-    const stage =
-      document.querySelector(".sticky-stage");
-
-    const stageRect =
-      stage.getBoundingClientRect();
 
     const cardRect =
       assetCard.getBoundingClientRect();
@@ -1136,4 +1703,3 @@
 
 </body>
 </html>
-```
