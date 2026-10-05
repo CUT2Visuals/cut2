@@ -677,15 +677,17 @@
 
       0.18–0.30
       ONE ASSET + CARD move upward.
+      Arrow starts at the bottom of the card
+      and grows downward.
 
-      0.30–0.34
-      Arrow appears and grows.
-
-      0.34–0.42
-      MULTIPLE REPRESENTATIONS is visible.
+      0.30–0.42
+      MULTIPLE REPRESENTATIONS appears
+      in the center.
+      Arrow continues growing toward it.
 
       0.42–0.50
-      Arrow + label move upward.
+      MULTIPLE REPRESENTATIONS + arrow
+      move upward together.
 
       0.50
       Arrow disappears.
@@ -747,6 +749,13 @@
       );
 
 
+    /*
+      The label remains in the exact center
+      until the arrow reaches it.
+
+      Only after 0.42 does it begin moving upward.
+    */
+
     const labelMoveStart = 0.42;
     const labelMoveEnd = 0.50;
 
@@ -760,9 +769,8 @@
 
 
     /*
-      The final label position is calculated from
-      the header bottom, so the text always stops
-      below the fixed header.
+      Final position:
+      just below the fixed header.
     */
 
     const header =
@@ -771,24 +779,23 @@
     const headerRect =
       header.getBoundingClientRect();
 
-    const labelHeight =
-      multipleLabel.offsetHeight;
-
     const headerGap =
       24;
 
-    const labelTargetCenter =
+    const labelHeight =
+      multipleLabel.offsetHeight;
+
+    const finalLabelCenter =
       headerRect.bottom +
       headerGap +
       labelHeight / 2;
 
-    const labelCurrentCenter =
+    const centerY =
       window.innerHeight / 2;
 
     const labelTravel =
-      labelCurrentCenter -
-      labelTargetCenter;
-
+      centerY -
+      finalLabelCenter;
 
     const labelY =
       -labelMoveProgress * labelTravel;
@@ -813,17 +820,16 @@
     ================================================== */
 
     /*
-      The arrow is geometrically connected to
-      ONE ASSET and MULTIPLE REPRESENTATIONS.
+      The arrow is anchored directly to the
+      bottom edge of the asset card.
 
-      Its top starts exactly at the bottom edge
-      of the asset card.
+      During 0.18–0.42 it grows downward.
 
-      Its bottom ends exactly at the top edge
-      of the label.
+      During 0.42–0.50 the whole arrow moves
+      upward together with the label.
     */
 
-    const arrowStart = 0.30;
+    const arrowStart = 0.18;
     const arrowEnd = 0.42;
 
     const arrowProgress =
@@ -838,35 +844,43 @@
     const stage =
       document.querySelector(".sticky-stage");
 
-
     const stageRect =
       stage.getBoundingClientRect();
 
-
     const cardRect =
       assetCard.getBoundingClientRect();
-
 
     const labelRect =
       multipleLabel.getBoundingClientRect();
 
 
-    const arrowTop =
+    /*
+      During the growing phase the arrow starts
+      exactly at the card's bottom edge.
+    */
+
+    const cardBottom =
       cardRect.bottom -
       stageRect.top;
 
 
-    const arrowTarget =
+    const labelTop =
       labelRect.top -
       stageRect.top;
 
 
-    const availableLength =
+    const targetLength =
       Math.max(
         0,
-        arrowTarget - arrowTop
+        labelTop - cardBottom
       );
 
+
+    /*
+      After 0.42 the arrow and label move upward
+      together. We therefore calculate the same
+      geometry again from their current positions.
+    */
 
     arrowSystem.style.opacity =
       progress >= arrowStart &&
@@ -876,11 +890,22 @@
 
 
     arrowSystem.style.top =
-      `${arrowTop}px`;
+      `${cardBottom}px`;
 
 
-    arrowSystem.style.height =
-      `${availableLength * arrowProgress}px`;
+    if (progress < labelMoveStart) {
+
+      arrowSystem.style.height =
+        `${targetLength * arrowProgress}px`;
+
+    }
+
+    else {
+
+      arrowSystem.style.height =
+        `${targetLength}px`;
+
+    }
 
 
     arrowSystem.style.transform =
