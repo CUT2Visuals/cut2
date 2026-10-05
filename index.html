@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1064,10 +1065,21 @@
 
     /* ==================================================
        2. ARROW ATTACHED TO ONE PROJECT
+       PROJECT → MULTIPLE PLATFORMS
+
+       Arrow duration is 1.5× faster.
+       Bottom follows the actual top of
+       MULTIPLE PLATFORMS.
     ================================================== */
 
     const projectArrowStart = 0.07;
-    const projectArrowEnd = 0.14;
+
+    const projectArrowDuration =
+      (0.14 - 0.07) / 1.5;
+
+    const projectArrowEnd =
+      projectArrowStart +
+      projectArrowDuration;
 
     const projectArrowProgress =
       clamp(
@@ -1086,11 +1098,27 @@
       stageRect.top;
 
 
+    const platformsLabelRect =
+      platformsLabel.getBoundingClientRect();
+
+    const platformsLabelTop =
+      platformsLabelRect.top -
+      stageRect.top;
+
+
+    const projectArrowLength =
+      Math.max(
+        0,
+        platformsLabelTop -
+        projectBottom
+      );
+
+
     projectArrow.style.top =
       `${projectBottom}px`;
 
     projectArrow.style.height =
-      `${70 * projectArrowProgress}px`;
+      `${projectArrowLength * projectArrowProgress}px`;
 
     projectArrow.style.opacity =
       progress >= projectArrowStart &&
@@ -1180,11 +1208,6 @@
           `;
 
 
-        /*
-          Labels do NOT rotate.
-          They simply appear with the icon.
-        */
-
         platformNames[index].style.opacity =
           iconProgress;
 
@@ -1246,8 +1269,11 @@
 
     /* ==================================================
        6. ONE ASSET
-       LABEL IS THE SAME CENTER POINT
-       AS PROJECT / PLATFORMS
+       GEOMETRIC HOME CENTER = SCREEN CENTER
+
+       The asset-card itself has no additional
+       vertical home offset. Its geometric center
+       therefore sits exactly at the stage center.
     ================================================== */
 
     const assetCardHeight =
@@ -1263,21 +1289,11 @@
         : 28;
 
 
-    /*
-      The card itself sits below the label.
-      We therefore calculate how far the card
-      must be shifted down so that the CENTER
-      of ONE ASSET is exactly at screen center.
-    */
-
     const assetHomeShift =
-      assetCardHeight / 2 +
-      assetLabelGap +
-      assetLabelHeight / 2;
+      0;
 
 
     const assetStartShift =
-      assetHomeShift +
       window.innerHeight * 0.95;
 
 
@@ -1300,11 +1316,6 @@
         assetMoveProgress
       );
 
-
-    /*
-      ONE ASSET remains exactly at its center
-      after arriving.
-    */
 
     if (progress < assetMoveStart) {
 
@@ -1350,10 +1361,20 @@
     /* ==================================================
        7. ARROW
        PLATFORM GROUP → ONE ASSET
+
+       Top remains attached to the platform row.
+       Bottom is attached to the actual ONE ASSET
+       label, so it follows the asset while it moves.
     ================================================== */
 
     const platformArrowStart = 0.38;
-    const platformArrowEnd = 0.51;
+
+    const platformArrowDuration =
+      (0.51 - 0.38) / 1.5;
+
+    const platformArrowEnd =
+      platformArrowStart +
+      platformArrowDuration;
 
     const platformArrowProgress =
       clamp(
@@ -1367,32 +1388,24 @@
     const rowRect =
       platformsRow.getBoundingClientRect();
 
-
     const rowBottom =
       rowRect.bottom -
       stageRect.top;
 
 
-    /*
-      ONE ASSET label is designed to finish
-      exactly at the central position.
-    */
+    const assetLabelRect =
+      assetLabel.getBoundingClientRect();
 
-    const finalAssetLabelTop =
-      centerY -
-      assetLabelHeight / 2;
-
-
-    const platformArrowGap =
-      24;
+    const assetLabelTop =
+      assetLabelRect.top -
+      stageRect.top;
 
 
     const platformArrowLength =
       Math.max(
         0,
-        finalAssetLabelTop -
-        rowBottom -
-        platformArrowGap
+        assetLabelTop -
+        rowBottom
       );
 
 
@@ -1401,7 +1414,6 @@
 
     platformArrow.style.height =
       `${platformArrowLength * platformArrowProgress}px`;
-
 
     platformArrow.style.opacity =
       platformArrowProgress > 0 &&
@@ -1789,3 +1801,4 @@
 
 </body>
 </html>
+```
