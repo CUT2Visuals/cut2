@@ -125,7 +125,7 @@
       position: absolute;
 
       left: 50%;
-      top: 27%;
+      top: 50%;
 
       transform:
         translate(-50%, -50%);
@@ -143,7 +143,7 @@
       position: absolute;
 
       left: 50%;
-      top: 47%;
+      top: 50%;
 
       transform:
         translate(-50%, -50%);
@@ -214,6 +214,8 @@
       letter-spacing: 0.04em;
 
       white-space: nowrap;
+
+      opacity: 0;
     }
 
     .upper-arrow {
@@ -534,12 +536,12 @@
       }
 
       .project-label {
-        top: 25%;
+        top: 50%;
         font-size: 26px;
       }
 
       .platforms-label {
-        top: 44%;
+        top: 50%;
         font-size: 26px;
       }
 
@@ -637,11 +639,6 @@
 
   <section class="intro">
 
-    <div>
-      ONE PROJECT.<br>
-      MULTIPLE PLATFORMS.
-    </div>
-
   </section>
 
 
@@ -659,13 +656,14 @@
            UPPER SYSTEM
       ================================================== -->
 
+
       <!-- ONE PROJECT -->
 
       <div
         class="project-label"
         id="projectLabel"
       >
-        ONE PROJECT.
+        ONE PROJECT
       </div>
 
 
@@ -709,7 +707,10 @@
             alt="AutoCAD"
           >
 
-          <div class="platform-name">
+          <div
+            class="platform-name"
+            id="platformAutoCADName"
+          >
             AUTOCAD
           </div>
 
@@ -725,7 +726,10 @@
             alt="SketchUp"
           >
 
-          <div class="platform-name">
+          <div
+            class="platform-name"
+            id="platformSketchUpName"
+          >
             SKETCHUP
           </div>
 
@@ -741,7 +745,10 @@
             alt="InDesign"
           >
 
-          <div class="platform-name">
+          <div
+            class="platform-name"
+            id="platformInDesignName"
+          >
             INDESIGN
           </div>
 
@@ -775,7 +782,7 @@
       >
 
         <div class="asset-label">
-          ONE ASSET.
+          ONE ASSET
         </div>
 
         <img
@@ -867,7 +874,7 @@
 
   <!-- ==================================================
        NEXT
-    ================================================== -->
+  ================================================== -->
 
   <section class="next">
 
@@ -903,6 +910,14 @@
     document.getElementById("platformAutoCAD"),
     document.getElementById("platformSketchUp"),
     document.getElementById("platformInDesign")
+
+  ];
+
+  const platformNames = [
+
+    document.getElementById("platformAutoCADName"),
+    document.getElementById("platformSketchUpName"),
+    document.getElementById("platformInDesignName")
 
   ];
 
@@ -1036,19 +1051,41 @@
        0. UPPER SYSTEM
     ================================================== */
 
-    const projectFadeEnd = 0.20;
 
-    const projectFade =
-      1 -
+    /* ------------------------------------------
+       ONE PROJECT
+       Stays first, then moves upward.
+    ------------------------------------------ */
+
+    const projectMoveStart = 0.00;
+    const projectMoveEnd = 0.16;
+
+    const projectMoveProgress =
       clamp(
-        (progress - 0.12) /
-        (projectFadeEnd - 0.12),
+        (progress - projectMoveStart) /
+        (projectMoveEnd - projectMoveStart),
         0,
         1
       );
 
-    projectLabel.style.opacity =
-      projectFade;
+
+    const projectTravel =
+      window.innerHeight *
+      0.25;
+
+
+    const projectY =
+      -projectMoveProgress *
+      projectTravel;
+
+
+    projectLabel.style.transform =
+      `
+        translate(
+          -50%,
+          calc(-50% + ${projectY}px)
+        )
+      `;
 
 
     /* ------------------------------------------
@@ -1056,8 +1093,8 @@
        ONE PROJECT → MULTIPLE PLATFORMS
     ------------------------------------------ */
 
-    const projectArrowStart = 0.03;
-    const projectArrowEnd = 0.08;
+    const projectArrowStart = 0.06;
+    const projectArrowEnd = 0.13;
 
     const projectArrowProgress =
       clamp(
@@ -1068,18 +1105,18 @@
       );
 
 
-    const projectRect =
-      projectLabel.getBoundingClientRect();
-
-    const platformsLabelRect =
-      platformsLabel.getBoundingClientRect();
-
-
     const stage =
       document.querySelector(".sticky-stage");
 
     const stageRect =
       stage.getBoundingClientRect();
+
+
+    const projectRect =
+      projectLabel.getBoundingClientRect();
+
+    const platformsLabelRect =
+      platformsLabel.getBoundingClientRect();
 
 
     const projectBottom =
@@ -1106,7 +1143,7 @@
 
     projectArrow.style.opacity =
       projectArrowProgress > 0 &&
-      progress < 0.12
+      progress < 0.18
         ? 1
         : 0;
 
@@ -1119,10 +1156,11 @@
 
     /* ------------------------------------------
        MULTIPLE PLATFORMS
+       Appears only after ONE PROJECT has moved.
     ------------------------------------------ */
 
-    const platformsAppearStart = 0.05;
-    const platformsAppearEnd = 0.09;
+    const platformsAppearStart = 0.16;
+    const platformsAppearEnd = 0.20;
 
     const platformsOpacity =
       clamp(
@@ -1138,11 +1176,13 @@
 
 
     /* ------------------------------------------
-       PLATFORM ICONS
+       PLATFORM ICONS + LABELS
+       Icons rotate in.
+       Labels simply appear with them.
     ------------------------------------------ */
 
-    const iconStart = 0.07;
-    const iconStep = 0.025;
+    const iconStart = 0.20;
+    const iconStep = 0.035;
     const iconDuration = 0.05;
 
 
@@ -1156,6 +1196,7 @@
         const end =
           start +
           iconDuration;
+
 
         const iconProgress =
           clamp(
@@ -1191,17 +1232,22 @@
             scale(${scale})
           `;
 
+
+        platformNames[index].style.opacity =
+          iconProgress;
+
       }
     );
 
 
     /* ------------------------------------------
        GROUP MOVE
-       PLATFORMS → UP
+       MULTIPLE PLATFORMS → UP
+       Starts only after all icons are visible.
     ------------------------------------------ */
 
-    const groupMoveStart = 0.12;
-    const groupMoveEnd = 0.18;
+    const groupMoveStart = 0.34;
+    const groupMoveEnd = 0.42;
 
     const groupMoveProgress =
       clamp(
@@ -1234,8 +1280,8 @@
        PLATFORM GROUP → ONE ASSET
     ------------------------------------------ */
 
-    const platformArrowStart = 0.14;
-    const platformArrowEnd = 0.18;
+    const platformArrowStart = 0.38;
+    const platformArrowEnd = 0.46;
 
     const platformArrowProgress =
       clamp(
@@ -1280,7 +1326,7 @@
 
     platformArrow.style.opacity =
       platformArrowProgress > 0 &&
-      progress < 0.30
+      progress < 0.52
         ? 1
         : 0;
 
@@ -1293,10 +1339,11 @@
 
     /* ==================================================
        ASSET VISIBILITY
+       ONE ASSET appears only after the platform sequence.
     ================================================== */
 
-    const assetVisibilityStart = 0.17;
-    const assetVisibilityEnd = 0.20;
+    const assetVisibilityStart = 0.46;
+    const assetVisibilityEnd = 0.50;
 
     const assetVisibility =
       clamp(
@@ -1313,10 +1360,11 @@
 
     /* ==================================================
        1. ONE ASSET + CARD
+       (UNCHANGED MECHANICS)
     ================================================== */
 
-    const cardStart = 0.18;
-    const cardEnd = 0.30;
+    const cardStart = 0.48;
+    const cardEnd = 0.58;
 
     const cardProgress =
       clamp(
@@ -1345,10 +1393,11 @@
 
     /* ==================================================
        2. MULTIPLE REPRESENTATIONS
+       (UNCHANGED)
     ================================================== */
 
-    const labelAppearStart = 0.30;
-    const labelAppearEnd = 0.34;
+    const labelAppearStart = 0.58;
+    const labelAppearEnd = 0.62;
 
     const labelOpacity =
       clamp(
@@ -1359,8 +1408,8 @@
       );
 
 
-    const labelMoveStart = 0.42;
-    const labelMoveEnd = 0.50;
+    const labelMoveStart = 0.70;
+    const labelMoveEnd = 0.78;
 
     const labelMoveProgress =
       clamp(
@@ -1387,14 +1436,6 @@
       window.innerHeight / 2;
 
 
-    /*
-      Calculate the final TOP edge of the label
-      directly below the fixed header.
-
-      This works for both one-line desktop
-      and two-line mobile text.
-    */
-
     const finalLabelTop =
       headerRect.bottom +
       headerGap;
@@ -1415,15 +1456,6 @@
     multipleLabel.style.opacity =
       labelOpacity;
 
-
-    /*
-      MOBILE:
-      Move the actual TOP coordinate instead of
-      moving vertically through transform.
-
-      This guarantees that the final top edge is
-      exactly 24px below the fixed header.
-    */
 
     if (window.innerWidth <= 700) {
 
@@ -1465,10 +1497,11 @@
 
     /* ==================================================
        3. ARROW
+       (UNCHANGED MECHANICS)
     ================================================== */
 
-    const arrowStart = 0.18;
-    const arrowEnd = 0.34;
+    const arrowStart = 0.48;
+    const arrowEnd = 0.62;
 
     const arrowProgress =
       clamp(
@@ -1500,16 +1533,6 @@
       stageRect.top;
 
 
-    /*
-      At the end of the growth phase we freeze
-      the arrow's length.
-
-      This is the critical point:
-      afterwards the arrow is no longer recalculated
-      against the moving label. Instead its entire
-      geometry moves with the label.
-    */
-
     const restingArrowLength =
       Math.max(
         0,
@@ -1521,16 +1544,12 @@
 
     arrowSystem.style.opacity =
       progress >= arrowStart &&
-      progress < 0.50
+      progress < 0.78
         ? 1
         : 0;
 
 
     if (progress < labelMoveStart) {
-
-      /*
-        Arrow grows from the bottom of the card.
-      */
 
       arrowSystem.style.top =
         `${cardBottom}px`;
@@ -1541,18 +1560,6 @@
     }
 
     else {
-
-      /*
-        The label's current top edge already includes
-        its upward movement.
-
-        We place the arrow tip exactly 24px above it,
-        then keep the original arrow length.
-
-        Therefore:
-        label moves → arrow moves identically.
-        Distance stays constant.
-      */
 
       const currentLabelTop =
         labelRect.top -
@@ -1580,9 +1587,10 @@
 
     /* ==================================================
        4. REPRESENTATIONS
+       (UNCHANGED)
     ================================================== */
 
-    const representationStart = 0.50;
+    const representationStart = 0.78;
     const representationEnd = 0.96;
 
 
@@ -1607,15 +1615,6 @@
 
 
       if (progress < representationEnd) {
-
-        /*
-          Five non-final representations:
-          AutoCAD Minimal
-          AutoCAD Conditional
-          AutoCAD Realistic
-          SketchUp Realistic Face Me
-          SketchUp Conditional
-        */
 
         const firstFiveCount =
           count - 1;
@@ -1676,11 +1675,6 @@
 
 
       else {
-
-        /*
-          Final InDesign:
-          -90° → 0°
-        */
 
         const finalProgress =
           clamp(
