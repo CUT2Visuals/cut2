@@ -1283,8 +1283,69 @@
         : 28;
 
 
+    /*
+      Arrow gaps (used by block 7 as well).
+
+      Gap under the platform group,
+      reduced by 2/3 from 42px / 28px:
+        desktop: 14px
+        mobile: 9px
+    */
+
+    const platformArrowGap =
+      window.innerWidth <= 700
+        ? 9
+        : 14;
+
+
+    /*
+      Keep the arrowhead above ONE ASSET.
+      This prevents the arrow from touching
+      or crossing the label.
+    */
+
+    const platformArrowEndGap =
+      window.innerWidth <= 700
+        ? 16
+        : 24;
+
+
+    const platformArrowMinLength =
+      window.innerWidth <= 700
+        ? 28
+        : 40;
+
+
+    /*
+      Home position of ONE ASSET:
+      the stage center, unless the arrow from
+      the platform group would be shorter than
+      platformArrowMinLength. On short screens
+      the card stops lower by exactly the
+      missing amount.
+    */
+
+    const finalRowBottom =
+      platformsRow.getBoundingClientRect().bottom -
+      stageRect.top -
+      groupY +
+      groupUpY;
+
+    const assetLabelHomeTop =
+      stageRect.height / 2 -
+      assetCardHeight / 2 -
+      assetLabelGap -
+      assetLabelHeight;
+
     const assetHomeShift =
-      0;
+      Math.max(
+        0,
+        finalRowBottom +
+        platformArrowGap +
+        platformArrowMinLength +
+        platformArrowEndGap -
+        assetLabelHomeTop
+      );
 
 
     /*
@@ -1409,37 +1470,9 @@
       stageRect.top;
 
 
-    /*
-      The previous gap was:
-        desktop: 126px
-        mobile: 84px
-
-      Reduced to one third:
-        desktop: 42px
-        mobile: 28px
-    */
-
-    const platformArrowGap =
-      window.innerWidth <= 700
-        ? 28
-        : 42;
-
-
     const platformArrowStartY =
       rowBottom +
       platformArrowGap;
-
-
-    /*
-      Keep the arrowhead above ONE ASSET.
-      This prevents the arrow from touching
-      or crossing the label.
-    */
-
-    const platformArrowEndGap =
-      window.innerWidth <= 700
-        ? 16
-        : 24;
 
 
     const platformArrowEndY =
@@ -1495,13 +1528,24 @@
       cardTravel;
 
 
-    assetCard.style.transform =
-      `
-        translate(
-          -50%,
-          calc(-50% + ${assetHomeShift + cardY}px)
-        )
-      `;
+    /*
+      Before cardStart the card is driven by
+      block 6 (entry from below). Both blocks
+      share assetHomeShift, so there is no jump
+      at cardStart.
+    */
+
+    if (progress >= cardStart) {
+
+      assetCard.style.transform =
+        `
+          translate(
+            -50%,
+            calc(-50% + ${assetHomeShift + cardY}px)
+          )
+        `;
+
+    }
 
 
     /* ==================================================
