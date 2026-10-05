@@ -718,7 +718,7 @@
       Arrow disappears.
 
       0.50–0.96
-      First five representations.
+      Five representations rotate through.
 
       0.96–1.00
       Final InDesign enters and becomes front-facing.
@@ -774,15 +774,9 @@
       );
 
 
-    /*
-      The label remains in the exact center
-      until the arrow reaches it.
-
-      Only after 0.42 does it begin moving upward.
-    */
-
     const labelMoveStart = 0.42;
     const labelMoveEnd = 0.50;
+
 
     const labelMoveProgress =
       clamp(
@@ -794,8 +788,13 @@
 
 
     /*
-      Final position:
-      just below the fixed header.
+      Desktop:
+      label finishes below the fixed header.
+
+      Mobile:
+      the label is allowed to use two lines,
+      so its real height is measured and the
+      whole block is kept below the header.
     */
 
     const header =
@@ -844,23 +843,9 @@
        3. ARROW
     ================================================== */
 
-    /*
-      The arrow starts at the bottom edge
-      of the asset card.
-
-      0.18–0.34
-      Arrow grows toward MULTIPLE REPRESENTATIONS
-      1.5x faster than before.
-
-      0.34–0.42
-      Arrow pauses above the label.
-
-      0.42–0.50
-      Arrow and label move upward together.
-    */
-
     const arrowStart = 0.18;
     const arrowEnd = 0.34;
+
 
     const arrowProgress =
       clamp(
@@ -881,22 +866,14 @@
       assetCard.getBoundingClientRect();
 
 
-    /*
-      The arrow always starts exactly
-      at the bottom edge of the card.
-    */
-
     const cardBottom =
       cardRect.bottom -
       stageRect.top;
 
 
     /*
-      Fixed gap between the arrow tip
-      and MULTIPLE REPRESENTATIONS.
-
-      This value is used identically
-      on desktop and mobile.
+      The arrow tip stays 24px above
+      the top edge of MULTIPLE REPRESENTATIONS.
     */
 
     const arrowLabelGap =
@@ -910,12 +887,6 @@
       labelRect.top -
       stageRect.top;
 
-
-    /*
-      The bottom of the arrow container is
-      the arrow tip. The label therefore stays
-      exactly 24px below it.
-    */
 
     const targetLength =
       Math.max(
@@ -934,8 +905,8 @@
 
 
     /*
-      During the growth phase the arrow is
-      attached to the card.
+      0.18–0.34:
+      arrow grows from the card to the label.
     */
 
     if (progress < labelMoveStart) {
@@ -950,8 +921,12 @@
 
 
     /*
-      During the upward movement the arrow
-      translates together with the label.
+      0.42–0.50:
+      arrow is now attached to the label.
+
+      Its top and bottom both move by labelY,
+      so the distance between the arrow tip
+      and the label never changes.
     */
 
     else {
@@ -998,14 +973,23 @@
         representations.length;
 
 
+      /*
+        First five representations each receive
+        one equal segment of the 0.50–0.96 range.
+      */
+
       if (progress < representationEnd) {
 
+        const firstFiveCount =
+          count - 1;
+
         const firstFiveProgress =
-          representationProgress * (count - 2);
+          representationProgress *
+          firstFiveCount;
 
         const index =
           Math.min(
-            count - 2,
+            firstFiveCount - 1,
             Math.floor(firstFiveProgress)
           );
 
@@ -1054,6 +1038,12 @@
 
       }
 
+
+      /*
+        Final InDesign:
+        -90° → 0°
+        only during the final 4%.
+      */
 
       else {
 
