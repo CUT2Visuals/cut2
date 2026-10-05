@@ -163,7 +163,7 @@
       position: absolute;
 
       left: 50%;
-      top: 62%;
+      top: 65%;
 
       width: min(560px, 80vw);
 
@@ -546,7 +546,7 @@
       }
 
       .platforms-row {
-        top: 59%;
+        top: 65%;
         width: 78vw;
       }
 
@@ -927,7 +927,6 @@
 
   /* ==================================================
      ONE ASSET + LOWER SYSTEM
-     (UNCHANGED)
   ================================================== */
 
   const assetCard =
@@ -1047,6 +1046,13 @@
       passed / scrollable;
 
 
+    const stage =
+      document.querySelector(".sticky-stage");
+
+    const stageRect =
+      stage.getBoundingClientRect();
+
+
     /* ==================================================
        0. UPPER SYSTEM
     ================================================== */
@@ -1054,11 +1060,11 @@
 
     /* ------------------------------------------
        ONE PROJECT
-       Stays first, then moves upward.
+       CENTER → UNDER HEADER
     ------------------------------------------ */
 
     const projectMoveStart = 0.00;
-    const projectMoveEnd = 0.16;
+    const projectMoveEnd = 0.12;
 
     const projectMoveProgress =
       clamp(
@@ -1069,32 +1075,54 @@
       );
 
 
-    const projectTravel =
-      window.innerHeight *
-      0.25;
+    const header =
+      document.querySelector("header");
+
+    const headerRect =
+      header.getBoundingClientRect();
+
+    const headerGap =
+      24;
 
 
-    const projectY =
-      -projectMoveProgress *
-      projectTravel;
+    const projectHeight =
+      projectLabel.offsetHeight;
 
+    const projectStartTop =
+      window.innerHeight / 2 -
+      projectHeight / 2;
+
+    const projectFinalTop =
+      headerRect.bottom +
+      headerGap;
+
+
+    const projectTop =
+      lerp(
+        projectStartTop,
+        projectFinalTop,
+        projectMoveProgress
+      );
+
+
+    projectLabel.style.top =
+      `${projectTop + projectHeight / 2}px`;
 
     projectLabel.style.transform =
-      `
-        translate(
-          -50%,
-          calc(-50% + ${projectY}px)
-        )
-      `;
+      `translate(-50%, -50%)`;
 
 
     /* ------------------------------------------
        FIRST ARROW
        ONE PROJECT → MULTIPLE PLATFORMS
+
+       The arrow is attached to ONE PROJECT,
+       so its upper end follows the project
+       while the project moves upward.
     ------------------------------------------ */
 
-    const projectArrowStart = 0.06;
-    const projectArrowEnd = 0.13;
+    const projectArrowStart = 0.04;
+    const projectArrowEnd = 0.12;
 
     const projectArrowProgress =
       clamp(
@@ -1103,13 +1131,6 @@
         0,
         1
       );
-
-
-    const stage =
-      document.querySelector(".sticky-stage");
-
-    const stageRect =
-      stage.getBoundingClientRect();
 
 
     const projectRect =
@@ -1143,7 +1164,7 @@
 
     projectArrow.style.opacity =
       projectArrowProgress > 0 &&
-      progress < 0.18
+      progress < 0.15
         ? 1
         : 0;
 
@@ -1151,16 +1172,17 @@
       `${projectBottom}px`;
 
     projectArrow.style.height =
-      `${projectArrowLength * projectArrowProgress}px`;
+      `${projectArrowLength}px`;
 
 
     /* ------------------------------------------
        MULTIPLE PLATFORMS
-       Appears only after ONE PROJECT has moved.
+       Arrives exactly at the original
+       ONE PROJECT position.
     ------------------------------------------ */
 
-    const platformsAppearStart = 0.16;
-    const platformsAppearEnd = 0.20;
+    const platformsAppearStart = 0.12;
+    const platformsAppearEnd = 0.17;
 
     const platformsOpacity =
       clamp(
@@ -1174,14 +1196,23 @@
     platformsLabel.style.opacity =
       platformsOpacity;
 
+    platformsLabel.style.top =
+      `${projectStartTop + projectHeight / 2}px`;
+
+    platformsLabel.style.marginTop =
+      `0px`;
+
+    platformsLabel.style.transform =
+      `translate(-50%, -50%)`;
+
 
     /* ------------------------------------------
        PLATFORM ICONS + LABELS
-       Icons rotate in.
-       Labels simply appear with them.
+       Appear only after MULTIPLE PLATFORMS
+       has reached the original position.
     ------------------------------------------ */
 
-    const iconStart = 0.20;
+    const iconStart = 0.18;
     const iconStep = 0.035;
     const iconDuration = 0.05;
 
@@ -1241,13 +1272,13 @@
 
 
     /* ------------------------------------------
-       GROUP MOVE
-       MULTIPLE PLATFORMS → UP
-       Starts only after all icons are visible.
+       PLATFORM GROUP MOVE
+       MULTIPLE PLATFORMS + ICONS + LABELS
+       → UNDER HEADER
     ------------------------------------------ */
 
-    const groupMoveStart = 0.34;
-    const groupMoveEnd = 0.42;
+    const groupMoveStart = 0.31;
+    const groupMoveEnd = 0.40;
 
     const groupMoveProgress =
       clamp(
@@ -1260,7 +1291,7 @@
 
     const groupTravel =
       window.innerHeight *
-      0.20;
+      0.27;
 
 
     const groupY =
@@ -1278,10 +1309,13 @@
     /* ------------------------------------------
        SECOND ARROW
        PLATFORM GROUP → ONE ASSET
+
+       The arrow starts directly below the
+       platform icons and grows downward.
     ------------------------------------------ */
 
-    const platformArrowStart = 0.38;
-    const platformArrowEnd = 0.46;
+    const platformArrowStart = 0.35;
+    const platformArrowEnd = 0.45;
 
     const platformArrowProgress =
       clamp(
@@ -1326,7 +1360,7 @@
 
     platformArrow.style.opacity =
       platformArrowProgress > 0 &&
-      progress < 0.52
+      progress < 0.50
         ? 1
         : 0;
 
@@ -1337,13 +1371,14 @@
       `${platformArrowLength * platformArrowProgress}px`;
 
 
-    /* ==================================================
-       ASSET VISIBILITY
-       ONE ASSET appears only after the platform sequence.
-    ================================================== */
+    /* ------------------------------------------
+       ONE ASSET
+       Appears at exactly the same central
+       position as ONE PROJECT.
+    ------------------------------------------ */
 
-    const assetVisibilityStart = 0.46;
-    const assetVisibilityEnd = 0.50;
+    const assetVisibilityStart = 0.43;
+    const assetVisibilityEnd = 0.49;
 
     const assetVisibility =
       clamp(
@@ -1353,18 +1388,17 @@
         1
       );
 
+
     assetCard.style.opacity =
       assetVisibility;
 
 
-
     /* ==================================================
        1. ONE ASSET + CARD
-       (UNCHANGED MECHANICS)
     ================================================== */
 
-    const cardStart = 0.48;
-    const cardEnd = 0.58;
+    const cardStart = 0.49;
+    const cardEnd = 0.59;
 
     const cardProgress =
       clamp(
@@ -1374,8 +1408,10 @@
         1
       );
 
+
     const cardTravel =
       window.innerHeight * 0.82;
+
 
     const cardY =
       -cardProgress * cardTravel;
@@ -1393,11 +1429,10 @@
 
     /* ==================================================
        2. MULTIPLE REPRESENTATIONS
-       (UNCHANGED)
     ================================================== */
 
-    const labelAppearStart = 0.58;
-    const labelAppearEnd = 0.62;
+    const labelAppearStart = 0.59;
+    const labelAppearEnd = 0.63;
 
     const labelOpacity =
       clamp(
@@ -1408,8 +1443,8 @@
       );
 
 
-    const labelMoveStart = 0.70;
-    const labelMoveEnd = 0.78;
+    const labelMoveStart = 0.71;
+    const labelMoveEnd = 0.79;
 
     const labelMoveProgress =
       clamp(
@@ -1420,13 +1455,10 @@
       );
 
 
-    const header =
-      document.querySelector("header");
-
-    const headerRect =
+    const headerRect2 =
       header.getBoundingClientRect();
 
-    const headerGap =
+    const headerGap2 =
       24;
 
     const labelHeight =
@@ -1437,8 +1469,8 @@
 
 
     const finalLabelTop =
-      headerRect.bottom +
-      headerGap;
+      headerRect2.bottom +
+      headerGap2;
 
     const finalLabelCenter =
       finalLabelTop +
@@ -1497,11 +1529,10 @@
 
     /* ==================================================
        3. ARROW
-       (UNCHANGED MECHANICS)
     ================================================== */
 
-    const arrowStart = 0.48;
-    const arrowEnd = 0.62;
+    const arrowStart = 0.49;
+    const arrowEnd = 0.63;
 
     const arrowProgress =
       clamp(
@@ -1544,7 +1575,7 @@
 
     arrowSystem.style.opacity =
       progress >= arrowStart &&
-      progress < 0.78
+      progress < 0.79
         ? 1
         : 0;
 
@@ -1587,10 +1618,9 @@
 
     /* ==================================================
        4. REPRESENTATIONS
-       (UNCHANGED)
     ================================================== */
 
-    const representationStart = 0.78;
+    const representationStart = 0.79;
     const representationEnd = 0.96;
 
 
