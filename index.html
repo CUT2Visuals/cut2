@@ -1240,6 +1240,16 @@
 
 
     /*
+      Move MULTIPLE PLATFORMS upward by its own
+      height, doubling the distance between the
+      label and the platform icons.
+    */
+
+    const platformsLabelOffsetY =
+      -platformsLabelHeight;
+
+
+    /*
       The whole group continues upward until
       MULTIPLE PLATFORMS is physically behind
       the fixed header.
@@ -1261,7 +1271,7 @@
       `
         translate(
           -50%,
-          calc(-50% + ${groupY}px)
+          calc(-50% + ${groupY + platformsLabelOffsetY}px)
         )
       `;
 
