@@ -168,7 +168,7 @@
       position: absolute;
 
       left: 50%;
-      top: 50%;
+      top: 0;
 
       width: 1px;
 
@@ -804,10 +804,17 @@
     ================================================== */
 
     /*
-      The arrow starts exactly below the card.
+      The arrow is now geometrically connected
+      to the asset card and the label.
 
-      It grows downward and ends at the
-      MULTIPLE REPRESENTATIONS label.
+      Its top is positioned at the bottom edge
+      of ONE ASSET.
+
+      Its shaft grows toward the top edge
+      of MULTIPLE REPRESENTATIONS.
+
+      The arrowhead therefore always sits
+      exactly at the end of the shaft.
     */
 
     const arrowStart = 0.30;
@@ -822,8 +829,37 @@
       );
 
 
-    const arrowLength =
-      window.innerHeight * 0.38;
+    const stage =
+      document.querySelector(".sticky-stage");
+
+
+    const stageRect =
+      stage.getBoundingClientRect();
+
+
+    const cardRect =
+      assetCard.getBoundingClientRect();
+
+
+    const labelRect =
+      multipleLabel.getBoundingClientRect();
+
+
+    const arrowTop =
+      cardRect.bottom -
+      stageRect.top;
+
+
+    const arrowTarget =
+      labelRect.top -
+      stageRect.top;
+
+
+    const availableLength =
+      Math.max(
+        0,
+        arrowTarget - arrowTop
+      );
 
 
     arrowSystem.style.opacity =
@@ -833,38 +869,16 @@
         : 0;
 
 
-    /*
-      Arrow follows the same vertical movement
-      as MULTIPLE REPRESENTATIONS.
-    */
+    arrowSystem.style.top =
+      `${arrowTop}px`;
+
 
     arrowSystem.style.transform =
-      `
-        translateX(-50%)
-        translateY(${labelY}px)
-      `;
+      `translateX(-50%)`;
 
-
-    /*
-      The shaft reaches the exact position
-      of the arrowhead.
-    */
 
     arrowShaft.style.height =
-      `${arrowProgress * arrowLength}px`;
-
-
-    /*
-      Position the arrow system so that its
-      top starts below the moving asset card.
-    */
-
-    const arrowBaseY =
-      window.innerHeight * 0.12;
-
-
-    arrowSystem.style.top =
-      `calc(50% + ${arrowBaseY}px)`;
+      `${availableLength * arrowProgress}px`;
 
 
 
