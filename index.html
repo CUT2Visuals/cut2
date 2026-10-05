@@ -168,7 +168,7 @@
       width: min(560px, 80vw);
 
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: space-between;
 
       transform:
@@ -177,6 +177,16 @@
       opacity: 1;
 
       z-index: 8;
+    }
+
+    .platform-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      gap: 18px;
+
+      width: 72px;
     }
 
     .platform-icon {
@@ -194,6 +204,16 @@
 
       transform-style: preserve-3d;
       transform-origin: center center;
+    }
+
+    .platform-name {
+      font-size: 12px;
+      font-weight: 400;
+
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+
+      white-space: nowrap;
     }
 
     .upper-arrow {
@@ -275,6 +295,8 @@
 
       transform:
         translate(-50%, -50%);
+
+      opacity: 0;
 
       z-index: 5;
     }
@@ -526,9 +548,18 @@
         width: 78vw;
       }
 
+      .platform-item {
+        width: 52px;
+        gap: 12px;
+      }
+
       .platform-icon {
         width: 52px;
         height: 52px;
+      }
+
+      .platform-name {
+        font-size: 10px;
       }
 
       .asset-card {
@@ -669,26 +700,52 @@
         id="platformsRow"
       >
 
-        <img
-          class="platform-icon"
-          id="platformAutoCAD"
-          src="prototypes/asset-representations/asset-representations/platforms/autocad.svg"
-          alt="AutoCAD"
-        >
+        <div class="platform-item">
 
-        <img
-          class="platform-icon"
-          id="platformSketchUp"
-          src="prototypes/asset-representations/asset-representations/platforms/sketchup.svg"
-          alt="SketchUp"
-        >
+          <img
+            class="platform-icon"
+            id="platformAutoCAD"
+            src="prototypes/asset-representations/asset-representations/platforms/autocad.svg"
+            alt="AutoCAD"
+          >
 
-        <img
-          class="platform-icon"
-          id="platformInDesign"
-          src="prototypes/asset-representations/asset-representations/platforms/indesign.svg"
-          alt="InDesign"
-        >
+          <div class="platform-name">
+            AUTOCAD
+          </div>
+
+        </div>
+
+
+        <div class="platform-item">
+
+          <img
+            class="platform-icon"
+            id="platformSketchUp"
+            src="prototypes/asset-representations/asset-representations/platforms/sketchup.svg"
+            alt="SketchUp"
+          >
+
+          <div class="platform-name">
+            SKETCHUP
+          </div>
+
+        </div>
+
+
+        <div class="platform-item">
+
+          <img
+            class="platform-icon"
+            id="platformInDesign"
+            src="prototypes/asset-representations/asset-representations/platforms/indesign.svg"
+            alt="InDesign"
+          >
+
+          <div class="platform-name">
+            INDESIGN
+          </div>
+
+        </div>
 
       </div>
 
@@ -810,7 +867,7 @@
 
   <!-- ==================================================
        NEXT
-  ================================================== -->
+    ================================================== -->
 
   <section class="next">
 
@@ -978,31 +1035,6 @@
     /* ==================================================
        0. UPPER SYSTEM
     ================================================== */
-
-    /*
-      The upper choreography occupies the beginning
-      of the same sticky sequence.
-
-      0.00–0.05
-      ONE PROJECT stays alone.
-
-      0.03–0.08
-      Arrow grows toward MULTIPLE PLATFORMS.
-
-      0.05–0.09
-      MULTIPLE PLATFORMS appears.
-
-      0.07–0.15
-      Platform icons appear one by one,
-      each rotating -90° → 0°.
-
-      0.12–0.18
-      The complete platform group moves upward.
-
-      0.14–0.18
-      Second arrow appears toward ONE ASSET.
-    */
-
 
     const projectFadeEnd = 0.20;
 
@@ -1257,6 +1289,25 @@
 
     platformArrow.style.height =
       `${platformArrowLength * platformArrowProgress}px`;
+
+
+    /* ==================================================
+       ASSET VISIBILITY
+    ================================================== */
+
+    const assetVisibilityStart = 0.17;
+    const assetVisibilityEnd = 0.20;
+
+    const assetVisibility =
+      clamp(
+        (progress - assetVisibilityStart) /
+        (assetVisibilityEnd - assetVisibilityStart),
+        0,
+        1
+      );
+
+    assetCard.style.opacity =
+      assetVisibility;
 
 
 
