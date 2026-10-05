@@ -1288,22 +1288,25 @@
 
 
     /*
-      The asset-card transform is centered on its
-      own geometric center.
+      The whole ONE ASSET composition starts below
+      the viewport:
 
-      To place the entire card below the viewport,
-      its center has to be at least:
-      
-      viewport height / 2 + card height / 2.
+      card height
+      + label height
+      + label gap
+      + additional safety margin.
 
-      The additional 24px gives a small clear gap
-      below the screen edge.
+      This is deliberately larger than the previous
+      calculation so the label and the card cannot
+      appear in the middle of the screen.
     */
 
     const assetStartShift =
       window.innerHeight / 2 +
-      assetCardHeight / 2 +
-      24;
+      assetCardHeight +
+      assetLabelHeight +
+      assetLabelGap +
+      40;
 
 
     const assetMoveStart = 0.42;
@@ -1370,12 +1373,6 @@
     /* ==================================================
        7. ARROW
        PLATFORM GROUP → ONE ASSET
-
-       The arrow tail is intentionally detached
-       from the platform labels.
-
-       The gap is approximately 7× larger than
-       the previous direct attachment.
     ================================================== */
 
     const platformArrowStart = 0.38;
@@ -1413,18 +1410,19 @@
 
 
     /*
-      Previously the arrow started directly at
-      the bottom of the platform group.
+      The previous gap was:
+        desktop: 126px
+        mobile: 84px
 
-      Now it starts lower, leaving a substantial
-      visual gap between the platform labels and
-      the arrow shaft.
+      Reduced to one third:
+        desktop: 42px
+        mobile: 28px
     */
 
     const platformArrowGap =
       window.innerWidth <= 700
-        ? 84
-        : 126;
+        ? 28
+        : 42;
 
 
     const platformArrowStartY =
@@ -1432,10 +1430,27 @@
       platformArrowGap;
 
 
+    /*
+      Keep the arrowhead above ONE ASSET.
+      This prevents the arrow from touching
+      or crossing the label.
+    */
+
+    const platformArrowEndGap =
+      window.innerWidth <= 700
+        ? 16
+        : 24;
+
+
+    const platformArrowEndY =
+      assetLabelTop -
+      platformArrowEndGap;
+
+
     const platformArrowLength =
       Math.max(
         0,
-        assetLabelTop -
+        platformArrowEndY -
         platformArrowStartY
       );
 
