@@ -671,10 +671,11 @@
       THE SEQUENCE
 
       0.00–0.18
-      ONE ASSET stays still.
+      ONE ASSET is completely below the viewport.
 
       0.18–0.30
-      ONE ASSET + CARD move upward.
+      ONE ASSET enters from below
+      and moves to its final position.
 
       0.30–0.34
       Arrow appears and grows.
@@ -683,7 +684,7 @@
       MULTIPLE REPRESENTATIONS is visible.
 
       0.42–0.50
-      Arrow + label move upward together.
+      Arrow + label move upward.
 
       0.50
       Arrow disappears.
@@ -713,18 +714,33 @@
 
 
     /*
-      The card moves upward by exactly one
-      viewport-based distance.
+      The card no longer starts in the center.
 
-      The label is inside the card,
-      therefore it moves with it.
+      Its initial position is calculated so that
+      the entire composition is below the viewport,
+      including the ONE ASSET label.
+
+      The final position remains exactly the same
+      as in the previous version.
     */
 
-    const cardTravel =
-      window.innerHeight * 0.82;
+    const assetCardHeight =
+      assetCard.offsetHeight;
+
+    const assetStartY =
+      window.innerHeight / 2 +
+      assetCardHeight / 2 +
+      40;
+
+    const assetFinalY =
+      -window.innerHeight * 0.82;
 
     const cardY =
-      -cardProgress * cardTravel;
+      lerp(
+        assetStartY,
+        assetFinalY,
+        cardProgress
+      );
 
 
     assetCard.style.transform =
@@ -804,10 +820,13 @@
     ================================================== */
 
     /*
-      The arrow starts exactly below the card.
+      The arrow appears after ONE ASSET
+      has reached its final position.
 
-      It grows downward and ends at the
-      MULTIPLE REPRESENTATIONS label.
+      Its endpoint is tied to the actual
+      MULTIPLE REPRESENTATIONS label instead
+      of extending blindly to the bottom
+      of the viewport.
     */
 
     const arrowStart = 0.30;
@@ -820,10 +839,6 @@
         0,
         1
       );
-
-
-    const arrowLength =
-      window.innerHeight * 0.38;
 
 
     arrowSystem.style.opacity =
@@ -846,25 +861,47 @@
 
 
     /*
-      The shaft reaches the exact position
-      of the arrowhead.
+      Calculate the actual position of the
+      MULTIPLE REPRESENTATIONS label.
+
+      The arrowhead stops above the label,
+      so it cannot overlap the text.
     */
 
-    arrowShaft.style.height =
-      `${arrowProgress * arrowLength}px`;
+    const stage =
+      document.querySelector(".sticky-stage");
+
+    const stageRect =
+      stage.getBoundingClientRect();
+
+    const labelRect =
+      multipleLabel.getBoundingClientRect();
+
+    const arrowTop =
+      stageRect.height * 0.50 +
+      window.innerHeight * 0.12 +
+      labelY;
+
+    const labelTop =
+      labelRect.top -
+      stageRect.top;
 
 
-    /*
-      Position the arrow system so that its
-      top starts below the moving asset card.
-    */
-
-    const arrowBaseY =
-      window.innerHeight * 0.12;
+    const arrowLength =
+      Math.max(
+        0,
+        labelTop -
+        arrowTop -
+        16
+      );
 
 
     arrowSystem.style.top =
-      `calc(50% + ${arrowBaseY}px)`;
+      `calc(50% + 12vh)`;
+
+
+    arrowShaft.style.height =
+      `${arrowProgress * arrowLength}px`;
 
 
 
