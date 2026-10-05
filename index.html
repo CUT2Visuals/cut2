@@ -1024,10 +1024,6 @@
     /* ==================================================
        1. ONE PROJECT
        CENTER → UNDER HEADER
-
-       IMPORTANT:
-       The final center is ABOVE the viewport.
-       The fixed header physically covers the label.
     ================================================== */
 
     const projectMoveStart = 0.04;
@@ -1069,10 +1065,6 @@
     /* ==================================================
        2. ARROW ATTACHED TO ONE PROJECT
        PROJECT → MULTIPLE PLATFORMS
-
-       Arrow duration is 1.5× faster.
-       Bottom follows the actual top of
-       MULTIPLE PLATFORMS.
     ================================================== */
 
     const projectArrowStart = 0.07;
@@ -1239,21 +1231,9 @@
       platformsLabel.offsetHeight;
 
 
-    /*
-      Move MULTIPLE PLATFORMS upward by its own
-      height, doubling the distance between the
-      label and the platform icons.
-    */
-
     const platformsLabelOffsetY =
       -platformsLabelHeight;
 
-
-    /*
-      The whole group continues upward until
-      MULTIPLE PLATFORMS is physically behind
-      the fixed header.
-    */
 
     const groupUpY =
       headerRect.top -
@@ -1287,11 +1267,7 @@
 
     /* ==================================================
        6. ONE ASSET
-       GEOMETRIC HOME CENTER = SCREEN CENTER
-
-       The asset-card itself has no additional
-       vertical home offset. Its geometric center
-       therefore sits exactly at the stage center.
+       STARTS COMPLETELY BELOW THE SCREEN
     ================================================== */
 
     const assetCardHeight =
@@ -1311,8 +1287,23 @@
       0;
 
 
+    /*
+      The asset-card transform is centered on its
+      own geometric center.
+
+      To place the entire card below the viewport,
+      its center has to be at least:
+      
+      viewport height / 2 + card height / 2.
+
+      The additional 24px gives a small clear gap
+      below the screen edge.
+    */
+
     const assetStartShift =
-      window.innerHeight * 0.95;
+      window.innerHeight / 2 +
+      assetCardHeight / 2 +
+      24;
 
 
     const assetMoveStart = 0.42;
@@ -1380,9 +1371,11 @@
        7. ARROW
        PLATFORM GROUP → ONE ASSET
 
-       Top remains attached to the platform row.
-       Bottom is attached to the actual ONE ASSET
-       label, so it follows the asset while it moves.
+       The arrow tail is intentionally detached
+       from the platform labels.
+
+       The gap is approximately 7× larger than
+       the previous direct attachment.
     ================================================== */
 
     const platformArrowStart = 0.38;
@@ -1419,16 +1412,36 @@
       stageRect.top;
 
 
+    /*
+      Previously the arrow started directly at
+      the bottom of the platform group.
+
+      Now it starts lower, leaving a substantial
+      visual gap between the platform labels and
+      the arrow shaft.
+    */
+
+    const platformArrowGap =
+      window.innerWidth <= 700
+        ? 84
+        : 126;
+
+
+    const platformArrowStartY =
+      rowBottom +
+      platformArrowGap;
+
+
     const platformArrowLength =
       Math.max(
         0,
         assetLabelTop -
-        rowBottom
+        platformArrowStartY
       );
 
 
     platformArrow.style.top =
-      `${rowBottom}px`;
+      `${platformArrowStartY}px`;
 
     platformArrow.style.height =
       `${platformArrowLength * platformArrowProgress}px`;
