@@ -179,6 +179,10 @@
       transform: translateX(-50%);
     }
 
+    /*
+      The shaft ends exactly at the arrow tip.
+    */
+
     .arrow-shaft {
       position: absolute;
 
@@ -190,21 +194,35 @@
       background: #000;
     }
 
-    .arrow-head {
+    /*
+      Arrow head is made from two real lines.
+      Both lines meet at one exact point:
+      the bottom of the shaft.
+    */
+
+    .arrow-head-left,
+    .arrow-head-right {
       position: absolute;
 
-      left: 50%;
+      left: 0;
       bottom: 0;
 
-      width: 10px;
-      height: 10px;
+      width: 14px;
+      height: 1px;
 
-      border-right: 1px solid #000;
-      border-bottom: 1px solid #000;
+      background: #000;
 
+      transform-origin: left center;
+    }
+
+    .arrow-head-left {
       transform:
-        translate(-50%, 50%)
         rotate(45deg);
+    }
+
+    .arrow-head-right {
+      transform:
+        rotate(-45deg);
     }
 
 
@@ -470,7 +488,8 @@
           id="arrowShaft"
         ></div>
 
-        <div class="arrow-head"></div>
+        <div class="arrow-head-left"></div>
+        <div class="arrow-head-right"></div>
 
       </div>
 
@@ -692,7 +711,8 @@
       Representations.
 
       0.96–1.00
-      Final InDesign remains front-facing.
+      Final InDesign completes the first half
+      of its rotation and stays front-facing.
     */
 
 
@@ -711,14 +731,6 @@
         1
       );
 
-
-    /*
-      The card moves upward by exactly one
-      viewport-based distance.
-
-      The label is inside the card,
-      therefore it moves with it.
-    */
 
     const cardTravel =
       window.innerHeight * 0.82;
@@ -741,11 +753,6 @@
        2. MULTIPLE REPRESENTATIONS
     ================================================== */
 
-    /*
-      It first appears in the center,
-      with no rotation.
-    */
-
     const labelAppearStart = 0.30;
     const labelAppearEnd = 0.34;
 
@@ -757,14 +764,6 @@
         1
       );
 
-
-    /*
-      Then it moves upward.
-
-      The destination is deliberately the same
-      vertical level that ONE ASSET occupies
-      after its movement.
-    */
 
     const labelMoveStart = 0.42;
     const labelMoveEnd = 0.50;
@@ -803,13 +802,6 @@
        3. ARROW
     ================================================== */
 
-    /*
-      The arrow starts exactly below the card.
-
-      It grows downward and ends at the
-      MULTIPLE REPRESENTATIONS label.
-    */
-
     const arrowStart = 0.30;
     const arrowEnd = 0.42;
 
@@ -833,11 +825,6 @@
         : 0;
 
 
-    /*
-      Arrow follows the same vertical movement
-      as MULTIPLE REPRESENTATIONS.
-    */
-
     arrowSystem.style.transform =
       `
         translateX(-50%)
@@ -846,18 +833,13 @@
 
 
     /*
-      The shaft reaches the exact position
-      of the arrowhead.
+      The shaft grows toward the exact
+      junction point of the arrow head.
     */
 
     arrowShaft.style.height =
       `${arrowProgress * arrowLength}px`;
 
-
-    /*
-      Position the arrow system so that its
-      top starts below the moving asset card.
-    */
 
     const arrowBaseY =
       window.innerHeight * 0.12;
@@ -889,26 +871,12 @@
 
       representation.style.opacity = 1;
 
-
-      /*
-        Arrow disappears exactly when
-        the first representation begins.
-      */
-
       arrowSystem.style.opacity = 0;
 
 
       const count =
         representations.length;
 
-
-      /*
-        We use count - 1 intervals.
-
-        This makes the last representation
-        occupy the complete final state rather
-        than immediately jumping to another one.
-      */
 
       const exactIndex =
         representationProgress *
@@ -948,58 +916,54 @@
         index === count - 1;
 
 
-      /*
-        LAST REPRESENTATION
+      /* ==================================================
+         FINAL INDESIGN
 
-        InDesign ends completely front-facing
-        and remains there.
-      */
+         InDesign enters from -90 degrees,
+         completes only the first half of the
+         normal rotation, reaches 0 degrees,
+         and stays there.
+      ================================================== */
 
       if (isLast) {
 
-  /*
-    InDesign performs the first half of the
-    normal -90deg → +90deg movement.
+        const finalProgress =
+          clamp(
+            localProgress * 2,
+            0,
+            1
+          );
 
-    It enters from the side, rotates to the
-    front, then stays there.
-  */
 
-  const finalProgress =
-    clamp(
-      localProgress * 2,
-      0,
-      1
-    );
+        const rotation =
+          lerp(
+            -90,
+            0,
+            finalProgress
+          );
 
-  const rotation =
-    lerp(
-      -90,
-      0,
-      finalProgress
-    );
 
-  const scale =
-    0.92 +
-    Math.sin(
-      finalProgress * Math.PI
-    ) * 0.08;
+        const scale =
+          0.92 +
+          Math.sin(
+            finalProgress * Math.PI
+          ) * 0.08;
 
-  representationVisual.style.transform =
-    `
-      perspective(1200px)
-      rotateY(${rotation}deg)
-      scale(${scale})
-    `;
 
-}
+        representationVisual.style.transform =
+          `
+            perspective(1200px)
+            rotateY(${rotation}deg)
+            scale(${scale})
+          `;
+
+      }
 
       else {
 
         /*
-          Every representation enters
-          from the side and opens toward
-          the viewer.
+          All other representations perform
+          the complete -90° → +90° movement.
         */
 
         const rotation =
