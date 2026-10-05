@@ -44,7 +44,6 @@
 
     header {
       position: fixed;
-
       top: 0;
       left: 0;
 
@@ -98,12 +97,12 @@
 
 
     /* ==================================================
-       MAIN SCROLL SYSTEM
+       MAIN SYSTEM
     ================================================== */
 
     .asset-system {
       position: relative;
-      height: 650vh;
+      height: 700vh;
     }
 
     .sticky-stage {
@@ -114,16 +113,12 @@
       width: 100%;
       height: 100vh;
 
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
       overflow: hidden;
     }
 
 
     /* ==================================================
-       LIBRARY CARD + ONE ASSET
+       ONE ASSET
     ================================================== */
 
     .asset-card {
@@ -134,7 +129,8 @@
 
       width: min(252px, 49vw);
 
-      transform: translate(-50%, -50%);
+      transform:
+        translate(-50%, -50%);
 
       z-index: 5;
     }
@@ -175,23 +171,21 @@
       top: 50%;
 
       width: 1px;
-      height: 0;
 
-      transform: translateX(-50%);
+      opacity: 0;
 
       z-index: 4;
 
-      opacity: 0;
+      transform: translateX(-50%);
     }
 
     .arrow-shaft {
       position: absolute;
 
       left: 0;
-      bottom: -5px;
+      top: 0;
 
       width: 1px;
-      height: 0;
 
       background: #000;
     }
@@ -200,10 +194,10 @@
       position: absolute;
 
       left: 50%;
-      bottom: -5px;
+      bottom: 0;
 
-      width: 9px;
-      height: 9px;
+      width: 10px;
+      height: 10px;
 
       border-right: 1px solid #000;
       border-bottom: 1px solid #000;
@@ -222,9 +216,10 @@
       position: absolute;
 
       left: 50%;
-      top: 57%;
+      top: 50%;
 
-      transform: translate(-50%, -50%);
+      transform:
+        translate(-50%, -50%);
 
       font-size: clamp(28px, 5vw, 72px);
       font-weight: 400;
@@ -239,7 +234,7 @@
 
 
     /* ==================================================
-       REPRESENTATION
+       REPRESENTATIONS
     ================================================== */
 
     .representation {
@@ -343,7 +338,7 @@
       }
 
       .asset-system {
-        height: 650vh;
+        height: 700vh;
       }
 
       .sticky-stage {
@@ -443,7 +438,7 @@
     <div class="sticky-stage">
 
 
-      <!-- LIBRARY CARD -->
+      <!-- ONE ASSET -->
 
       <div
         class="asset-card"
@@ -455,7 +450,7 @@
         </div>
 
         <img
-          src="asset-representations/library-card.png?v=2"
+          src="asset-representations/library-card.png?v=3"
           alt="CUT2 Asset Library"
         >
 
@@ -507,7 +502,7 @@
           <img
             id="representationImage"
             class="representation-image"
-            src="asset-representations/autocad/minimal.svg?v=2"
+            src="asset-representations/autocad/minimal.svg?v=3"
             alt="AutoCAD Minimal"
           >
 
@@ -589,37 +584,37 @@
     {
       platform: "AUTOCAD",
       type: "MINIMAL",
-      src: "asset-representations/autocad/minimal.svg?v=2"
+      src: "asset-representations/autocad/minimal.svg?v=3"
     },
 
     {
       platform: "AUTOCAD",
       type: "CONDITIONAL",
-      src: "asset-representations/autocad/conditional.svg?v=2"
+      src: "asset-representations/autocad/conditional.svg?v=3"
     },
 
     {
       platform: "AUTOCAD",
       type: "REALISTIC",
-      src: "asset-representations/autocad/realistic.svg?v=2"
+      src: "asset-representations/autocad/realistic.svg?v=3"
     },
 
     {
       platform: "SKETCHUP",
       type: "REALISTIC FACE ME",
-      src: "asset-representations/sketchup/realistic-face-me.png?v=2"
+      src: "asset-representations/sketchup/realistic-face-me.png?v=3"
     },
 
     {
       platform: "SKETCHUP",
       type: "CONDITIONAL",
-      src: "asset-representations/sketchup/conditional.png?v=2"
+      src: "asset-representations/sketchup/conditional.png?v=3"
     },
 
     {
       platform: "INDESIGN",
       type: "IMAGE",
-      src: "asset-representations/publishing/image.jpg?v=2"
+      src: "asset-representations/publishing/image.jpg?v=3"
     }
 
   ];
@@ -635,6 +630,13 @@
       min,
       Math.min(max, value)
     );
+
+  }
+
+
+  function lerp(a, b, t) {
+
+    return a + (b - a) * t;
 
   }
 
@@ -665,16 +667,41 @@
       passed / scrollable;
 
 
+    /*
+      THE SEQUENCE
+
+      0.00–0.18
+      ONE ASSET stays still.
+
+      0.18–0.30
+      ONE ASSET + CARD move upward.
+
+      0.30–0.34
+      Arrow appears and grows.
+
+      0.34–0.42
+      MULTIPLE REPRESENTATIONS is visible.
+
+      0.42–0.50
+      Arrow + label move upward together.
+
+      0.50
+      Arrow disappears.
+
+      0.50–0.96
+      Representations.
+
+      0.96–1.00
+      Final InDesign remains front-facing.
+    */
+
 
     /* ==================================================
        1. ONE ASSET + CARD
-
-       They are one physical object.
-       Both move upward together.
     ================================================== */
 
-    const cardStart = 0.00;
-    const cardEnd = 0.23;
+    const cardStart = 0.18;
+    const cardEnd = 0.30;
 
     const cardProgress =
       clamp(
@@ -684,11 +711,21 @@
         1
       );
 
+
+    /*
+      The card moves upward by exactly one
+      viewport-based distance.
+
+      The label is inside the card,
+      therefore it moves with it.
+    */
+
     const cardTravel =
-      window.innerHeight * 0.95;
+      window.innerHeight * 0.82;
 
     const cardY =
       -cardProgress * cardTravel;
+
 
     assetCard.style.transform =
       `
@@ -701,70 +738,36 @@
 
 
     /* ==================================================
-       2. ARROW
-
-       Shaft grows until it reaches the arrow head.
-
-       The arrow head and shaft are physically connected.
+       2. MULTIPLE REPRESENTATIONS
     ================================================== */
 
-    const arrowStart = 0.05;
-    const arrowEnd = 0.25;
+    /*
+      It first appears in the center,
+      with no rotation.
+    */
 
-    const arrowProgress =
+    const labelAppearStart = 0.30;
+    const labelAppearEnd = 0.34;
+
+    const labelOpacity =
       clamp(
-        (progress - arrowStart) /
-        (arrowEnd - arrowStart),
-        0,
-        1
-      );
-
-    const arrowLength =
-      window.innerHeight * 0.72;
-
-    arrowSystem.style.opacity =
-      progress >= arrowStart &&
-      progress < 0.48
-        ? 1
-        : 0;
-
-    arrowShaft.style.height =
-      `${arrowProgress * arrowLength}px`;
-
-
-
-    /* ==================================================
-       3. MULTIPLE REPRESENTATIONS
-
-       No rotation.
-
-       It appears in its current position,
-       then moves upward to the same level
-       occupied by ONE ASSET.
-    ================================================== */
-
-    const labelStart = 0.22;
-    const labelVisibleEnd = 0.30;
-
-    const labelProgress =
-      clamp(
-        (progress - labelStart) /
-        (labelVisibleEnd - labelStart),
+        (progress - labelAppearStart) /
+        (labelAppearEnd - labelAppearStart),
         0,
         1
       );
 
 
     /*
-      Target position is the same vertical
-      position as ONE ASSET after its move.
+      Then it moves upward.
+
+      The destination is deliberately the same
+      vertical level that ONE ASSET occupies
+      after its movement.
     */
 
-    const targetShift =
-      -window.innerHeight * 0.42;
-
-    const labelMoveStart = 0.30;
-    const labelMoveEnd = 0.40;
+    const labelMoveStart = 0.42;
+    const labelMoveEnd = 0.50;
 
     const labelMoveProgress =
       clamp(
@@ -775,35 +778,93 @@
       );
 
 
-    const labelShift =
-      labelMoveProgress * targetShift;
+    const labelTravel =
+      window.innerHeight * 0.42;
+
+    const labelY =
+      -labelMoveProgress * labelTravel;
 
 
     multipleLabel.style.opacity =
-      labelProgress > 0 ? 1 : 0;
+      labelOpacity;
+
 
     multipleLabel.style.transform =
       `
         translate(
           -50%,
-          calc(-50% + ${labelShift}px)
+          calc(-50% + ${labelY}px)
         )
       `;
 
 
-    /*
-      Arrow follows the label.
 
-      Once the label reaches its final position,
-      the arrow disappears when the first
-      representation begins.
+    /* ==================================================
+       3. ARROW
+    ================================================== */
+
+    /*
+      The arrow starts exactly below the card.
+
+      It grows downward and ends at the
+      MULTIPLE REPRESENTATIONS label.
+    */
+
+    const arrowStart = 0.30;
+    const arrowEnd = 0.42;
+
+    const arrowProgress =
+      clamp(
+        (progress - arrowStart) /
+        (arrowEnd - arrowStart),
+        0,
+        1
+      );
+
+
+    const arrowLength =
+      window.innerHeight * 0.38;
+
+
+    arrowSystem.style.opacity =
+      progress >= arrowStart &&
+      progress < 0.50
+        ? 1
+        : 0;
+
+
+    /*
+      Arrow follows the same vertical movement
+      as MULTIPLE REPRESENTATIONS.
     */
 
     arrowSystem.style.transform =
       `
         translateX(-50%)
-        translateY(${labelShift}px)
+        translateY(${labelY}px)
       `;
+
+
+    /*
+      The shaft reaches the exact position
+      of the arrowhead.
+    */
+
+    arrowShaft.style.height =
+      `${arrowProgress * arrowLength}px`;
+
+
+    /*
+      Position the arrow system so that its
+      top starts below the moving asset card.
+    */
+
+    const arrowBaseY =
+      window.innerHeight * 0.12;
+
+
+    arrowSystem.style.top =
+      `calc(50% + ${arrowBaseY}px)`;
 
 
 
@@ -811,8 +872,9 @@
        4. REPRESENTATIONS
     ================================================== */
 
-    const representationStart = 0.40;
-    const representationEnd = 0.92;
+    const representationStart = 0.50;
+    const representationEnd = 0.96;
+
 
     const representationProgress =
       clamp(
@@ -827,9 +889,10 @@
 
       representation.style.opacity = 1;
 
+
       /*
-        Arrow disappears exactly as the
-        first representation starts.
+        Arrow disappears exactly when
+        the first representation begins.
       */
 
       arrowSystem.style.opacity = 0;
@@ -839,8 +902,17 @@
         representations.length;
 
 
+      /*
+        We use count - 1 intervals.
+
+        This makes the last representation
+        occupy the complete final state rather
+        than immediately jumping to another one.
+      */
+
       const exactIndex =
-        representationProgress * count;
+        representationProgress *
+        (count - 1);
 
 
       const index =
@@ -865,11 +937,6 @@
         `${current.platform} ${current.type}`;
 
 
-      /*
-        Text changes only with the asset.
-        It never moves.
-      */
-
       representationPlatform.textContent =
         current.platform;
 
@@ -877,16 +944,16 @@
         current.type;
 
 
-
-      /* ==================================================
-         FINAL INDESIGN
-
-         Last representation stays fully open.
-      ================================================== */
-
       const isLast =
         index === count - 1;
 
+
+      /*
+        LAST REPRESENTATION
+
+        InDesign ends completely front-facing
+        and remains there.
+      */
 
       if (isLast) {
 
@@ -897,11 +964,22 @@
             scale(1)
           `;
 
-      } else {
+      }
+
+      else {
+
+        /*
+          Every representation enters
+          from the side and opens toward
+          the viewer.
+        */
 
         const rotation =
-          -90 +
-          localProgress * 180;
+          lerp(
+            -90,
+            90,
+            localProgress
+          );
 
 
         const scale =
@@ -920,14 +998,18 @@
 
       }
 
-    } else {
+    }
+
+    else {
 
       representation.style.opacity = 0;
 
     }
 
 
-    requestAnimationFrame(updateAnimation);
+    requestAnimationFrame(
+      updateAnimation
+    );
 
   }
 
