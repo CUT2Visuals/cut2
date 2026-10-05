@@ -82,7 +82,7 @@
 
     .asset-system {
       position: relative;
-      height: 1117vh;
+      height: 1079vh;
     }
 
     .sticky-stage {
@@ -522,7 +522,7 @@
 
       visibility: hidden;
 
-      z-index: 3;
+      z-index: 4;
     }
 
     .tools-cloud {
@@ -556,7 +556,11 @@
       font-family: inherit;
       font-weight: 400;
       line-height: 1.2;
+      text-transform: uppercase;
       white-space: nowrap;
+
+      /* size and letter spacing are copied from
+         .representation-info by the script */
 
       cursor: pointer;
       pointer-events: auto;
@@ -601,33 +605,20 @@
       display: none;
     }
 
-    .tool-popup-head {
+    .tool-popup:not([hidden]) {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
 
-      gap: 10px;
-
-      padding-bottom: 12px;
-      margin-bottom: 12px;
-
-      border-bottom: 1px solid #000;
-
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
+      gap: 12px;
     }
 
     .tool-popup-icon {
+      flex: none;
+
       width: 24px;
       height: 24px;
 
       object-fit: contain;
-    }
-
-    .tool-popup-title {
-      margin: 0 0 8px;
-
-      font-size: 14px;
-      font-weight: 400;
     }
 
     .tool-popup-text {
@@ -651,6 +642,14 @@
 
       .tools-label {
         font-size: 26px;
+      }
+
+      /* long names may wrap to two lines */
+      .tool-label {
+        max-width: 160px;
+
+        white-space: normal;
+        text-align: center;
       }
 
     }
@@ -694,7 +693,7 @@
       }
 
       .asset-system {
-        height: 1117vh;
+        height: 1079vh;
       }
 
       .sticky-stage {
@@ -1058,14 +1057,9 @@
     id="toolPopup"
     role="dialog"
     aria-modal="false"
-    aria-labelledby="toolPopupTitle"
     hidden
   >
-    <div class="tool-popup-head">
-      <img class="tool-popup-icon" id="toolPopupIcon" alt="">
-      <span id="toolPopupPlatform"></span>
-    </div>
-    <h3 class="tool-popup-title" id="toolPopupTitle"></h3>
+    <img class="tool-popup-icon" id="toolPopupIcon" alt="">
     <p class="tool-popup-text" id="toolPopupText"></p>
   </div>
 
@@ -1176,32 +1170,31 @@
 
     platform     "AUTOCAD" / "SKETCHUP" / "INDESIGN"
                  (chooses the icon in the window)
-    short        text in the cloud
-    full         full name in the window
+    label        name in the cloud (shown in capitals)
     description  text in the window
-    depth        0 – small, 1 – medium, 2 – large label.
-                 Only a depth effect, it means nothing.
+    Later a second language can be added next to these
+    fields (for an EN / RU switch).
   */
 
   const TOOLS = [
-    { platform: "AUTOCAD",  depth: 2, short: "Очистка исходных данных",  full: "Очистка исходных данных",                                    description: "Описание будет добавлено" },
-    { platform: "AUTOCAD",  depth: 0, short: "Схема ограничений",        full: "Автоматическая схема ограничений",                           description: "Описание будет добавлено" },
-    { platform: "AUTOCAD",  depth: 1, short: "Пожарные проезды",         full: "Полуавтоматическая генерация пожарных проездов (СП / СТУ)",  description: "Описание будет добавлено" },
-    { platform: "AUTOCAD",  depth: 0, short: "Ведомости",                full: "Ведомости",                                                  description: "Описание будет добавлено" },
-    { platform: "AUTOCAD",  depth: 2, short: "Импорт в SketchUp",        full: "Импорт файла в SketchUp",                                    description: "Описание будет добавлено" },
-    { platform: "AUTOCAD",  depth: 1, short: "Автомаркировка",           full: "Автоматическая маркировка",                                  description: "Описание будет добавлено" },
-    { platform: "AUTOCAD",  depth: 0, short: "Обратная связь: мощение",  full: "Обратная связь генератора мощения из SketchUp",              description: "Описание будет добавлено" },
-    { platform: "AUTOCAD",  depth: 1, short: "Обратная связь: миксы",    full: "Обратная связь генератора миксов озеленения из SketchUp",    description: "Описание будет добавлено" },
-    { platform: "AUTOCAD",  depth: 2, short: "Генератор КДО",            full: "Генератор КДО",                                              description: "Описание будет добавлено" },
-    { platform: "SKETCHUP", depth: 1, short: "Инсоляция: солнечные часы", full: "Инсоляция — солнечные часы",                                description: "Описание будет добавлено" },
-    { platform: "SKETCHUP", depth: 0, short: "Инсоляция: конверт теней", full: "Инсоляция — конверт теней",                                  description: "Описание будет добавлено" },
-    { platform: "SKETCHUP", depth: 2, short: "Светотехническая схема",   full: "Светотехническая схема",                                     description: "Описание будет добавлено" },
-    { platform: "SKETCHUP", depth: 1, short: "2D → 3D",                  full: "2D → 3D",                                                    description: "Описание будет добавлено" },
-    { platform: "SKETCHUP", depth: 0, short: "Генератор холмов",         full: "Генератор холмов",                                           description: "Описание будет добавлено" },
-    { platform: "SKETCHUP", depth: 2, short: "Генератор мощения",        full: "Генератор мощения и паттернов",                              description: "Описание будет добавлено" },
-    { platform: "SKETCHUP", depth: 1, short: "Генератор стилей",         full: "Генератор стилей",                                           description: "Описание будет добавлено" },
-    { platform: "INDESIGN", depth: 0, short: "Переносы смет",            full: "Автоматический перенос смет из AutoCAD",                     description: "Описание будет добавлено" },
-    { platform: "INDESIGN", depth: 2, short: "Календари цветения",       full: "Автоматические календари цветения",                          description: "Описание будет добавлено" }
+    { platform: "AUTOCAD",  label: "Source Data Cleanup",                               description: "Removes unnecessary data from the source file and leaves a clean foundation for the project." },
+    { platform: "AUTOCAD",  label: "Automated Constraints Diagram",                     description: "Brings site constraints into a single diagram, so the project starts within the actual limits of the site." },
+    { platform: "AUTOCAD",  label: "Semi-Automated Fire Access Generation (SP / STU)",  description: "Generates fire access routes based on specified regulatory conditions, reducing repetitive trial and error." },
+    { platform: "AUTOCAD",  label: "Schedules",                                         description: "Turns project geometry into ready-to-use schedules — without manual counting or data re-entry." },
+    { platform: "AUTOCAD",  label: "SketchUp Export",                                   description: "Transfers the prepared AutoCAD file to SketchUp without repeated manual preparation." },
+    { platform: "AUTOCAD",  label: "Automatic Tagging",                                 description: "Automatically tags project elements while keeping the labels linked to their objects." },
+    { platform: "AUTOCAD",  label: "Paving Generator Feedback from SketchUp",           description: "Changes made to paving in SketchUp flow back into AutoCAD, turning two tools into one connected system." },
+    { platform: "AUTOCAD",  label: "Planting Mix Generator Feedback from SketchUp",     description: "Change planting mixes in SketchUp — the data automatically flows back into the working documentation." },
+    { platform: "AUTOCAD",  label: "Pavement Assembly Generator",                       description: "The tag becomes a control interface: change a layer thickness in the text, and the construction redraws itself automatically." },
+    { platform: "SKETCHUP", label: "Sunlight Analysis — Sun Hours",                     description: "Shows how much sunlight a space receives throughout the year." },
+    { platform: "SKETCHUP", label: "Sunlight Analysis — Shadow Envelope",               description: "Builds a spatial shadow envelope to quickly reveal how shadows affect the site." },
+    { platform: "SKETCHUP", label: "Lighting Diagram",                                  description: "Turns complex lighting calculations into a clear spatial diagram." },
+    { platform: "SKETCHUP", label: "2D → 3D",                                           description: "Turns flat project information into a working three-dimensional model." },
+    { platform: "SKETCHUP", label: "Terrain Generator",                                 description: "Creates terrain from defined parameters — from a simple mound to complex spatial geometry." },
+    { platform: "SKETCHUP", label: "Paving & Pattern Generator",                        description: "Generates paving from rules rather than manual placement — change parameters instead of hundreds of individual elements." },
+    { platform: "SKETCHUP", label: "Style Generator",                                   description: "Creates finished graphic output directly in SketchUp — without exporting to Illustrator or manually processing the drawing." },
+    { platform: "INDESIGN", label: "Automatic Cost Estimate Import from AutoCAD",       description: "Brings up-to-date data from AutoCAD directly into the presentation, eliminating manual table updates." },
+    { platform: "INDESIGN", label: "Automatic Bloom Calendars",                         description: "Builds flowering calendars from project data and turns them into ready-to-use presentation graphics." }
   ];
 
 
@@ -1215,48 +1208,94 @@
 
   /*
     Scroll length of the TOOLS part, in screen heights:
-      1) representations leave, TOOLS comes from below
-      2) TOOLS rises under the header, the cloud explodes
-      3) the cloud rests and slowly drifts
+      1) representations leave, TOOLS comes to the centre
+      2) the cloud flies out from behind TOOLS
+      3) the cloud rests and slowly swirls around TOOLS
       4) the cloud and TOOLS leave under the header
-    If you change the total (now 3.0), also change the height
+    If you change the total (now 2.62), also change the height
     of .asset-system in CSS (two places):
-      817vh + 100vh × total   (3.0 → 1117vh)
+      817vh + 100vh × total   (2.62 → 1079vh)
   */
 
-  const TOOLS_PHASES = [0.5, 0.7, 1.3, 0.5];
+  const TOOLS_PHASES = [0.22, 0.6, 1.3, 0.5];
 
 
   const TOOLS_SETTINGS = {
 
-    /* label size by depth (small, medium, large), px */
-    fontSizes:       [14, 18, 24],
-    fontSizesMobile: [11, 13, 16],   /* screens ≤ 700px wide */
+    /* label size: copied from the captions under the
+       representations pictures (.representation-info) */
 
     /* free space around every label, px */
     gap: 12,
 
-    /* distance from the screen edges, px */
+    /* distance from the screen edges and the header, px */
     margin: 24,
-
-    /* distance below the TOOLS title, px */
-    belowTitle: 24,
 
     /* the layout is "random" but always the same for the
        same seed; change the number to get another layout */
     seed: 2024,
 
-    /* explosion: labels start as dots of this size … */
-    startScale: 0.05,
-    /* … and each one flies this part of the explosion
-       time; the starts are spread over the rest */
-    flight: 0.55,
+    /*
+      Shape of the cloud around TOOLS, in parts of the free
+      space (1 = up to the screen edge):
+        shift   – how far the cloud sits off TOOLS
+                  (x: + right, y: + down)
+        size    – how wide / tall the oval is
+        tilt    – turn of the oval, degrees
+        wobble  – how uneven the edge is (two waves)
+        clumps  – how many groups the labels gather in
+        clumpSpread – how loose a group is
+    */
+    cloud: {
+      shift: { x: 0.12, y: 0.06 },
+      size: { x: 0.8, y: 0.9 },
+      tilt: -14,
+      wobble: [0.12, 0.08],
+      clumps: 4,
+      clumpSpread: 0.28
+    },
 
-    /* drift while resting: how much the cloud spreads
-       (0.06 = 6 %) for small, medium, large labels … */
-    driftSpread: [0.03, 0.06, 0.09],
-    /* … and how far it floats up, px */
-    driftRise: 20,
+    /* the same for screens ≤ 700px wide */
+    cloudMobile: {
+      shift: { x: 0.05, y: 0.06 },
+      size: { x: 0.95, y: 0.9 },
+      tilt: -8,
+      wobble: [0.08, 0.06],
+      clumps: 3,
+      clumpSpread: 0.32
+    },
+
+    /*
+      Swirl while resting (follows the scroll):
+        angle     – how far the cloud turns around TOOLS
+                    over the whole rest, degrees
+        speedDiff – inner labels turn this much faster
+                    than outer ones (0.25 = 25 %)
+        breathe   – labels move in and out by this part
+                    of their distance (0.03 = 3 %)
+      If the labels can not stay apart, the layout makes
+      these smaller by itself and says so in the console.
+    */
+    swirl: {
+      angle: 30,
+      speedDiff: 0.25,
+      breathe: 0.03
+    },
+
+    /* the same for screens ≤ 700px wide (narrow screen:
+       long names reach the edges sooner, so calmer) */
+    swirlMobile: {
+      angle: 12,
+      speedDiff: 0.15,
+      breathe: 0.02
+    },
+
+    /* explosion: each label flies this part of the time;
+       the starts are spread over the rest */
+    flight: 0.45,
+
+    /* window text in capitals (true) or as written (false) */
+    descriptionUppercase: false,
 
     /* the window closes when the page scrolls this far, px */
     closeOnScroll: 10
@@ -1985,7 +2024,7 @@
       3) TOOLS (TOOLS_PHASES, in screen heights;
          1 screen height = 1/6 of the old timeline).
       Section height: 700vh + 600vh × (INTRO_LENGTH
-      + pauseLength) + 100vh × TOOLS total = 1117vh.
+      + pauseLength) + 100vh × TOOLS total = 1079vh.
       Every old block keeps its length in pixels.
     */
 
@@ -3087,12 +3126,6 @@
   const toolPopupIcon =
     document.getElementById("toolPopupIcon");
 
-  const toolPopupPlatform =
-    document.getElementById("toolPopupPlatform");
-
-  const toolPopupTitle =
-    document.getElementById("toolPopupTitle");
-
   const toolPopupText =
     document.getElementById("toolPopupText");
 
@@ -3107,7 +3140,7 @@
 
         button.type = "button";
         button.className = "tool-label";
-        button.textContent = tool.short;
+        button.textContent = tool.label;
         button.setAttribute("aria-expanded", "false");
         button.setAttribute("aria-controls", "toolPopup");
 
@@ -3125,9 +3158,9 @@
 
 
   /*
-    Rest layout: centre (px) and size of every label, for the
-    current screen. Computed after the font is ready and on
-    resize (with a small delay).
+    Rest layout for the current screen: TOOLS in the centre,
+    every label with its distance and angle around it.
+    Computed after the font is ready and on resize.
   */
   let toolsLayout = null;
 
@@ -3148,15 +3181,27 @@
   }
 
 
-  /* where a label is at drift d (0…1) */
-  function toolDriftPoint(item, layout, d) {
+  /*
+    Where a label is at swirl time t (0…1 of the rest).
+    Positions live in "flattened" space where the free space
+    is a circle, so the orbits are ovals like the cloud.
+      angle: turns around TOOLS, inner labels a bit faster
+      radius: breathes in and out a little
+  */
+  function swirlPoint(item, layout, t) {
 
-    const k =
-      TOOLS_SETTINGS.driftSpread[item.depth] * d;
+    const swirl = layout.swirl;
+    const radians = swirl.angle * Math.PI / 180;
+
+    const faster =
+      1 + swirl.speedDiff * (1 - Math.min(1, item.r0 / 1.2));
+
+    const angle = item.a0 + radians * t * faster;
+    const radius = item.r0 * (1 + swirl.breathe * Math.sin(2 * Math.PI * t + item.a0));
 
     return {
-      x: layout.cx + (item.x - layout.cx) * (1 + k),
-      y: layout.cy + (item.y - layout.cy) * (1 + k) - TOOLS_SETTINGS.driftRise * d
+      x: layout.cx + Math.cos(angle) * radius * layout.ax,
+      y: layout.cy + Math.sin(angle) * radius * layout.ay
     };
 
   }
@@ -3168,131 +3213,202 @@
     const height = window.innerHeight;
     const mobile = width <= 700;
 
-    const sizes =
-      mobile
-        ? TOOLS_SETTINGS.fontSizesMobile
-        : TOOLS_SETTINGS.fontSizes;
+    const { gap, margin, seed } = TOOLS_SETTINGS;
+    const cloud = mobile ? TOOLS_SETTINGS.cloudMobile : TOOLS_SETTINGS.cloud;
 
-    const { gap, margin, belowTitle } = TOOLS_SETTINGS;
+    /* the same size as the captions under the pictures */
+    const caption =
+      getComputedStyle(document.querySelector(".representation-info"));
 
-    /* safe area: below the TOOLS title, inside the screen */
+    toolButtons.forEach(
+      (button) => {
+        button.style.fontSize = caption.fontSize;
+        button.style.letterSpacing = caption.letterSpacing;
+      }
+    );
+
     const headerBottom =
       document.querySelector("header").getBoundingClientRect().bottom;
+
+    /* TOOLS rests in the centre of the screen */
+    const titleW = toolsLabel.offsetWidth;
+    const titleH = toolsLabel.offsetHeight;
+
+    const base = {
+      cx: width / 2,
+      cy: height / 2,
+      ax: width / 2 - margin,
+      ay: height / 2 - margin - headerBottom / 2
+    };
 
     const area = {
       left: margin,
       right: width - margin,
-      top: headerBottom + 24 + toolsLabel.offsetHeight + belowTitle,
+      top: headerBottom + margin,
       bottom: height - margin
     };
 
-    const layout = {
-      cx: (area.left + area.right) / 2,
-      cy: (area.top + area.bottom) / 2,
-      items: []
+    const title = {
+      left: base.cx - titleW / 2 - gap,
+      right: base.cx + titleW / 2 + gap,
+      top: base.cy - titleH / 2 - gap,
+      bottom: base.cy + titleH / 2 + gap
     };
 
-    /* sizes of the labels */
-    const items =
-      TOOLS.map(
-        (tool, index) => {
+    const sizes =
+      toolButtons.map((b) => ({ w: b.offsetWidth, h: b.offsetHeight }));
 
-          const button = toolButtons[index];
-          button.style.fontSize = `${sizes[tool.depth]}px`;
+    /* the uneven, tilted, shifted oval */
+    const tilt = cloud.tilt * Math.PI / 180;
 
-          return {
-            index,
-            depth: tool.depth,
-            w: button.offsetWidth,
-            h: button.offsetHeight,
-            x: 0,
-            y: 0
-          };
+    const insideCloud = (u, v) => {
+      const p = u - cloud.shift.x;
+      const q = v - cloud.shift.y;
+      const pr = p * Math.cos(-tilt) - q * Math.sin(-tilt);
+      const qr = p * Math.sin(-tilt) + q * Math.cos(-tilt);
+      const rho = Math.hypot(pr / cloud.size.x, qr / cloud.size.y);
+      const phi = Math.atan2(qr, pr);
+      const edge = 1 + cloud.wobble[0] * Math.sin(2 * phi + 1.3) + cloud.wobble[1] * Math.sin(3 * phi + 4.1);
+      return rho <= edge;
+    };
 
-        }
-      );
+    const times = [];
+    for (let k = 0; k <= 100; k++) {
+      times.push(k / 100);
+    }
 
-    /* large labels first */
-    const order =
-      items.slice().sort((a, b) => b.depth - a.depth || a.index - b.index);
+    const tryLayout = (swirl) => {
 
-    const random = seededRandom(TOOLS_SETTINGS.seed);
-    const drifts = [0, 0.25, 0.5, 0.75, 1];
-    const placed = [];
+      const layout = { ...base, swirl, items: [] };
+      const random = seededRandom(seed);
 
-    const fits = (item) =>
-      drifts.every(
-        (d) => {
+      /* clump centres: spread around TOOLS on the oval,
+         each a bit off its even place (fixed numbers) */
+      const clumps = [];
+      for (let k = 0; k < cloud.clumps; k++) {
+        const angle = (k / cloud.clumps) * 2 * Math.PI + (random() - 0.5) * 0.9;
+        const radius = 0.45 + random() * 0.3;
+        const p = Math.cos(angle) * radius * cloud.size.x;
+        const q = Math.sin(angle) * radius * cloud.size.y;
+        clumps.push({
+          u: cloud.shift.x + p * Math.cos(tilt) - q * Math.sin(tilt),
+          v: cloud.shift.y + p * Math.sin(tilt) + q * Math.cos(tilt)
+        });
+      }
 
-          const p = toolDriftPoint(item, layout, d);
+      /* longest labels first */
+      const order =
+        sizes.map((s, index) => ({ index, ...s }))
+          .sort((a, b) => b.w - a.w || a.index - b.index);
 
-          if (p.x - item.w / 2 < area.left || p.x + item.w / 2 > area.right ||
-              p.y - item.h / 2 < area.top || p.y + item.h / 2 > area.bottom) {
-            return false;
-          }
+      const placed = [];
 
-          return placed.every(
-            (other) => {
-              const q = toolDriftPoint(other, layout, d);
-              return Math.abs(p.x - q.x) >= (item.w + other.w) / 2 + gap ||
-                     Math.abs(p.y - q.y) >= (item.h + other.h) / 2 + gap;
-            }
-          );
+      for (const entry of order) {
 
-        }
-      );
+        const clump = clumps[entry.index % clumps.length];
+        const item = { index: entry.index, w: entry.w, h: entry.h, r0: 0, a0: 0, path: null };
+        let found = false;
 
-    order.forEach(
-      (item) => {
+        for (let attempt = 0; attempt < 2500 && !found; attempt++) {
 
-        /* try many fixed-random spots, keep the one that is
-           farthest from the labels already placed */
-        let best = null;
-        let bestScore = -1;
+          const spread = cloud.clumpSpread * (1 + attempt / 600);
+          const u = clump.u + (random() + random() + random() - 1.5) / 1.5 * spread;
+          const v = clump.v + (random() + random() + random() - 1.5) / 1.5 * spread;
 
-        for (let attempt = 0; attempt < 600; attempt++) {
-
-          item.x = area.left + item.w / 2 + random() * Math.max(0, area.right - area.left - item.w);
-          item.y = area.top + item.h / 2 + random() * Math.max(0, area.bottom - area.top - item.h);
-
-          if (!fits(item)) {
+          if (!insideCloud(u, v) && attempt < 1500) {
             continue;
           }
 
-          const score =
-            placed.length
-              ? Math.min(...placed.map((o) => Math.hypot((item.x - o.x) / width, (item.y - o.y) / height)))
-              : 1 - Math.hypot((item.x - layout.cx) / width, (item.y - layout.cy) / height);
+          item.r0 = Math.hypot(u, v);
+          item.a0 = Math.atan2(v, u);
 
-          if (score > bestScore) {
-            bestScore = score;
-            best = { x: item.x, y: item.y };
+          /* check the whole swirl, 1 % steps */
+          const path = [];
+          let ok = true;
+
+          for (let k = 0; k < times.length && ok; k++) {
+
+            const p = swirlPoint(item, layout, times[k]);
+            const l = p.x - item.w / 2, r = p.x + item.w / 2;
+            const t = p.y - item.h / 2, b = p.y + item.h / 2;
+
+            if (l < area.left || r > area.right || t < area.top || b > area.bottom) {
+              ok = false;
+              break;
+            }
+
+            if (r > title.left && l < title.right && b > title.top && t < title.bottom) {
+              ok = false;
+              break;
+            }
+
+            for (const other of placed) {
+              const q = other.path[k];
+              if (Math.abs(p.x - q.x) < (item.w + other.w) / 2 + gap &&
+                  Math.abs(p.y - q.y) < (item.h + other.h) / 2 + gap) {
+                ok = false;
+                break;
+              }
+            }
+
+            path.push(p);
+
           }
 
-          if (attempt > 80 && best) {
-            break;
+          if (ok) {
+            item.path = path;
+            found = true;
           }
 
         }
 
-        if (best) {
-          item.x = best.x;
-          item.y = best.y;
-        }
-        else {
-          /* no free spot: keep it in the centre and say so */
-          item.x = layout.cx;
-          item.y = layout.cy;
-          console.warn("TOOLS: no free place for", TOOLS[item.index].short);
+        if (!found) {
+          return { layout: null, failed: TOOLS[entry.index].label };
         }
 
         placed.push(item);
 
       }
-    );
 
-    layout.items = items;
-    toolsLayout = layout;
+      layout.items = placed.sort((a, b) => a.index - b.index);
+      return { layout, failed: null };
+
+    };
+
+    /* if the labels can not stay apart, calm the swirl down step by step */
+    const wanted = mobile ? TOOLS_SETTINGS.swirlMobile : TOOLS_SETTINGS.swirl;
+    const steps = [
+      { ...wanted },
+      { ...wanted, speedDiff: wanted.speedDiff / 2 },
+      { ...wanted, speedDiff: 0 },
+      { ...wanted, speedDiff: 0, breathe: wanted.breathe / 2 },
+      { ...wanted, speedDiff: 0, breathe: 0 }
+    ];
+    for (let k = 1; k <= 8; k++) {
+      steps.push({ ...wanted, speedDiff: 0, breathe: 0, angle: wanted.angle * (1 - k / 8) });
+    }
+
+    for (const swirl of steps) {
+
+      const result = tryLayout(swirl);
+
+      if (result.layout) {
+
+        result.layout.relaxed =
+          JSON.stringify(swirl) !== JSON.stringify(wanted);
+
+        if (result.layout.relaxed) {
+          console.warn("TOOLS: swirl made calmer to keep labels apart:", swirl);
+        }
+
+        toolsLayout = result.layout;
+        return;
+
+      }
+
+    }
+
+    console.warn("TOOLS: no layout without overlaps on this screen");
 
   }
 
@@ -3323,25 +3439,30 @@
 
     const comeIn = smoothstep(stepOf(0));
     const explode = stepOf(1);
-    const drift = stepOf(2);
+    const swirlTime = stepOf(2);
     const leave = smoothstep(stepOf(3));
 
     const height = window.innerHeight;
+    const titleH = toolsLabel.offsetHeight;
+    const titleW = toolsLabel.offsetWidth;
 
-    const headerBottom =
-      document.querySelector("header").getBoundingClientRect().bottom;
+    /* how far everything has to go up to be under the header */
+    let lowest = height / 2 + titleH / 2;
+
+    if (toolsLayout) {
+      toolsLayout.items.forEach(
+        (item) => {
+          lowest = Math.max(lowest, swirlPoint(item, toolsLayout, swirlTime).y + item.h / 2);
+        }
+      );
+    }
+
+    const leaveY = leave * (lowest + 20);
 
 
-    /* TOOLS title: from below to the centre, up under the
-       header, then away with the cloud */
-    const titleHeight = toolsLabel.offsetHeight;
-    const titleCenterTop = height / 2 - titleHeight / 2;
-    const titleFinalTop = headerBottom + 24;
-
+    /* TOOLS: from below to the centre, stays there, then leaves */
     const titleTop =
-      lerp(height + 3, titleCenterTop, comeIn) +
-      (titleFinalTop - titleCenterTop) * smoothstep(explode) -
-      leave * (titleFinalTop + titleHeight + 20);
+      lerp(height + 3, height / 2 - titleH / 2, comeIn) - leaveY;
 
     toolsLabel.style.top = `${titleTop}px`;
     toolsLabel.style.visibility =
@@ -3364,20 +3485,11 @@
 
     }
 
-    const { startScale, flight } = TOOLS_SETTINGS;
+    const { flight } = TOOLS_SETTINGS;
     const count = toolButtons.length;
 
-    /* how far the cloud has to go up to be under the header */
-    let lowest = 0;
-
-    toolsLayout.items.forEach(
-      (item) => {
-        const p = toolDriftPoint(item, toolsLayout, 1);
-        lowest = Math.max(lowest, p.y + item.h / 2);
-      }
-    );
-
-    const leaveY = leave * (lowest + 20);
+    const titleX = window.innerWidth / 2;
+    const titleY = titleTop + titleH / 2;
 
     toolsLayout.items.forEach(
       (item) => {
@@ -3391,15 +3503,37 @@
         const fly =
           smoothstep(clamp((explode - delay) / flight, 0, 1));
 
-        const rest = toolDriftPoint(item, toolsLayout, drift);
+        const rest = swirlPoint(item, toolsLayout, swirlTime);
 
-        const x = lerp(window.innerWidth / 2, rest.x, fly);
-        const y = lerp(height / 2, rest.y, fly) - leaveY;
-        const scale = lerp(startScale, 1, fly);
+        const x = lerp(titleX, rest.x, fly);
+        const y = lerp(titleY, rest.y - leaveY, fly);
+
+        const left = x - item.w / 2;
+        const top = y - item.h / 2;
 
         button.style.visibility = fly > 0 ? "visible" : "hidden";
-        button.style.transform =
-          `translate(${x - item.w / 2}px, ${y - item.h / 2}px) scale(${scale})`;
+        button.style.transform = `translate(${left}px, ${top}px)`;
+
+        /* while flying out it is hidden behind TOOLS: a hole in
+           the label's own coordinates, at least as big as the
+           label so nothing sticks out at the start */
+        if (fly < 1) {
+
+          const holeW = Math.max(titleW, item.w) / 2;
+          const holeH = Math.max(titleH, item.h) / 2;
+
+          const hl = titleX - holeW - left;
+          const hr = titleX + holeW - left;
+          const ht = titleY - holeH - top;
+          const hb = titleY + holeH - top;
+
+          button.style.clipPath =
+            `path(evenodd, "M-5000 -5000 H5000 V5000 H-5000 Z M${hl} ${ht} H${hr} V${hb} H${hl} Z")`;
+
+        }
+        else {
+          button.style.clipPath = "none";
+        }
 
       }
     );
@@ -3428,9 +3562,12 @@
     const button = toolButtons[index];
 
     toolPopupIcon.src = TOOL_ICONS[tool.platform];
-    toolPopupPlatform.textContent = tool.platform;
-    toolPopupTitle.textContent = tool.full;
     toolPopupText.textContent = tool.description;
+    toolPopupText.style.textTransform =
+      TOOLS_SETTINGS.descriptionUppercase ? "uppercase" : "none";
+
+    /* the name is not shown, but screen readers get it */
+    toolPopup.setAttribute("aria-label", tool.label);
 
     toolPopup.hidden = false;
     button.setAttribute("aria-expanded", "true");
