@@ -951,27 +951,41 @@
       /*
         LAST REPRESENTATION — INDESIGN
 
-        InDesign enters exactly like the other
-        representations, but only rotates from
-        -90 degrees to 0 degrees.
+        The previous representations use:
 
-        Once front-facing, it remains fixed.
+        -90° → +90°
+
+        InDesign uses its own progress:
+
+        -90° → 0°
+
+        It reaches the front at the end of its
+        own interval and then remains there.
       */
 
       if (isLast) {
+
+        const lastProgress =
+          clamp(
+            representationProgress -
+            (count - 1) / (count - 1),
+            0,
+            1
+          );
+
 
         const rotation =
           lerp(
             -90,
             0,
-            localProgress
+            lastProgress
           );
 
 
         const scale =
           0.92 +
           Math.sin(
-            localProgress * Math.PI
+            lastProgress * Math.PI
           ) * 0.08;
 
 
