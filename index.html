@@ -1209,8 +1209,8 @@
   /*
     Scroll length of the TOOLS part, in screen heights:
       1) representations leave, TOOLS comes to the centre
-      2) the cloud flies out from behind TOOLS
-      3) the cloud rests and slowly swirls around TOOLS
+      2) the labels appear all at once and stand still
+      3) the cloud rests and slowly grows around TOOLS
       4) the cloud and TOOLS leave under the header
     If you change the total (now 2.62), also change the height
     of .asset-system in CSS (two places):
@@ -1266,33 +1266,20 @@
     },
 
     /*
-      Swirl while resting (follows the scroll):
-        angle     – how far the cloud turns around TOOLS
-                    over the whole rest, degrees
-        speedDiff – inner labels turn this much faster
-                    than outer ones (0.25 = 25 %)
-        breathe   – labels move in and out by this part
-                    of their distance (0.03 = 3 %)
-      If the labels can not stay apart, the layout makes
-      these smaller by itself and says so in the console.
+      When the labels appear: all at once, as a part of step 2
+      of TOOLS_PHASES (0 = right at its start, i.e. about
+      200px after the representations end; 0.5 = halfway).
     */
-    swirl: {
-      angle: 30,
-      speedDiff: 0.25,
-      breathe: 0.03
-    },
+    appearAt: 0,
 
-    /* the same for screens ≤ 700px wide (narrow screen:
-       long names reach the edges sooner, so calmer) */
-    swirlMobile: {
-      angle: 12,
-      speedDiff: 0.15,
-      breathe: 0.02
-    },
-
-    /* explosion: each label flies this part of the time;
-       the starts are spread over the rest */
-    flight: 0.45,
+    /*
+      While resting, the cloud slowly grows around TOOLS:
+      every label moves away from TOOLS with the same factor,
+      from 1 to spreadScale (1.15 = 15 % bigger). If a label
+      would leave the screen or go under the header, the
+      factor is made smaller for all labels together.
+    */
+    spreadScale: 1.15,
 
     /* window text in capitals (true) or as written (false) */
     descriptionUppercase: false,
@@ -3182,26 +3169,16 @@
 
 
   /*
-    Where a label is at swirl time t (0…1 of the rest).
-    Positions live in "flattened" space where the free space
-    is a circle, so the orbits are ovals like the cloud.
-      angle: turns around TOOLS, inner labels a bit faster
-      radius: breathes in and out a little
+    Where a label is when the cloud has spread by "scale"
+    (1 = start, layout.spread = end). All labels use the
+    same scale around TOOLS, so the distances between them
+    only grow and they can not run into each other.
   */
-  function swirlPoint(item, layout, t) {
-
-    const swirl = layout.swirl;
-    const radians = swirl.angle * Math.PI / 180;
-
-    const faster =
-      1 + swirl.speedDiff * (1 - Math.min(1, item.r0 / 1.2));
-
-    const angle = item.a0 + radians * t * faster;
-    const radius = item.r0 * (1 + swirl.breathe * Math.sin(2 * Math.PI * t + item.a0));
+  function spreadPoint(item, layout, scale) {
 
     return {
-      x: layout.cx + Math.cos(angle) * radius * layout.ax,
-      y: layout.cy + Math.sin(angle) * radius * layout.ay
+      x: layout.cx + (item.x - layout.cx) * scale,
+      y: layout.cy + (item.y - layout.cy) * scale
     };
 
   }
@@ -3213,7 +3190,7 @@
     const height = window.innerHeight;
     const mobile = width <= 700;
 
-    const { gap, margin, seed } = TOOLS_SETTINGS;
+    const { gap, margin, seed, spreadScale } = TOOLS_SETTINGS;
     const cloud = mobile ? TOOLS_SETTINGS.cloudMobile : TOOLS_SETTINGS.cloud;
 
     /* the same size as the captions under the pictures */
@@ -3234,11 +3211,13 @@
     const titleW = toolsLabel.offsetWidth;
     const titleH = toolsLabel.offsetHeight;
 
-    const base = {
+    const layout = {
       cx: width / 2,
       cy: height / 2,
       ax: width / 2 - margin,
-      ay: height / 2 - margin - headerBottom / 2
+      ay: height / 2 - margin - headerBottom / 2,
+      spread: 1,
+      items: []
     };
 
     const area = {
@@ -3249,10 +3228,10 @@
     };
 
     const title = {
-      left: base.cx - titleW / 2 - gap,
-      right: base.cx + titleW / 2 + gap,
-      top: base.cy - titleH / 2 - gap,
-      bottom: base.cy + titleH / 2 + gap
+      left: layout.cx - titleW / 2 - gap,
+      right: layout.cx + titleW / 2 + gap,
+      top: layout.cy - titleH / 2 - gap,
+      bottom: layout.cy + titleH / 2 + gap
     };
 
     const sizes =
@@ -3272,143 +3251,136 @@
       return rho <= edge;
     };
 
-    const times = [];
-    for (let k = 0; k <= 100; k++) {
-      times.push(k / 100);
+    const insideArea = (p, item) =>
+      p.x - item.w / 2 >= area.left && p.x + item.w / 2 <= area.right &&
+      p.y - item.h / 2 >= area.top && p.y + item.h / 2 <= area.bottom;
+
+    /* 20 steps of the spread plus the end point */
+    const scales = [];
+    for (let k = 0; k <= 20; k++) {
+      scales.push(1 + (spreadScale - 1) * k / 20);
     }
 
-    const tryLayout = (swirl) => {
+    const random = seededRandom(seed);
 
-      const layout = { ...base, swirl, items: [] };
-      const random = seededRandom(seed);
+    /* clump centres: spread around TOOLS on the oval,
+       each a bit off its even place (fixed numbers) */
+    const clumps = [];
+    for (let k = 0; k < cloud.clumps; k++) {
+      const angle = (k / cloud.clumps) * 2 * Math.PI + (random() - 0.5) * 0.9;
+      const radius = 0.45 + random() * 0.3;
+      const p = Math.cos(angle) * radius * cloud.size.x;
+      const q = Math.sin(angle) * radius * cloud.size.y;
+      clumps.push({
+        u: cloud.shift.x + p * Math.cos(tilt) - q * Math.sin(tilt),
+        v: cloud.shift.y + p * Math.sin(tilt) + q * Math.cos(tilt)
+      });
+    }
 
-      /* clump centres: spread around TOOLS on the oval,
-         each a bit off its even place (fixed numbers) */
-      const clumps = [];
-      for (let k = 0; k < cloud.clumps; k++) {
-        const angle = (k / cloud.clumps) * 2 * Math.PI + (random() - 0.5) * 0.9;
-        const radius = 0.45 + random() * 0.3;
-        const p = Math.cos(angle) * radius * cloud.size.x;
-        const q = Math.sin(angle) * radius * cloud.size.y;
-        clumps.push({
-          u: cloud.shift.x + p * Math.cos(tilt) - q * Math.sin(tilt),
-          v: cloud.shift.y + p * Math.sin(tilt) + q * Math.cos(tilt)
-        });
-      }
+    /* longest labels first */
+    const order =
+      sizes.map((s, index) => ({ index, ...s }))
+        .sort((a, b) => b.w - a.w || a.index - b.index);
 
-      /* longest labels first */
-      const order =
-        sizes.map((s, index) => ({ index, ...s }))
-          .sort((a, b) => b.w - a.w || a.index - b.index);
+    const placed = [];
 
-      const placed = [];
+    for (const entry of order) {
 
-      for (const entry of order) {
+      const clump = clumps[entry.index % clumps.length];
+      const item = { index: entry.index, w: entry.w, h: entry.h, x: 0, y: 0 };
+      let fallback = null;
+      let found = false;
 
-        const clump = clumps[entry.index % clumps.length];
-        const item = { index: entry.index, w: entry.w, h: entry.h, r0: 0, a0: 0, path: null };
-        let found = false;
+      for (let attempt = 0; attempt < 3000 && !found; attempt++) {
 
-        for (let attempt = 0; attempt < 2500 && !found; attempt++) {
+        const spread = cloud.clumpSpread * (1 + attempt / 600);
+        const u = clump.u + (random() + random() + random() - 1.5) / 1.5 * spread;
+        const v = clump.v + (random() + random() + random() - 1.5) / 1.5 * spread;
 
-          const spread = cloud.clumpSpread * (1 + attempt / 600);
-          const u = clump.u + (random() + random() + random() - 1.5) / 1.5 * spread;
-          const v = clump.v + (random() + random() + random() - 1.5) / 1.5 * spread;
+        if (!insideCloud(u, v) && attempt < 1500) {
+          continue;
+        }
 
-          if (!insideCloud(u, v) && attempt < 1500) {
-            continue;
-          }
+        item.x = layout.cx + u * layout.ax;
+        item.y = layout.cy + v * layout.ay;
 
-          item.r0 = Math.hypot(u, v);
-          item.a0 = Math.atan2(v, u);
+        /* at the start: inside the screen, off TOOLS, apart */
+        const p = spreadPoint(item, layout, 1);
 
-          /* check the whole swirl, 1 % steps */
-          const path = [];
-          let ok = true;
+        if (!insideArea(p, item)) {
+          continue;
+        }
 
-          for (let k = 0; k < times.length && ok; k++) {
+        if (p.x + item.w / 2 > title.left && p.x - item.w / 2 < title.right &&
+            p.y + item.h / 2 > title.top && p.y - item.h / 2 < title.bottom) {
+          continue;
+        }
 
-            const p = swirlPoint(item, layout, times[k]);
-            const l = p.x - item.w / 2, r = p.x + item.w / 2;
-            const t = p.y - item.h / 2, b = p.y + item.h / 2;
-
-            if (l < area.left || r > area.right || t < area.top || b > area.bottom) {
-              ok = false;
-              break;
-            }
-
-            if (r > title.left && l < title.right && b > title.top && t < title.bottom) {
-              ok = false;
-              break;
-            }
-
-            for (const other of placed) {
-              const q = other.path[k];
-              if (Math.abs(p.x - q.x) < (item.w + other.w) / 2 + gap &&
-                  Math.abs(p.y - q.y) < (item.h + other.h) / 2 + gap) {
-                ok = false;
-                break;
+        const apart = scales.every(
+          (s) => {
+            const a = spreadPoint(item, layout, s);
+            return placed.every(
+              (other) => {
+                const b = spreadPoint(other, layout, s);
+                return Math.abs(a.x - b.x) >= (item.w + other.w) / 2 + gap ||
+                       Math.abs(a.y - b.y) >= (item.h + other.h) / 2 + gap;
               }
-            }
-
-            path.push(p);
-
+            );
           }
+        );
 
-          if (ok) {
-            item.path = path;
-            found = true;
-          }
-
+        if (!apart) {
+          continue;
         }
 
-        if (!found) {
-          return { layout: null, failed: TOOLS[entry.index].label };
+        /* best: still inside the screen at the full spread */
+        if (insideArea(spreadPoint(item, layout, spreadScale), item)) {
+          found = true;
         }
-
-        placed.push(item);
+        else if (!fallback) {
+          fallback = { x: item.x, y: item.y };
+        }
 
       }
 
-      layout.items = placed.sort((a, b) => a.index - b.index);
-      return { layout, failed: null };
-
-    };
-
-    /* if the labels can not stay apart, calm the swirl down step by step */
-    const wanted = mobile ? TOOLS_SETTINGS.swirlMobile : TOOLS_SETTINGS.swirl;
-    const steps = [
-      { ...wanted },
-      { ...wanted, speedDiff: wanted.speedDiff / 2 },
-      { ...wanted, speedDiff: 0 },
-      { ...wanted, speedDiff: 0, breathe: wanted.breathe / 2 },
-      { ...wanted, speedDiff: 0, breathe: 0 }
-    ];
-    for (let k = 1; k <= 8; k++) {
-      steps.push({ ...wanted, speedDiff: 0, breathe: 0, angle: wanted.angle * (1 - k / 8) });
-    }
-
-    for (const swirl of steps) {
-
-      const result = tryLayout(swirl);
-
-      if (result.layout) {
-
-        result.layout.relaxed =
-          JSON.stringify(swirl) !== JSON.stringify(wanted);
-
-        if (result.layout.relaxed) {
-          console.warn("TOOLS: swirl made calmer to keep labels apart:", swirl);
+      if (!found) {
+        if (fallback) {
+          item.x = fallback.x;
+          item.y = fallback.y;
         }
-
-        toolsLayout = result.layout;
-        return;
-
+        else {
+          console.warn("TOOLS: no free place for", TOOLS[item.index].label);
+        }
       }
 
+      placed.push(item);
+
     }
 
-    console.warn("TOOLS: no layout without overlaps on this screen");
+    /* one common spread for all labels: as wanted, or less if
+       some label would leave the screen or go under the header */
+    let spread = spreadScale;
+
+    placed.forEach(
+      (item) => {
+        const dx = item.x - layout.cx;
+        const dy = item.y - layout.cy;
+        if (dx > 0) spread = Math.min(spread, (area.right - item.w / 2 - layout.cx) / dx);
+        if (dx < 0) spread = Math.min(spread, (area.left + item.w / 2 - layout.cx) / dx);
+        if (dy > 0) spread = Math.min(spread, (area.bottom - item.h / 2 - layout.cy) / dy);
+        if (dy < 0) spread = Math.min(spread, (area.top + item.h / 2 - layout.cy) / dy);
+      }
+    );
+
+    layout.spread = Math.max(1, spread);
+    layout.spreadCut = layout.spread < spreadScale;
+
+    if (layout.spreadCut) {
+      console.warn("TOOLS: spread cut to", layout.spread.toFixed(3), "to stay on screen");
+    }
+
+    layout.items = placed.sort((a, b) => a.index - b.index);
+    toolsLayout = layout;
 
   }
 
@@ -3438,13 +3410,18 @@
     };
 
     const comeIn = smoothstep(stepOf(0));
-    const explode = stepOf(1);
-    const swirlTime = stepOf(2);
+    const spreadTime = stepOf(2);
     const leave = smoothstep(stepOf(3));
+
+    /* the labels appear all at once at this point of the scroll */
+    const appearAt =
+      phases[0] + TOOLS_SETTINGS.appearAt * phases[1];
 
     const height = window.innerHeight;
     const titleH = toolsLabel.offsetHeight;
-    const titleW = toolsLabel.offsetWidth;
+
+    const scale =
+      toolsLayout ? lerp(1, toolsLayout.spread, spreadTime) : 1;
 
     /* how far everything has to go up to be under the header */
     let lowest = height / 2 + titleH / 2;
@@ -3452,7 +3429,7 @@
     if (toolsLayout) {
       toolsLayout.items.forEach(
         (item) => {
-          lowest = Math.max(lowest, swirlPoint(item, toolsLayout, swirlTime).y + item.h / 2);
+          lowest = Math.max(lowest, spreadPoint(item, toolsLayout, scale).y + item.h / 2);
         }
       );
     }
@@ -3469,9 +3446,9 @@
       toolsTime > 0 && leave < 1 ? "visible" : "hidden";
 
 
-    /* the cloud */
+    /* the cloud: all labels switch on together */
     const cloudOn =
-      explode > 0 && leave < 1 && toolsLayout;
+      toolsTime > appearAt && leave < 1 && toolsLayout;
 
     if (!cloudOn) {
 
@@ -3485,55 +3462,15 @@
 
     }
 
-    const { flight } = TOOLS_SETTINGS;
-    const count = toolButtons.length;
-
-    const titleX = window.innerWidth / 2;
-    const titleY = titleTop + titleH / 2;
-
     toolsLayout.items.forEach(
       (item) => {
 
         const button = toolButtons[item.index];
+        const p = spreadPoint(item, toolsLayout, scale);
 
-        /* fixed, different start for every label */
-        const delay =
-          ((item.index * 7) % count) / (count - 1) * (1 - flight);
-
-        const fly =
-          smoothstep(clamp((explode - delay) / flight, 0, 1));
-
-        const rest = swirlPoint(item, toolsLayout, swirlTime);
-
-        const x = lerp(titleX, rest.x, fly);
-        const y = lerp(titleY, rest.y - leaveY, fly);
-
-        const left = x - item.w / 2;
-        const top = y - item.h / 2;
-
-        button.style.visibility = fly > 0 ? "visible" : "hidden";
-        button.style.transform = `translate(${left}px, ${top}px)`;
-
-        /* while flying out it is hidden behind TOOLS: a hole in
-           the label's own coordinates, at least as big as the
-           label so nothing sticks out at the start */
-        if (fly < 1) {
-
-          const holeW = Math.max(titleW, item.w) / 2;
-          const holeH = Math.max(titleH, item.h) / 2;
-
-          const hl = titleX - holeW - left;
-          const hr = titleX + holeW - left;
-          const ht = titleY - holeH - top;
-          const hb = titleY + holeH - top;
-
-          button.style.clipPath =
-            `path(evenodd, "M-5000 -5000 H5000 V5000 H-5000 Z M${hl} ${ht} H${hr} V${hb} H${hl} Z")`;
-
-        }
-        else {
-          button.style.clipPath = "none";
-        }
+        button.style.visibility = "visible";
+        button.style.transform =
+          `translate(${p.x - item.w / 2}px, ${p.y - leaveY - item.h / 2}px)`;
 
       }
     );
