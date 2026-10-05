@@ -82,7 +82,7 @@
 
     .asset-system {
       position: relative;
-      height: 700vh;
+      height: 742vh;
     }
 
     .sticky-stage {
@@ -498,7 +498,7 @@
       }
 
       .asset-system {
-        height: 700vh;
+        height: 742vh;
       }
 
       .sticky-stage {
@@ -1010,8 +1010,28 @@
         scrollable
       );
 
+    /*
+      Pause on ONE ASSET:
+      the section is 742vh instead of 700vh.
+      The extra scroll (pauseLength) holds the
+      timeline at pauseAt, everything else
+      keeps its old length in pixels.
+    */
+
+    const pauseAt = 0.53;
+    const pauseLength = 0.07;
+
+    const timeline =
+      passed / scrollable *
+      (1 + pauseLength);
+
     const progress =
-      passed / scrollable;
+      timeline < pauseAt
+        ? timeline
+        : Math.max(
+            pauseAt,
+            timeline - pauseLength
+          );
 
 
     const centerY =
@@ -1020,14 +1040,123 @@
     const headerGap =
       24;
 
+    const headerBottom =
+      headerRect.bottom -
+      stageRect.top;
+
+
+    /*
+      Arrow gaps (platform group → ONE ASSET).
+
+      Gap under the platform group,
+      reduced by 2/3 from 42px / 28px:
+        desktop: 14px
+        mobile: 9px
+    */
+
+    const platformArrowGap =
+      window.innerWidth <= 700
+        ? 9
+        : 14;
+
+
+    /*
+      Keep the arrowhead above ONE ASSET.
+      This prevents the arrow from touching
+      or crossing the label.
+    */
+
+    const platformArrowEndGap =
+      window.innerWidth <= 700
+        ? 16
+        : 24;
+
+
+    const platformArrowMinLength =
+      window.innerWidth <= 700
+        ? 28
+        : 40;
+
+
+    /*
+      Platform group movement (used by ONE PROJECT,
+      its arrow and the platform group).
+      Final position: the bottom of the icon row
+      (with names) is platformArrowGap above the
+      bottom of the header, so the row and the tail
+      of the arrow are hidden behind the header.
+    */
+
+    const groupMoveStart = 0.32;
+    const groupMoveEnd = 0.46;
+
+    const groupMoveProgress =
+      clamp(
+        (progress - groupMoveStart) /
+        (groupMoveEnd - groupMoveStart),
+        0,
+        1
+      );
+
+
+    /*
+      ONE PROJECT arrow gaps.
+      If there is not enough room between ONE PROJECT
+      (under the header) and MULTIPLE PLATFORMS for
+      projectArrowMinLength, the whole platform group
+      stands lower by exactly the missing amount
+      (short screens only).
+    */
+
+    const projectArrowGap =
+      window.innerWidth <= 700
+        ? 10
+        : 12;
+
+    const projectArrowMinLength =
+      window.innerWidth <= 700
+        ? 28
+        : 40;
+
+    const platformsLabelBaseTop =
+      platformsLabel.offsetTop -
+      platformsLabel.offsetHeight * 1.5;
+
+    const groupBaseShift =
+      Math.max(
+        0,
+        headerBottom +
+        headerGap +
+        projectLabel.offsetHeight +
+        projectArrowGap +
+        projectArrowMinLength +
+        platformArrowEndGap -
+        platformsLabelBaseTop
+      );
+
+
+    const rowBottomBase =
+      platformsRow.offsetTop +
+      platformsRow.offsetHeight / 2 +
+      groupBaseShift;
+
+    const groupUpY =
+      headerBottom -
+      platformArrowGap -
+      rowBottomBase;
+
+    const groupY =
+      groupUpY *
+      groupMoveProgress;
+
 
     /* ==================================================
        1. ONE PROJECT
        CENTER → UNDER HEADER
     ================================================== */
 
-    const projectMoveStart = 0.04;
-    const projectMoveEnd = 0.16;
+    const projectMoveStart = 0;
+    const projectMoveEnd = 0.12;
 
     const projectMoveProgress =
       clamp(
@@ -1041,11 +1170,16 @@
     const projectHeight =
       projectLabel.offsetHeight;
 
+    /*
+      Stops under the header (not above it).
+      Later leaves together with the platform group.
+    */
+
     const projectUpY =
-      headerRect.top -
-      headerGap -
+      headerBottom +
+      headerGap +
       projectHeight / 2 -
-      centerY;
+      projectLabel.offsetTop;
 
 
     const projectY =
@@ -1057,7 +1191,7 @@
       `
         translate(
           -50%,
-          calc(-50% + ${projectY}px)
+          calc(-50% + ${projectY + groupY}px)
         )
       `;
 
@@ -1067,57 +1201,55 @@
        PROJECT → MULTIPLE PLATFORMS
     ================================================== */
 
-    const projectArrowStart = 0.07;
+    /*
+      At progress 0 only the arrowhead is visible
+      under ONE PROJECT. From the first scroll the
+      tail stays under ONE PROJECT and the head
+      moves evenly to MULTIPLE PLATFORMS, so the
+      shaft grows from 0 without a jump.
+      Positions are taken from layout (offsetTop),
+      without the platform group shift.
+    */
 
-    const projectArrowDuration =
-      (0.14 - 0.07) / 1.5;
+    const projectArrowTail =
+      projectLabel.offsetTop +
+      projectHeight / 2 +
+      projectArrowGap;
 
-    const projectArrowEnd =
-      projectArrowStart +
-      projectArrowDuration;
+    const projectArrowTailY =
+      projectArrowTail +
+      projectY;
 
-    const projectArrowProgress =
-      clamp(
-        (progress - projectArrowStart) /
-        (projectArrowEnd - projectArrowStart),
-        0,
-        1
-      );
-
-
-    const projectRect =
-      projectLabel.getBoundingClientRect();
-
-    const projectBottom =
-      projectRect.bottom -
-      stageRect.top;
-
-
-    const platformsLabelRect =
-      platformsLabel.getBoundingClientRect();
 
     const platformsLabelTop =
-      platformsLabelRect.top -
-      stageRect.top;
+      platformsLabelBaseTop +
+      groupBaseShift;
+
+    const projectArrowHeadY =
+      lerp(
+        projectArrowTail,
+        platformsLabelTop -
+        platformArrowEndGap,
+        projectMoveProgress
+      );
 
 
     const projectArrowLength =
       Math.max(
         0,
-        platformsLabelTop -
-        projectBottom
+        projectArrowHeadY -
+        projectArrowTailY
       );
 
 
     projectArrow.style.top =
-      `${projectBottom}px`;
+      `${projectArrowTailY + groupY}px`;
 
     projectArrow.style.height =
-      `${projectArrowLength * projectArrowProgress}px`;
+      `${projectArrowLength}px`;
 
     projectArrow.style.opacity =
-      progress >= projectArrowStart &&
-      progress < 0.18
+      progress < groupMoveEnd
         ? 1
         : 0;
 
@@ -1212,20 +1344,9 @@
     /* ==================================================
        5. PLATFORM GROUP
        LABEL + ICONS + LABELS
-       CENTER → UNDER HEADER
+       CENTER → BEHIND HEADER
+       (groupY is calculated at the top)
     ================================================== */
-
-    const groupMoveStart = 0.32;
-    const groupMoveEnd = 0.46;
-
-    const groupMoveProgress =
-      clamp(
-        (progress - groupMoveStart) /
-        (groupMoveEnd - groupMoveStart),
-        0,
-        1
-      );
-
 
     const platformsLabelHeight =
       platformsLabel.offsetHeight;
@@ -1235,23 +1356,11 @@
       -platformsLabelHeight;
 
 
-    const groupUpY =
-      headerRect.top -
-      headerGap -
-      platformsLabelHeight / 2 -
-      centerY;
-
-
-    const groupY =
-      groupUpY *
-      groupMoveProgress;
-
-
     platformsLabel.style.transform =
       `
         translate(
           -50%,
-          calc(-50% + ${groupY + platformsLabelOffsetY}px)
+          calc(-50% + ${groupBaseShift + groupY + platformsLabelOffsetY}px)
         )
       `;
 
@@ -1260,7 +1369,7 @@
       `
         translate(
           -50%,
-          calc(-50% + ${groupY}px)
+          calc(-50% + ${groupBaseShift + groupY}px)
         )
       `;
 
@@ -1284,51 +1393,17 @@
 
 
     /*
-      Arrow gaps (used by block 7 as well).
-
-      Gap under the platform group,
-      reduced by 2/3 from 42px / 28px:
-        desktop: 14px
-        mobile: 9px
-    */
-
-    const platformArrowGap =
-      window.innerWidth <= 700
-        ? 9
-        : 14;
-
-
-    /*
-      Keep the arrowhead above ONE ASSET.
-      This prevents the arrow from touching
-      or crossing the label.
-    */
-
-    const platformArrowEndGap =
-      window.innerWidth <= 700
-        ? 16
-        : 24;
-
-
-    const platformArrowMinLength =
-      window.innerWidth <= 700
-        ? 28
-        : 40;
-
-
-    /*
       Home position of ONE ASSET:
-      the stage center, unless the arrow from
-      the platform group would be shorter than
+      the stage center, unless the visible part
+      of the arrow from the platform group
+      (below the header) would be shorter than
       platformArrowMinLength. On short screens
       the card stops lower by exactly the
       missing amount.
     */
 
     const finalRowBottom =
-      platformsRow.getBoundingClientRect().bottom -
-      stageRect.top -
-      groupY +
+      rowBottomBase +
       groupUpY;
 
     const assetLabelHomeTop =
@@ -1436,7 +1511,12 @@
        PLATFORM GROUP → ONE ASSET
     ================================================== */
 
-    const platformArrowStart = 0.38;
+    /*
+      Starts right after the last platform icon
+      has appeared (0.19 + 2 × 0.035 + 0.05 = 0.31).
+    */
+
+    const platformArrowStart = 0.31;
 
     const platformArrowDuration =
       (0.51 - 0.38) / 1.5;
@@ -1497,7 +1577,7 @@
     platformArrow.style.opacity =
       platformArrowProgress > 0 &&
       platformArrowLength > 0 &&
-      progress < 0.55
+      progress < 0.56
         ? 1
         : 0;
 
@@ -1645,7 +1725,7 @@
     ================================================== */
 
     const arrowStart = 0.56;
-    const arrowEnd = 0.70;
+    const arrowEnd = 0.66;
 
     const arrowProgress =
       clamp(
@@ -1672,23 +1752,45 @@
     const labelRect =
       multipleLabel.getBoundingClientRect();
 
-    const labelTop =
-      labelRect.top -
-      stageRect.top;
+
+    /*
+      The tail stays on the bottom of the card.
+      The head moves evenly from the card bottom
+      to 24px above the resting (centered)
+      MULTIPLE REPRESENTATIONS label and reaches
+      it at arrowEnd. After that the length stays
+      the same and the arrow moves up with the
+      label until labelMoveEnd.
+    */
+
+    const restingLabelTop =
+      centerY -
+      labelHeight / 2;
+
+    const cardBottomStart =
+      assetCard.offsetTop +
+      assetHomeShift +
+      assetCardHeight / 2;
+
+    const arrowHeadY =
+      lerp(
+        cardBottomStart,
+        restingLabelTop - arrowLabelGap,
+        arrowProgress
+      );
 
 
     const restingArrowLength =
       Math.max(
         0,
-        labelTop -
-        cardBottom -
-        arrowLabelGap
+        arrowHeadY -
+        cardBottom
       );
 
 
     arrowSystem.style.opacity =
       progress >= arrowStart &&
-      progress < 0.76
+      progress < labelMoveEnd
         ? 1
         : 0;
 
@@ -1699,7 +1801,7 @@
         `${cardBottom}px`;
 
       arrowSystem.style.height =
-        `${restingArrowLength * arrowProgress}px`;
+        `${restingArrowLength}px`;
 
     }
 
@@ -1748,8 +1850,6 @@
     if (progress >= representationStart) {
 
       representation.style.opacity = 1;
-
-      arrowSystem.style.opacity = 0;
 
 
       const count =
