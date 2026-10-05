@@ -171,6 +171,7 @@
       top: 50%;
 
       width: 1px;
+      height: 0;
 
       opacity: 0;
 
@@ -179,10 +180,6 @@
       transform: translateX(-50%);
     }
 
-    /*
-      The shaft ends exactly at the arrow tip.
-    */
-
     .arrow-shaft {
       position: absolute;
 
@@ -190,39 +187,56 @@
       top: 0;
 
       width: 1px;
+      height: 100%;
 
       background: #000;
     }
 
     /*
-      Arrow head is made from two real lines.
-      Both lines meet at one exact point:
-      the bottom of the shaft.
+      The arrow head is attached directly
+      to the bottom point of the shaft.
     */
 
-    .arrow-head-left,
-    .arrow-head-right {
+    .arrow-head {
       position: absolute;
 
-      left: 0;
+      left: 50%;
       bottom: 0;
 
       width: 14px;
-      height: 1px;
+      height: 10px;
+
+      transform: translateX(-50%);
+    }
+
+    .arrow-head::before,
+    .arrow-head::after {
+      content: "";
+
+      position: absolute;
+
+      bottom: 0;
+
+      width: 1px;
+      height: 9px;
 
       background: #000;
 
-      transform-origin: left center;
+      transform-origin: bottom center;
     }
 
-    .arrow-head-left {
-      transform:
-        rotate(45deg);
-    }
+    .arrow-head::before {
+      left: 3px;
 
-    .arrow-head-right {
       transform:
         rotate(-45deg);
+    }
+
+    .arrow-head::after {
+      right: 3px;
+
+      transform:
+        rotate(45deg);
     }
 
 
@@ -488,8 +502,7 @@
           id="arrowShaft"
         ></div>
 
-        <div class="arrow-head-left"></div>
-        <div class="arrow-head-right"></div>
+        <div class="arrow-head"></div>
 
       </div>
 
@@ -633,7 +646,7 @@
     {
       platform: "INDESIGN",
       type: "IMAGE",
-      src: "asset-representations/publishing/image.jpg?v=3"
+      src: "asset-representations/publishing/image.jpg"
     }
 
   ];
@@ -833,11 +846,14 @@
 
 
     /*
-      The shaft grows toward the exact
-      junction point of the arrow head.
+      IMPORTANT:
+      The whole arrow system receives the dynamic height.
+      The shaft is height: 100%.
+      The arrow head is attached to bottom: 0.
+      Therefore the shaft and head always meet.
     */
 
-    arrowShaft.style.height =
+    arrowSystem.style.height =
       `${arrowProgress * arrowLength}px`;
 
 
@@ -919,10 +935,14 @@
       /* ==================================================
          FINAL INDESIGN
 
-         InDesign enters from -90 degrees,
-         completes only the first half of the
-         normal rotation, reaches 0 degrees,
-         and stays there.
+         InDesign enters exactly like the other
+         representations, from -90 degrees.
+
+         It only performs the first half:
+
+         -90° → 0°
+
+         Then it stays there.
       ================================================== */
 
       if (isLast) {
