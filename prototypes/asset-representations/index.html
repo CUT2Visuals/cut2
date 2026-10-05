@@ -951,17 +951,30 @@
       /*
         LAST REPRESENTATION
 
-        InDesign ends completely front-facing
-        and remains there.
+        InDesign enters from -90deg
+        and ends completely front-facing.
       */
 
       if (isLast) {
 
+        const rotation =
+          lerp(
+            -90,
+            0,
+            localProgress
+          );
+
+        const scale =
+          0.92 +
+          Math.sin(
+            localProgress * Math.PI
+          ) * 0.08;
+
         representationVisual.style.transform =
           `
             perspective(1200px)
-            rotateY(0deg)
-            scale(1)
+            rotateY(${rotation}deg)
+            scale(${scale})
           `;
 
       }
