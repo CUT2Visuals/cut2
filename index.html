@@ -77,26 +77,6 @@
 
 
     /* ==================================================
-       INTRO
-    ================================================== */
-
-    .intro {
-      min-height: 100vh;
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      padding: 20px;
-
-      font-size: clamp(28px, 5vw, 72px);
-      font-weight: 400;
-
-      text-align: center;
-    }
-
-
-    /* ==================================================
        MAIN SYSTEM
     ================================================== */
 
@@ -121,7 +101,8 @@
        UPPER SYSTEM
     ================================================== */
 
-    .project-label {
+    .project-label,
+    .platforms-label {
       position: absolute;
 
       left: 50%;
@@ -140,30 +121,19 @@
     }
 
     .platforms-label {
-      position: absolute;
-
-      left: 50%;
-      top: 50%;
-
-      transform:
-        translate(-50%, -50%);
-
-      font-size: clamp(28px, 5vw, 72px);
-      font-weight: 400;
-
-      text-align: center;
-      white-space: nowrap;
-
       opacity: 0;
-
-      z-index: 8;
     }
+
+
+    /* ==================================================
+       PLATFORM ROW
+    ================================================== */
 
     .platforms-row {
       position: absolute;
 
       left: 50%;
-      top: 65%;
+      top: calc(50% + clamp(90px, 7vw, 120px));
 
       width: min(560px, 80vw);
 
@@ -217,6 +187,11 @@
 
       opacity: 0;
     }
+
+
+    /* ==================================================
+       UPPER ARROWS
+    ================================================== */
 
     .upper-arrow {
       position: absolute;
@@ -329,7 +304,7 @@
 
 
     /* ==================================================
-       ARROW
+       LOWER ARROW
     ================================================== */
 
     .arrow-system {
@@ -522,11 +497,6 @@
         font-size: 10px;
       }
 
-      .intro {
-        min-height: 100svh;
-        font-size: 26px;
-      }
-
       .asset-system {
         height: 700vh;
       }
@@ -535,18 +505,13 @@
         height: 100svh;
       }
 
-      .project-label {
-        top: 50%;
-        font-size: 26px;
-      }
-
+      .project-label,
       .platforms-label {
-        top: 50%;
         font-size: 26px;
       }
 
       .platforms-row {
-        top: 65%;
+        top: calc(50% + 62px);
         width: 78vw;
       }
 
@@ -634,16 +599,6 @@
 
 
   <!-- ==================================================
-       INTRO
-  ================================================== -->
-
-  <section class="intro">
-
-  </section>
-
-
-
-  <!-- ==================================================
        ASSET SYSTEM
   ================================================== -->
 
@@ -653,11 +608,8 @@
 
 
       <!-- ==================================================
-           UPPER SYSTEM
+           ONE PROJECT
       ================================================== -->
-
-
-      <!-- ONE PROJECT -->
 
       <div
         class="project-label"
@@ -667,7 +619,9 @@
       </div>
 
 
-      <!-- ARROW: ONE PROJECT → MULTIPLE PLATFORMS -->
+      <!-- ==================================================
+           ARROW: PROJECT
+      ================================================== -->
 
       <div
         class="upper-arrow"
@@ -681,7 +635,9 @@
       </div>
 
 
-      <!-- MULTIPLE PLATFORMS -->
+      <!-- ==================================================
+           MULTIPLE PLATFORMS
+      ================================================== -->
 
       <div
         class="platforms-label"
@@ -691,7 +647,9 @@
       </div>
 
 
-      <!-- PLATFORM ICONS -->
+      <!-- ==================================================
+           PLATFORMS
+      ================================================== -->
 
       <div
         class="platforms-row"
@@ -757,7 +715,9 @@
       </div>
 
 
-      <!-- ARROW: PLATFORMS → ONE ASSET -->
+      <!-- ==================================================
+           ARROW: PLATFORMS → ASSET
+      ================================================== -->
 
       <div
         class="upper-arrow"
@@ -769,7 +729,6 @@
         <div class="upper-arrow-head"></div>
 
       </div>
-
 
 
       <!-- ==================================================
@@ -793,9 +752,8 @@
       </div>
 
 
-
       <!-- ==================================================
-           ARROW
+           LOWER ARROW
       ================================================== -->
 
       <div
@@ -813,7 +771,6 @@
       </div>
 
 
-
       <!-- ==================================================
            MULTIPLE REPRESENTATIONS
       ================================================== -->
@@ -824,7 +781,6 @@
       >
         MULTIPLE REPRESENTATIONS
       </div>
-
 
 
       <!-- ==================================================
@@ -871,7 +827,6 @@
   </section>
 
 
-
   <!-- ==================================================
        NEXT
   ================================================== -->
@@ -890,7 +845,7 @@
 <script>
 
   /* ==================================================
-     UPPER SYSTEM
+     ELEMENTS
   ================================================== */
 
   const projectLabel =
@@ -924,13 +879,11 @@
   const platformArrow =
     document.getElementById("platformArrow");
 
-
-  /* ==================================================
-     ONE ASSET + LOWER SYSTEM
-  ================================================== */
-
   const assetCard =
     document.getElementById("assetCard");
+
+  const assetLabel =
+    assetCard.querySelector(".asset-label");
 
   const arrowSystem =
     document.getElementById("arrowSystem");
@@ -955,7 +908,7 @@
 
 
   /* ==================================================
-     REPRESENTATION DATA
+     DATA
   ================================================== */
 
   const representations = [
@@ -1029,15 +982,30 @@
     const section =
       document.querySelector(".asset-system");
 
-    const rect =
+    const stage =
+      document.querySelector(".sticky-stage");
+
+    const header =
+      document.querySelector("header");
+
+
+    const sectionRect =
       section.getBoundingClientRect();
 
+    const stageRect =
+      stage.getBoundingClientRect();
+
+    const headerRect =
+      header.getBoundingClientRect();
+
+
     const scrollable =
-      section.offsetHeight - window.innerHeight;
+      section.offsetHeight -
+      window.innerHeight;
 
     const passed =
       clamp(
-        -rect.top,
+        -sectionRect.top,
         0,
         scrollable
       );
@@ -1046,25 +1014,20 @@
       passed / scrollable;
 
 
-    const stage =
-      document.querySelector(".sticky-stage");
+    const centerY =
+      window.innerHeight / 2;
 
-    const stageRect =
-      stage.getBoundingClientRect();
+    const headerGap =
+      24;
 
 
     /* ==================================================
-       0. UPPER SYSTEM
+       1. ONE PROJECT
+       CENTER → UNDER HEADER
     ================================================== */
 
-
-    /* ------------------------------------------
-       ONE PROJECT
-       CENTER → UNDER HEADER
-    ------------------------------------------ */
-
-    const projectMoveStart = 0.00;
-    const projectMoveEnd = 0.12;
+    const projectMoveStart = 0.04;
+    const projectMoveEnd = 0.16;
 
     const projectMoveProgress =
       clamp(
@@ -1075,54 +1038,36 @@
       );
 
 
-    const header =
-      document.querySelector("header");
-
-    const headerRect =
-      header.getBoundingClientRect();
-
-    const headerGap =
-      24;
-
-
     const projectHeight =
       projectLabel.offsetHeight;
 
-    const projectStartTop =
-      window.innerHeight / 2 -
-      projectHeight / 2;
-
-    const projectFinalTop =
+    const projectUpY =
       headerRect.bottom +
-      headerGap;
+      headerGap +
+      projectHeight / 2 -
+      centerY;
 
 
-    const projectTop =
-      lerp(
-        projectStartTop,
-        projectFinalTop,
-        projectMoveProgress
-      );
+    const projectY =
+      projectUpY *
+      projectMoveProgress;
 
-
-    projectLabel.style.top =
-      `${projectTop + projectHeight / 2}px`;
 
     projectLabel.style.transform =
-      `translate(-50%, -50%)`;
+      `
+        translate(
+          -50%,
+          calc(-50% + ${projectY}px)
+        )
+      `;
 
 
-    /* ------------------------------------------
-       FIRST ARROW
-       ONE PROJECT → MULTIPLE PLATFORMS
+    /* ==================================================
+       2. ARROW ATTACHED TO ONE PROJECT
+    ================================================== */
 
-       The arrow is attached to ONE PROJECT,
-       so its upper end follows the project
-       while the project moves upward.
-    ------------------------------------------ */
-
-    const projectArrowStart = 0.04;
-    const projectArrowEnd = 0.12;
+    const projectArrowStart = 0.07;
+    const projectArrowEnd = 0.14;
 
     const projectArrowProgress =
       clamp(
@@ -1136,53 +1081,32 @@
     const projectRect =
       projectLabel.getBoundingClientRect();
 
-    const platformsLabelRect =
-      platformsLabel.getBoundingClientRect();
-
-
     const projectBottom =
       projectRect.bottom -
       stageRect.top;
 
-    const platformsLabelTop =
-      platformsLabelRect.top -
-      stageRect.top;
-
-
-    const projectArrowGap =
-      24;
-
-
-    const projectArrowLength =
-      Math.max(
-        0,
-        platformsLabelTop -
-        projectBottom -
-        projectArrowGap
-      );
-
-
-    projectArrow.style.opacity =
-      projectArrowProgress > 0 &&
-      progress < 0.15
-        ? 1
-        : 0;
 
     projectArrow.style.top =
       `${projectBottom}px`;
 
     projectArrow.style.height =
-      `${projectArrowLength}px`;
+      `${70 * projectArrowProgress}px`;
+
+    projectArrow.style.opacity =
+      progress >= projectArrowStart &&
+      progress < 0.18
+        ? 1
+        : 0;
 
 
-    /* ------------------------------------------
-       MULTIPLE PLATFORMS
-       Arrives exactly at the original
-       ONE PROJECT position.
-    ------------------------------------------ */
+    /* ==================================================
+       3. MULTIPLE PLATFORMS
+       EXACTLY THE SAME CENTER
+       AS ONE PROJECT
+    ================================================== */
 
-    const platformsAppearStart = 0.12;
-    const platformsAppearEnd = 0.17;
+    const platformsAppearStart = 0.15;
+    const platformsAppearEnd = 0.19;
 
     const platformsOpacity =
       clamp(
@@ -1196,23 +1120,15 @@
     platformsLabel.style.opacity =
       platformsOpacity;
 
-    platformsLabel.style.top =
-      `${projectStartTop + projectHeight / 2}px`;
-
-    platformsLabel.style.marginTop =
-      `0px`;
-
     platformsLabel.style.transform =
       `translate(-50%, -50%)`;
 
 
-    /* ------------------------------------------
-       PLATFORM ICONS + LABELS
-       Appear only after MULTIPLE PLATFORMS
-       has reached the original position.
-    ------------------------------------------ */
+    /* ==================================================
+       4. PLATFORM ICONS + LABELS
+    ================================================== */
 
-    const iconStart = 0.18;
+    const iconStart = 0.19;
     const iconStep = 0.035;
     const iconDuration = 0.05;
 
@@ -1264,6 +1180,11 @@
           `;
 
 
+        /*
+          Labels do NOT rotate.
+          They simply appear with the icon.
+        */
+
         platformNames[index].style.opacity =
           iconProgress;
 
@@ -1271,14 +1192,14 @@
     );
 
 
-    /* ------------------------------------------
-       PLATFORM GROUP MOVE
-       MULTIPLE PLATFORMS + ICONS + LABELS
-       → UNDER HEADER
-    ------------------------------------------ */
+    /* ==================================================
+       5. PLATFORM GROUP
+       LABEL + ICONS + LABELS
+       CENTER → UNDER HEADER
+    ================================================== */
 
-    const groupMoveStart = 0.31;
-    const groupMoveEnd = 0.40;
+    const groupMoveStart = 0.32;
+    const groupMoveEnd = 0.46;
 
     const groupMoveProgress =
       clamp(
@@ -1289,96 +1210,129 @@
       );
 
 
-    const groupTravel =
-      window.innerHeight *
-      0.27;
+    const platformsLabelHeight =
+      platformsLabel.offsetHeight;
+
+
+    const groupUpY =
+      headerRect.bottom +
+      headerGap +
+      platformsLabelHeight / 2 -
+      centerY;
 
 
     const groupY =
-      -groupMoveProgress *
-      groupTravel;
+      groupUpY *
+      groupMoveProgress;
 
 
-    platformsLabel.style.marginTop =
-      `${groupY}px`;
+    platformsLabel.style.transform =
+      `
+        translate(
+          -50%,
+          calc(-50% + ${groupY}px)
+        )
+      `;
 
-    platformsRow.style.marginTop =
-      `${groupY}px`;
+
+    platformsRow.style.transform =
+      `
+        translate(
+          -50%,
+          calc(-50% + ${groupY}px)
+        )
+      `;
 
 
-    /* ------------------------------------------
-       SECOND ARROW
-       PLATFORM GROUP → ONE ASSET
+    /* ==================================================
+       6. ONE ASSET
+       LABEL IS THE SAME CENTER POINT
+       AS PROJECT / PLATFORMS
+    ================================================== */
 
-       The arrow starts directly below the
-       platform icons and grows downward.
-    ------------------------------------------ */
+    const assetCardHeight =
+      assetCard.offsetHeight;
 
-    const platformArrowStart = 0.35;
-    const platformArrowEnd = 0.45;
+    const assetLabelHeight =
+      assetLabel.offsetHeight;
 
-    const platformArrowProgress =
+
+    const assetLabelGap =
+      window.innerWidth <= 700
+        ? 20
+        : 28;
+
+
+    /*
+      The card itself sits below the label.
+      We therefore calculate how far the card
+      must be shifted down so that the CENTER
+      of ONE ASSET is exactly at screen center.
+    */
+
+    const assetHomeShift =
+      assetCardHeight / 2 +
+      assetLabelGap +
+      assetLabelHeight / 2;
+
+
+    const assetStartShift =
+      assetHomeShift +
+      window.innerHeight * 0.95;
+
+
+    const assetMoveStart = 0.42;
+    const assetMoveEnd = 0.53;
+
+    const assetMoveProgress =
       clamp(
-        (progress - platformArrowStart) /
-        (platformArrowEnd - platformArrowStart),
+        (progress - assetMoveStart) /
+        (assetMoveEnd - assetMoveStart),
         0,
         1
       );
 
 
-    const rowRect =
-      platformsRow.getBoundingClientRect();
-
-    const assetLabelElement =
-      document.querySelector(".asset-label");
-
-    const assetLabelRect =
-      assetLabelElement.getBoundingClientRect();
-
-
-    const rowBottom =
-      rowRect.bottom -
-      stageRect.top;
-
-    const assetLabelTop =
-      assetLabelRect.top -
-      stageRect.top;
-
-
-    const platformArrowGap =
-      24;
-
-
-    const platformArrowLength =
-      Math.max(
-        0,
-        assetLabelTop -
-        rowBottom -
-        platformArrowGap
+    const assetY =
+      lerp(
+        assetStartShift,
+        assetHomeShift,
+        assetMoveProgress
       );
 
 
-    platformArrow.style.opacity =
-      platformArrowProgress > 0 &&
-      progress < 0.50
-        ? 1
-        : 0;
+    /*
+      ONE ASSET remains exactly at its center
+      after arriving.
+    */
 
-    platformArrow.style.top =
-      `${rowBottom}px`;
+    if (progress < assetMoveStart) {
 
-    platformArrow.style.height =
-      `${platformArrowLength * platformArrowProgress}px`;
+      assetCard.style.transform =
+        `
+          translate(
+            -50%,
+            calc(-50% + ${assetStartShift}px)
+          )
+        `;
+
+    }
+
+    else {
+
+      assetCard.style.transform =
+        `
+          translate(
+            -50%,
+            calc(-50% + ${assetY}px)
+          )
+        `;
+
+    }
 
 
-    /* ------------------------------------------
-       ONE ASSET
-       Appears at exactly the same central
-       position as ONE PROJECT.
-    ------------------------------------------ */
-
-    const assetVisibilityStart = 0.43;
-    const assetVisibilityEnd = 0.49;
+    const assetVisibilityStart = 0.40;
+    const assetVisibilityEnd = 0.47;
 
     const assetVisibility =
       clamp(
@@ -1394,11 +1348,76 @@
 
 
     /* ==================================================
-       1. ONE ASSET + CARD
+       7. ARROW
+       PLATFORM GROUP → ONE ASSET
     ================================================== */
 
-    const cardStart = 0.49;
-    const cardEnd = 0.59;
+    const platformArrowStart = 0.38;
+    const platformArrowEnd = 0.51;
+
+    const platformArrowProgress =
+      clamp(
+        (progress - platformArrowStart) /
+        (platformArrowEnd - platformArrowStart),
+        0,
+        1
+      );
+
+
+    const rowRect =
+      platformsRow.getBoundingClientRect();
+
+
+    const rowBottom =
+      rowRect.bottom -
+      stageRect.top;
+
+
+    /*
+      ONE ASSET label is designed to finish
+      exactly at the central position.
+    */
+
+    const finalAssetLabelTop =
+      centerY -
+      assetLabelHeight / 2;
+
+
+    const platformArrowGap =
+      24;
+
+
+    const platformArrowLength =
+      Math.max(
+        0,
+        finalAssetLabelTop -
+        rowBottom -
+        platformArrowGap
+      );
+
+
+    platformArrow.style.top =
+      `${rowBottom}px`;
+
+    platformArrow.style.height =
+      `${platformArrowLength * platformArrowProgress}px`;
+
+
+    platformArrow.style.opacity =
+      platformArrowProgress > 0 &&
+      platformArrowLength > 0 &&
+      progress < 0.55
+        ? 1
+        : 0;
+
+
+    /* ==================================================
+       8. ONE ASSET → MULTIPLE REPRESENTATIONS
+       EXISTING LOWER MECHANICS
+    ================================================== */
+
+    const cardStart = 0.56;
+    const cardEnd = 0.66;
 
     const cardProgress =
       clamp(
@@ -1414,25 +1433,25 @@
 
 
     const cardY =
-      -cardProgress * cardTravel;
+      -cardProgress *
+      cardTravel;
 
 
     assetCard.style.transform =
       `
         translate(
           -50%,
-          calc(-50% + ${cardY}px)
+          calc(-50% + ${assetHomeShift + cardY}px)
         )
       `;
 
 
-
     /* ==================================================
-       2. MULTIPLE REPRESENTATIONS
+       9. MULTIPLE REPRESENTATIONS LABEL
     ================================================== */
 
-    const labelAppearStart = 0.59;
-    const labelAppearEnd = 0.63;
+    const labelAppearStart = 0.66;
+    const labelAppearEnd = 0.70;
 
     const labelOpacity =
       clamp(
@@ -1443,8 +1462,8 @@
       );
 
 
-    const labelMoveStart = 0.71;
-    const labelMoveEnd = 0.79;
+    const labelMoveStart = 0.76;
+    const labelMoveEnd = 0.84;
 
     const labelMoveProgress =
       clamp(
@@ -1455,22 +1474,13 @@
       );
 
 
-    const headerRect2 =
-      header.getBoundingClientRect();
-
-    const headerGap2 =
-      24;
-
     const labelHeight =
       multipleLabel.offsetHeight;
 
-    const centerY =
-      window.innerHeight / 2;
-
 
     const finalLabelTop =
-      headerRect2.bottom +
-      headerGap2;
+      headerRect.bottom +
+      headerGap;
 
     const finalLabelCenter =
       finalLabelTop +
@@ -1481,8 +1491,10 @@
       centerY -
       finalLabelCenter;
 
+
     const labelY =
-      -labelMoveProgress * labelTravel;
+      -labelMoveProgress *
+      labelTravel;
 
 
     multipleLabel.style.opacity =
@@ -1526,13 +1538,12 @@
     }
 
 
-
     /* ==================================================
-       3. ARROW
+       10. LOWER ARROW
     ================================================== */
 
-    const arrowStart = 0.49;
-    const arrowEnd = 0.63;
+    const arrowStart = 0.56;
+    const arrowEnd = 0.70;
 
     const arrowProgress =
       clamp(
@@ -1575,7 +1586,7 @@
 
     arrowSystem.style.opacity =
       progress >= arrowStart &&
-      progress < 0.79
+      progress < 0.76
         ? 1
         : 0;
 
@@ -1615,12 +1626,11 @@
       `translateX(-50%)`;
 
 
-
     /* ==================================================
-       4. REPRESENTATIONS
+       11. REPRESENTATIONS
     ================================================== */
 
-    const representationStart = 0.79;
+    const representationStart = 0.80;
     const representationEnd = 0.96;
 
 
@@ -1660,7 +1670,8 @@
           );
 
         const localProgress =
-          firstFiveProgress - index;
+          firstFiveProgress -
+          index;
 
         const current =
           representations[index];
@@ -1702,7 +1713,6 @@
           `;
 
       }
-
 
       else {
 
@@ -1775,6 +1785,7 @@
   updateAnimation();
 
 </script>
+
 
 </body>
 </html>
