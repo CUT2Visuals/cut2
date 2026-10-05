@@ -82,7 +82,7 @@
 
     .asset-system {
       position: relative;
-      height: 742vh;
+      height: 817vh;
     }
 
     .sticky-stage {
@@ -122,6 +122,54 @@
 
     .platforms-label {
       opacity: 0;
+    }
+
+
+    /* ==================================================
+       CUT2 → ONE PROJECT (cell division)
+    ================================================== */
+
+    .visually-hidden {
+      position: absolute;
+
+      width: 1px;
+      height: 1px;
+
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+
+    /* Keeps the label box exactly the size of "ONE PROJECT" */
+    .project-sizer {
+      visibility: hidden;
+    }
+
+    .project-cells {
+      position: absolute;
+
+      left: 0;
+      top: 0;
+
+      width: 100%;
+      height: 100%;
+    }
+
+    /* One letter cell: everything outside it is cut off */
+    .project-cell {
+      position: absolute;
+
+      top: 0;
+
+      height: 100%;
+
+      overflow: hidden;
+    }
+
+    .project-glyph {
+      position: absolute;
+
+      top: 0;
     }
 
 
@@ -498,7 +546,7 @@
       }
 
       .asset-system {
-        height: 742vh;
+        height: 817vh;
       }
 
       .sticky-stage {
@@ -615,7 +663,15 @@
         class="project-label"
         id="projectLabel"
       >
-        ONE PROJECT
+        <span class="visually-hidden">CUT2 / ONE PROJECT</span><span
+          class="project-sizer"
+          id="projectSizer"
+          aria-hidden="true"
+        >ONE PROJECT</span><span
+          class="project-cells"
+          id="projectCells"
+          aria-hidden="true"
+        ></span>
       </div>
 
 
@@ -845,11 +901,122 @@
 <script>
 
   /* ==================================================
+     SETTINGS: CUT2 → ONE PROJECT
+     (safe to tweak)
+  ================================================== */
+
+  /*
+    Length of the CUT2 → ONE PROJECT part of the scroll,
+    in "old timeline" units: 0.1 = 0.6 screen heights
+    of scrolling, 0.125 = 0.75, 0.15 = 0.9.
+    If you change it, also change the height of
+    .asset-system in CSS (two places):
+      742vh + 600vh × INTRO_LENGTH
+    (0.125 → 817vh).
+  */
+
+  const INTRO_LENGTH = 0.125;
+
+
+  /*
+    Letter cells, strictly in the order of the line,
+    left to right: O N E _ P R O J E C U T 2.
+
+    char      the letter (" " is the gap between words)
+    parent    who the letter comes out of / hides under
+              (just a note for you; the real neighbour
+              is decided by "dir")
+    show      "in"   – appears
+              "out"  – disappears (U and 2)
+              "stay" – visible all the time (C and T)
+    dir       "left" / "right" – where the letter moves:
+              for "in" it slides out of the neighbour on
+              the opposite side, for "out" it hides under
+              the neighbour on that side.
+    start     when it starts, 0…1 of the CUT2 → ONE PROJECT
+              part (this is what makes the order "random")
+    duration  how long it moves, 0…1 of the same part
+              (start + duration must be ≤ 1)
+
+    Rule of thumb: a letter should start only after its
+    parent has fully come out (parent start + duration).
+  */
+
+  const INTRO_CELLS = [
+    { char: "O", parent: "P", show: "in",   dir: "left",  start: 0.31, duration: 0.25 },
+    { char: "N", parent: "O", show: "in",   dir: "right", start: 0.60, duration: 0.25 },
+    { char: "E", parent: "P", show: "in",   dir: "left",  start: 0.56, duration: 0.25 },
+    { char: " ", parent: "E/P", show: "in", dir: "left",  start: 0.75, duration: 0.25 },
+    { char: "P", parent: "C", show: "in",   dir: "left",  start: 0.02, duration: 0.25 },
+    { char: "R", parent: "P", show: "in",   dir: "right", start: 0.42, duration: 0.25 },
+    { char: "O", parent: "R", show: "in",   dir: "right", start: 0.70, duration: 0.25 },
+    { char: "J", parent: "E", show: "in",   dir: "left",  start: 0.50, duration: 0.25 },
+    { char: "E", parent: "C", show: "in",   dir: "left",  start: 0.20, duration: 0.25 },
+    { char: "C", parent: "",  show: "stay", dir: "",      start: 0,    duration: 1 },
+    { char: "U", parent: "C", show: "out",  dir: "left",  start: 0.00, duration: 0.25 },
+    { char: "T", parent: "",  show: "stay", dir: "",      start: 0,    duration: 1 },
+    { char: "2", parent: "T", show: "out",  dir: "left",  start: 0.12, duration: 0.25 }
+  ];
+
+
+  /* ==================================================
      ELEMENTS
   ================================================== */
 
   const projectLabel =
     document.getElementById("projectLabel");
+
+  const projectSizer =
+    document.getElementById("projectSizer");
+
+  const projectCellsBox =
+    document.getElementById("projectCells");
+
+
+  /*
+    Build the letter cells from INTRO_CELLS.
+    The glyph is pinned to the side away from its
+    parent, so the hidden part sticks into the parent
+    and is cut off by the cell edge.
+  */
+
+  const projectCells =
+    INTRO_CELLS.map(
+      (cell) => {
+
+        const cellElement =
+          document.createElement("span");
+
+        cellElement.className =
+          "project-cell";
+
+        const glyph =
+          document.createElement("span");
+
+        glyph.className =
+          "project-glyph";
+
+        glyph.textContent =
+          cell.char;
+
+        const pinRight =
+          (cell.show === "in" && cell.dir === "right") ||
+          (cell.show === "out" && cell.dir === "left");
+
+        if (pinRight) {
+          glyph.style.right = "0";
+        }
+        else {
+          glyph.style.left = "0";
+        }
+
+        cellElement.appendChild(glyph);
+        projectCellsBox.appendChild(cellElement);
+
+        return cellElement;
+
+      }
+    );
 
   const projectArrow =
     document.getElementById("projectArrow");
@@ -973,6 +1140,74 @@
   }
 
 
+  function smoothstep(t) {
+
+    return t * t * (3 - 2 * t);
+
+  }
+
+
+  /*
+    CUT2 → ONE PROJECT: place the letter cells.
+    introProgress: 0 = "CUT2", 1 = "ONE PROJECT".
+    Cells stand side by side, the whole line stays
+    centered in the label. Widths are in characters
+    (monospace), 1 character = sizer width / 11.
+  */
+
+  function updateIntroCells(introProgress) {
+
+    const charWidth =
+      projectSizer.offsetWidth / 11;
+
+    const widths =
+      INTRO_CELLS.map(
+        (cell) => {
+
+          if (cell.show === "stay") {
+            return 1;
+          }
+
+          const t =
+            smoothstep(
+              clamp(
+                (introProgress - cell.start) /
+                cell.duration,
+                0,
+                1
+              )
+            );
+
+          return cell.show === "in"
+            ? t
+            : 1 - t;
+
+        }
+      );
+
+    const lineWidth =
+      widths.reduce((sum, w) => sum + w, 0);
+
+    let x =
+      (11 - lineWidth) / 2;
+
+    projectCells.forEach(
+      (cellElement, index) => {
+
+        cellElement.style.left =
+          `${x * charWidth}px`;
+
+        cellElement.style.width =
+          `${widths[index] * charWidth}px`;
+
+        x += widths[index];
+
+      }
+    );
+
+  }
+
+
   /* ==================================================
      ANIMATION
   ================================================== */
@@ -1011,19 +1246,37 @@
       );
 
     /*
-      Pause on ONE ASSET:
-      the section is 742vh instead of 700vh.
-      The extra scroll (pauseLength) holds the
-      timeline at pauseAt, everything else
-      keeps its old length in pixels.
+      Scroll is split into:
+      1) CUT2 → ONE PROJECT (INTRO_LENGTH),
+      2) the old timeline, with a pause on
+         ONE ASSET: pauseLength holds the timeline
+         at pauseAt.
+      Section height: 700vh + 600vh × (INTRO_LENGTH
+      + pauseLength) = 817vh. Every old block keeps
+      its length in pixels.
     */
 
     const pauseAt = 0.53;
     const pauseLength = 0.07;
 
-    const timeline =
+    const rawTimeline =
       passed / scrollable *
-      (1 + pauseLength);
+      (1 + INTRO_LENGTH + pauseLength);
+
+    const introProgress =
+      clamp(
+        rawTimeline / INTRO_LENGTH,
+        0,
+        1
+      );
+
+    updateIntroCells(introProgress);
+
+    const timeline =
+      Math.max(
+        0,
+        rawTimeline - INTRO_LENGTH
+      );
 
     const progress =
       timeline < pauseAt
