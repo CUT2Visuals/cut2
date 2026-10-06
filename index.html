@@ -148,12 +148,81 @@
       font-weight: 400;
     }
 
-    .header-title {
+    /* language button on the right: looks like plain text */
+    .lang-button {
+      /* the touch area is bigger than the text (at least 44px
+         high, 12px wider on each side); the negative margin
+         gives that space back, so the text stays exactly where
+         it was and the header does not change */
+      min-height: 44px;
+      margin: 0 -12px 0 0;
+      padding: 0 12px;
+
+      display: flex;
+      align-items: center;
+
+      border: 0;
+      border-radius: 0;
+      background: none;
+      color: #000;
+
+      font-family: inherit;
       font-size: 12px;
       font-weight: 400;
+      line-height: normal;
 
       text-transform: uppercase;
       letter-spacing: 0.04em;
+
+      cursor: pointer;
+    }
+
+    .lang-button:hover {
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+
+    .lang-button:focus {
+      outline: none;
+    }
+
+    /* the focus frame goes around the text, not around the
+       whole touch area */
+    .lang-button:focus-visible .lang-text {
+      outline: 1px solid #000;
+      outline-offset: 3px;
+    }
+
+    /* small note under the button; does not move anything */
+    .lang-hint {
+      position: fixed;
+      top: 72px;
+      right: 28px;
+
+      max-width: calc(100vw - 56px);
+
+      margin: 0;
+      padding: 8px 12px;
+
+      border: 1px solid #000;
+      background: #f3f0e8;
+      color: #000;
+
+      font-size: 12px;
+      font-weight: 400;
+      line-height: 1.5;
+
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+
+      z-index: 110;
+
+      visibility: hidden;
+    }
+
+    .lang-hint.is-visible {
+      visibility: visible;
     }
 
 
@@ -1032,7 +1101,16 @@
         padding: 0 16px;
       }
 
-      .header-title {
+      .lang-button {
+        font-size: 10px;
+      }
+
+      .lang-hint {
+        top: 60px;
+        right: 16px;
+
+        max-width: calc(100vw - 32px);
+
         font-size: 10px;
       }
 
@@ -1197,12 +1275,23 @@
 <header>
 
   <div class="logo">
-    CUT2
+    CUT2 TOOLS
   </div>
 
-  <div class="header-title">
-    Asset Representations
-  </div>
+  <button
+    type="button"
+    class="lang-button"
+    id="langButton"
+    aria-describedby="langHint"
+  ><span class="lang-text" id="langText">RU</span></button>
+
+  <!-- note shown after pressing the button while Russian is not ready -->
+  <div
+    class="lang-hint"
+    id="langHint"
+    role="status"
+    aria-live="polite"
+  ></div>
 
 </header>
 
@@ -1541,6 +1630,43 @@
 
 
 <script>
+
+  /* ==================================================
+     SETTINGS: LANGUAGE BUTTON (top right of the header)
+     (safe to tweak)
+  ================================================== */
+
+  /*
+    currentLang    language of the page now: "en" or "ru"
+    labels         text on the button for each current language:
+                   it names the language the button switches to
+                   (on the English page the button says RU)
+    ruAvailable    false = pressing the button only shows the
+                   note comingSoonText; true = it calls
+                   switchLanguage()
+    comingSoonText the note under the button
+    hintMs         how long the note stays, milliseconds (it also
+                   goes away on Esc, on scrolling and on a click
+                   elsewhere)
+
+    When the Russian version is ready: set ruAvailable = true
+    and write switchLanguage() below. Today it is a stub that
+    does nothing. Later the same function will also change
+    videoLang in VIDEO_SETTINGS (the video language).
+  */
+
+  const LANG_SETTINGS = {
+    currentLang: "en",
+    labels: { en: "RU", ru: "EN" },
+    ruAvailable: false,
+    comingSoonText: "RUSSIAN VERSION COMING SOON",
+    hintMs: 2500
+  };
+
+  function switchLanguage() {
+    console.log("language switch not implemented");
+  }
+
 
   /* ==================================================
      SETTINGS: SEO (title, description, link preview)
@@ -4746,6 +4872,119 @@
   }
 
   buildContact();
+
+
+  /* ==================================================
+     LANGUAGE BUTTON and its note
+  ================================================== */
+
+  const langButton = document.getElementById("langButton");
+  const langText = document.getElementById("langText");
+  const langHint = document.getElementById("langHint");
+
+  let langHintTimer = null;
+  let langHintScrollY = 0;
+
+  function setupLangButton() {
+
+    const { currentLang, labels, ruAvailable } = LANG_SETTINGS;
+
+    langText.textContent = labels[currentLang];
+
+    /* what a screen reader says: the language it switches to */
+    if (currentLang === "en") {
+
+      langButton.setAttribute(
+        "aria-label",
+        ruAvailable ? "Русская версия" : "Russian version (coming soon)"
+      );
+
+      if (ruAvailable) {
+        langButton.setAttribute("lang", "ru");
+      }
+      else {
+        langButton.removeAttribute("lang");
+      }
+
+    }
+
+    else {
+      langButton.setAttribute("aria-label", "English version");
+      langButton.setAttribute("lang", "en");
+    }
+
+  }
+
+  function hideLangHint() {
+
+    clearTimeout(langHintTimer);
+    langHint.classList.remove("is-visible");
+    langHint.textContent = "";
+
+  }
+
+  function showLangHint() {
+
+    langHint.classList.add("is-visible");
+    langHint.textContent = LANG_SETTINGS.comingSoonText;
+
+    langHintScrollY = window.scrollY;
+
+    clearTimeout(langHintTimer);
+    langHintTimer = setTimeout(hideLangHint, LANG_SETTINGS.hintMs);
+
+  }
+
+  langButton.addEventListener(
+    "click",
+    () => {
+
+      if (LANG_SETTINGS.ruAvailable) {
+        switchLanguage();
+        return;
+      }
+
+      /* pressing again while the note is visible closes it */
+      if (langHint.classList.contains("is-visible")) {
+        hideLangHint();
+      }
+      else {
+        showLangHint();
+      }
+
+    }
+  );
+
+  document.addEventListener(
+    "keydown",
+    (event) => {
+      if (event.key === "Escape") {
+        hideLangHint();
+      }
+    }
+  );
+
+  document.addEventListener(
+    "pointerdown",
+    (event) => {
+      if (!langButton.contains(event.target) && !langHint.contains(event.target)) {
+        hideLangHint();
+      }
+    }
+  );
+
+  window.addEventListener(
+    "scroll",
+    () => {
+      if (langHint.classList.contains("is-visible") &&
+          Math.abs(window.scrollY - langHintScrollY) > 10) {
+        hideLangHint();
+      }
+    },
+    { passive: true }
+  );
+
+  setupLangButton();
 
 
   updateAnimation();
