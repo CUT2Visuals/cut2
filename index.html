@@ -230,9 +230,18 @@
        MAIN SYSTEM
     ================================================== */
 
+    /*
+      The script sets the exact height from TOOLS_SETTINGS.timing
+      (817vh + 100vh × (comeIn + hold + the extra pinned part of
+      spreadScroll)). The values here are the same numbers for
+      the default settings, so the page has the right length
+      before the script runs:
+        desktop 817 + 40 + 40 + 0     = 897vh
+        phone   817 + 50 + 50 + 20    = 937vh
+    */
     .asset-system {
       position: relative;
-      height: 839vh;
+      height: 897vh;
     }
 
     .sticky-stage {
@@ -1125,8 +1134,8 @@
         and its size does not change while scrolling.
       */
       .asset-system {
-        height: 839vh;
-        height: 839lvh;
+        height: 937vh;
+        height: 937lvh;
       }
 
       .sticky-stage {
@@ -1838,24 +1847,36 @@
   };
 
 
-  /*
-    How TOOLS goes, with no pause anywhere:
-      1) representations leave, TOOLS comes to the centre
-         (TOOLS_COME_IN, in screen heights of scrolling);
-      2) at its end the labels appear all at once, and the
-         scene stops being pinned: TOOLS and the cloud go up
-         with the page like normal content, while the cloud
-         keeps spreading; the next section comes up from
-         below at the same time.
-    If you change TOOLS_COME_IN (now 0.22), also change the
-    height of .asset-system in CSS (two places):
-      817vh + 100vh × TOOLS_COME_IN   (0.22 → 839vh)
-  */
-
-  const TOOLS_COME_IN = 0.22;
-
-
   const TOOLS_SETTINGS = {
+
+    /*
+      How TOOLS goes, in screen heights of scrolling (1 = one
+      full screen of scrolling). Separate for the desktop and
+      for the phone (window up to 700px wide):
+
+        comeIn        the representations leave and TOOLS comes
+                      up to the centre (longer = calmer)
+        hold          TOOLS stands still in the centre, alone,
+                      with nothing around it: a short stop
+                      (about a second of ordinary scrolling)
+        spreadScroll  after the stop all the labels appear at
+                      once and move apart over this much
+                      scrolling (longer = slower). Over 1 means
+                      the scene stays pinned for the extra part
+                      while the labels spread; then it goes up
+                      with the page and the cloud is gone exactly
+                      when the spreading is finished.
+
+      The height of the whole scene section is worked out from
+      these numbers by the script (nothing to change in CSS; the
+      CSS only holds the same numbers for the first moment before
+      the script runs: 897vh desktop and 937vh phone for the
+      default settings, see .asset-system).
+    */
+    timing: {
+      desktop: { comeIn: 0.4, hold: 0.4, spreadScroll: 1.0 },
+      phone:   { comeIn: 0.5, hold: 0.5, spreadScroll: 1.2 }
+    },
 
     /* label size: copied from the captions under the
        representations pictures (.representation-info) */
@@ -1901,11 +1922,11 @@
     },
 
     /*
-      While the scene goes up, the cloud grows around TOOLS:
-      every label moves away from TOOLS, from 1 to about
-      spreadScale (1.15 = 15 % further away). It grows evenly
-      with the scroll, from the moment the labels appear to
-      the moment the scene has left the screen.
+      The cloud grows around TOOLS: every label moves away
+      from TOOLS, from 1 to about spreadScale (1.15 = 15 %
+      further away). It grows evenly with the scroll (one
+      smooth movement, no steps), from the moment the labels
+      appear over the length spreadScroll (see timing above).
     */
     spreadScale: 1.15,
 
@@ -2966,6 +2987,45 @@
       document.querySelector("header");
 
 
+    /*
+      Height of the scene (CSS 100vh, on phones 100lvh) and the
+      length of the TOOLS part, all in px. The section is made
+      exactly as long as the scene needs; it is set before the
+      positions are read.
+    */
+    const stageH = stage.offsetHeight;
+
+    const pauseAt = 0.53;
+    const pauseLength = 0.07;
+
+    const toolsPhone = window.innerWidth <= 700;
+    const toolsTiming =
+      TOOLS_SETTINGS.timing[toolsPhone ? "phone" : "desktop"];
+
+    /* where the TOOLS part starts: the old timeline
+       (1 unit = 6 screen heights) ends here */
+    const toolsStartPx =
+      (INTRO_LENGTH + 1 + pauseLength) * 6 * stageH;
+
+    const toolsComeLen = toolsTiming.comeIn * stageH;
+    const toolsHoldLen = toolsTiming.hold * stageH;
+    const toolsSpreadLen = toolsTiming.spreadScroll * stageH;
+
+    /* the labels appear here and start to spread */
+    const toolsAppearPx =
+      toolsStartPx + toolsComeLen + toolsHoldLen;
+
+    /* the scene is pinned until the spreading has only one
+       screen height left (that last screen it goes up with
+       the page); not shorter than one screen */
+    const sectionPx =
+      toolsAppearPx + Math.max(toolsSpreadLen, stageH);
+
+    if (section.dataset.px !== String(sectionPx)) {
+      section.style.height = `${sectionPx}px`;
+      section.dataset.px = String(sectionPx);
+    }
+
     const sectionRect =
       section.getBoundingClientRect();
 
@@ -2977,16 +3037,14 @@
 
 
     /*
-      The height of the scene (CSS: 100vh, on phones 100lvh).
-      It does not change when the browser bars move, unlike
+      The height of the scene (stageH, worked out at the top)
+      does not change when the browser bars move, unlike
       window.innerHeight, so everything below is measured from
       it: scroll progress, positions, the place where blocks
       come in from below.
     */
-    const stageH = stage.offsetHeight;
-
     const scrollable =
-      section.offsetHeight -
+      sectionPx -
       stageH;
 
     const passed =
@@ -3001,38 +3059,28 @@
       1) CUT2 → ONE PROJECT (INTRO_LENGTH),
       2) the old timeline, with a pause on
          ONE ASSET: pauseLength holds the timeline
-         at pauseAt.
-      3) TOOLS coming in (TOOLS_COME_IN, in screen
-         heights; 1 screen height = 1/6 of the old
-         timeline).
-      Section height: 700vh + 600vh × (INTRO_LENGTH
-      + pauseLength) + 100vh × TOOLS_COME_IN = 839vh.
-      Every old block keeps its length in pixels.
-      After the section ends the scene is unpinned and
-      goes up; pastEnd counts those pixels.
+         at pauseAt. One unit of this timeline is 6
+         screen heights of scrolling, so every old block
+         keeps its length in pixels,
+      3) TOOLS (TOOLS_SETTINGS.timing): comes in, stands
+         still (hold), then the labels spread,
+      after the section ends the scene is unpinned and goes
+      up; pastEnd counts those pixels.
     */
 
-    const pauseAt = 0.53;
-    const pauseLength = 0.07;
-
-    const toolsLength =
-      TOOLS_COME_IN / 6;
+    /* scrolled from the start of the section, px (can be
+       more than the pinned length) */
+    const scrollPos =
+      -sectionRect.top;
 
     const rawTimeline =
-      passed / scrollable *
-      (1 + INTRO_LENGTH + pauseLength + toolsLength);
+      passed / (6 * stageH);
 
-    /* time inside the TOOLS part (old timeline units) */
-    const toolsTime =
-      Math.max(
-        0,
-        rawTimeline - INTRO_LENGTH - 1 - pauseLength
-      );
-
-    /* step 1 of TOOLS: representations leave upwards */
+    /* step 1 of TOOLS: representations leave upwards while
+       TOOLS comes in (the same length) */
     const toolsLeave =
       smoothstep(
-        clamp(toolsTime / toolsLength, 0, 1)
+        clamp((scrollPos - toolsStartPx) / toolsComeLen, 0, 1)
       );
 
     /* scrolled past the end of the section, px
@@ -4071,7 +4119,17 @@
        12. TOOLS
     ================================================== */
 
-    updateTools(toolsTime, pastEnd, stageH);
+    updateTools(
+      scrollPos,
+      pastEnd,
+      stageH,
+      {
+        startPx: toolsStartPx,
+        comeLen: toolsComeLen,
+        appearPx: toolsAppearPx,
+        spreadLen: toolsSpreadLen
+      }
+    );
 
 
     requestAnimationFrame(
@@ -4459,15 +4517,19 @@
 
 
   /*
-    toolsTime – time inside the TOOLS part (old timeline units)
-    pastEnd   – px scrolled past the end of the section
+    scrollPos – px scrolled from the start of the section
+    pastEnd   – px scrolled past the end of the pinned part
                 (below 0 while the scene is still pinned)
     height    – height of the scene in px
+    tl        – the TOOLS part in px: startPx (TOOLS starts to
+                come in), comeLen (how long it comes in),
+                appearPx (the labels appear), spreadLen (how
+                long they spread)
   */
-  function updateTools(toolsTime, pastEnd, height) {
+  function updateTools(scrollPos, pastEnd, height, tl) {
 
     const comeIn =
-      smoothstep(clamp(toolsTime / (TOOLS_COME_IN / 6), 0, 1));
+      smoothstep(clamp((scrollPos - tl.startPx) / tl.comeLen, 0, 1));
 
     const titleH = toolsLabel.offsetHeight;
     const { exitSpeed } = TOOLS_SETTINGS;
@@ -4477,8 +4539,12 @@
     const exit = Math.max(0, pastEnd);
     const extraY = (exitSpeed - 1) * exit;
 
-    /* the cloud grows evenly until it has left the screen */
-    const spreadTime = clamp(exit * exitSpeed / height, 0, 1);
+    /* the cloud grows evenly with the scroll, from the moment
+       the labels appear */
+    const spreadTime =
+      clamp((scrollPos - tl.appearPx) / tl.spreadLen, 0, 1);
+
+    /* the scene has gone up out of the screen */
     const gone = exit * exitSpeed >= height;
 
 
@@ -4488,13 +4554,13 @@
 
     toolsLabel.style.top = `${titleTop}px`;
     toolsLabel.style.visibility =
-      toolsTime > 0 && !gone ? "visible" : "hidden";
+      scrollPos > tl.startPx && !gone ? "visible" : "hidden";
 
 
-    /* the cloud: all labels switch on together when TOOLS
-       has arrived, i.e. at the end of the section */
+    /* the cloud: all labels switch on together after the
+       stop of TOOLS in the centre */
     const cloudOn =
-      pastEnd > -0.5 && !gone && toolsLayout;
+      scrollPos >= tl.appearPx && !gone && toolsLayout;
 
     if (!cloudOn) {
 
