@@ -2099,9 +2099,19 @@
     const headerGap =
       24;
 
+    /*
+      Bottom of the header inside the scene, measured as
+      if the scene were still pinned. After the section
+      ends, the browser moves the scene up by itself; if
+      this followed the real scene top, the parked platform
+      group would be pulled back under the header by the
+      script one frame later, and on the way up it would
+      peek out below the header for that frame. This way
+      the parked parts simply go up with the scene.
+    */
     const headerBottom =
       headerRect.bottom -
-      stageRect.top;
+      Math.max(0, stageRect.top);
 
 
     /*
