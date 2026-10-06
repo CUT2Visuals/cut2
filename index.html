@@ -82,7 +82,7 @@
 
     .asset-system {
       position: relative;
-      height: 1079vh;
+      height: 839vh;
     }
 
     .sticky-stage {
@@ -697,7 +697,7 @@
       }
 
       .asset-system {
-        height: 1079vh;
+        height: 839vh;
       }
 
       .sticky-stage {
@@ -1213,17 +1213,20 @@
 
 
   /*
-    Scroll length of the TOOLS part, in screen heights:
+    How TOOLS goes, with no pause anywhere:
       1) representations leave, TOOLS comes to the centre
-      2) the labels appear all at once and stand still
-      3) the cloud rests and slowly grows around TOOLS
-      4) the cloud and TOOLS leave under the header
-    If you change the total (now 2.62), also change the height
-    of .asset-system in CSS (two places):
-      817vh + 100vh × total   (2.62 → 1079vh)
+         (TOOLS_COME_IN, in screen heights of scrolling);
+      2) at its end the labels appear all at once, and the
+         scene stops being pinned: TOOLS and the cloud go up
+         with the page like normal content, while the cloud
+         keeps spreading; the next section comes up from
+         below at the same time.
+    If you change TOOLS_COME_IN (now 0.22), also change the
+    height of .asset-system in CSS (two places):
+      817vh + 100vh × TOOLS_COME_IN   (0.22 → 839vh)
   */
 
-  const TOOLS_PHASES = [0.22, 0.6, 1.3, 0.5];
+  const TOOLS_COME_IN = 0.22;
 
 
   const TOOLS_SETTINGS = {
@@ -1272,20 +1275,31 @@
     },
 
     /*
-      When the labels appear: all at once, as a part of step 2
-      of TOOLS_PHASES (0 = right at its start, i.e. about
-      200px after the representations end; 0.5 = halfway).
-    */
-    appearAt: 0,
-
-    /*
-      While resting, the cloud slowly grows around TOOLS:
-      every label moves away from TOOLS with the same factor,
-      from 1 to spreadScale (1.15 = 15 % bigger). If a label
-      would leave the screen or go under the header, the
-      factor is made smaller for all labels together.
+      While the scene goes up, the cloud grows around TOOLS:
+      every label moves away from TOOLS, from 1 to about
+      spreadScale (1.15 = 15 % further away). It grows evenly
+      with the scroll, from the moment the labels appear to
+      the moment the scene has left the screen.
     */
     spreadScale: 1.15,
+
+    /*
+      Every label spreads with its own speed: its factor is
+      somewhere in spreadScale ± spreadVariation × (spreadScale − 1)
+      (0.35 with 1.15 → from 1.0975 to 1.2025). The speeds are
+      fixed (taken from seed), not random on every visit.
+      If labels would touch each other, TOOLS, the header or
+      the screen edge, the range is narrowed by itself and the
+      result is written to the browser console.
+    */
+    spreadVariation: 0.35,
+
+    /*
+      How fast TOOLS and the cloud go up after the scene is
+      unpinned: 1 = exactly with the page (normal scrolling),
+      1.5 = half again as fast, 0.5 = half as fast.
+    */
+    exitSpeed: 1,
 
     /* window text in capitals (true) or as written (false) */
     descriptionUppercase: false,
@@ -2014,18 +2028,21 @@
       2) the old timeline, with a pause on
          ONE ASSET: pauseLength holds the timeline
          at pauseAt.
-      3) TOOLS (TOOLS_PHASES, in screen heights;
-         1 screen height = 1/6 of the old timeline).
+      3) TOOLS coming in (TOOLS_COME_IN, in screen
+         heights; 1 screen height = 1/6 of the old
+         timeline).
       Section height: 700vh + 600vh × (INTRO_LENGTH
-      + pauseLength) + 100vh × TOOLS total = 1079vh.
+      + pauseLength) + 100vh × TOOLS_COME_IN = 839vh.
       Every old block keeps its length in pixels.
+      After the section ends the scene is unpinned and
+      goes up; pastEnd counts those pixels.
     */
 
     const pauseAt = 0.53;
     const pauseLength = 0.07;
 
     const toolsLength =
-      TOOLS_PHASES.reduce((sum, h) => sum + h, 0) / 6;
+      TOOLS_COME_IN / 6;
 
     const rawTimeline =
       passed / scrollable *
@@ -2041,8 +2058,13 @@
     /* step 1 of TOOLS: representations leave upwards */
     const toolsLeave =
       smoothstep(
-        clamp(toolsTime / (TOOLS_PHASES[0] / 6), 0, 1)
+        clamp(toolsTime / toolsLength, 0, 1)
       );
+
+    /* scrolled past the end of the section, px
+       (below 0 before it) */
+    const pastEnd =
+      -sectionRect.top - scrollable;
 
     const introProgress =
       clamp(
@@ -3093,7 +3115,7 @@
        12. TOOLS
     ================================================== */
 
-    updateTools(toolsTime);
+    updateTools(toolsTime, pastEnd);
 
 
     requestAnimationFrame(
@@ -3175,12 +3197,17 @@
 
 
   /*
-    Where a label is when the cloud has spread by "scale"
-    (1 = start, layout.spread = end). All labels use the
-    same scale around TOOLS, so the distances between them
-    only grow and they can not run into each other.
+    Where a label is when the cloud has spread by "t"
+    (0 = the moment the labels appear, 1 = the end).
+    Every label moves straight away from TOOLS, each with
+    its own speed: its end factor is
+      1 + (spread − 1) × (1 + variation × speed)
+    where speed is its fixed number from −1 to 1.
   */
-  function spreadPoint(item, layout, scale) {
+  function spreadPoint(item, layout, t) {
+
+    const scale =
+      1 + (layout.spread - 1) * (1 + layout.variation * item.speed) * t;
 
     return {
       x: layout.cx + (item.x - layout.cx) * scale,
@@ -3196,7 +3223,7 @@
     const height = window.innerHeight;
     const mobile = width <= 700;
 
-    const { gap, margin, seed, spreadScale } = TOOLS_SETTINGS;
+    const { gap, margin, seed, spreadScale, spreadVariation } = TOOLS_SETTINGS;
     const cloud = mobile ? TOOLS_SETTINGS.cloudMobile : TOOLS_SETTINGS.cloud;
 
     /* the same size as the captions under the pictures */
@@ -3222,7 +3249,8 @@
       cy: height / 2,
       ax: width / 2 - margin,
       ay: height / 2 - margin - headerBottom / 2,
-      spread: 1,
+      spread: spreadScale,
+      variation: spreadVariation,
       items: []
     };
 
@@ -3243,6 +3271,11 @@
     const sizes =
       toolButtons.map((b) => ({ w: b.offsetWidth, h: b.offsetHeight }));
 
+    /* the speed of every label, from −1 to 1: fixed numbers
+       from the seed, in the order of the TOOLS list */
+    const speedRandom = seededRandom(seed + 1);
+    const speeds = TOOLS.map(() => speedRandom() * 2 - 1);
+
     /* the uneven, tilted, shifted oval */
     const tilt = cloud.tilt * Math.PI / 180;
 
@@ -3261,10 +3294,18 @@
       p.x - item.w / 2 >= area.left && p.x + item.w / 2 <= area.right &&
       p.y - item.h / 2 >= area.top && p.y + item.h / 2 <= area.bottom;
 
-    /* 20 steps of the spread plus the end point */
-    const scales = [];
+    const onTitle = (p, item) =>
+      p.x + item.w / 2 > title.left && p.x - item.w / 2 < title.right &&
+      p.y + item.h / 2 > title.top && p.y - item.h / 2 < title.bottom;
+
+    const apartFrom = (a, item, b, other) =>
+      Math.abs(a.x - b.x) >= (item.w + other.w) / 2 + gap ||
+      Math.abs(a.y - b.y) >= (item.h + other.h) / 2 + gap;
+
+    /* checked at 20 points of the movement plus the end */
+    const steps = [];
     for (let k = 0; k <= 20; k++) {
-      scales.push(1 + (spreadScale - 1) * k / 20);
+      steps.push(k / 20);
     }
 
     const random = seededRandom(seed);
@@ -3293,7 +3334,10 @@
     for (const entry of order) {
 
       const clump = clumps[entry.index % clumps.length];
-      const item = { index: entry.index, w: entry.w, h: entry.h, x: 0, y: 0 };
+      const item = {
+        index: entry.index, w: entry.w, h: entry.h,
+        speed: speeds[entry.index], x: 0, y: 0
+      };
       let fallback = null;
       let found = false;
 
@@ -3310,28 +3354,19 @@
         item.x = layout.cx + u * layout.ax;
         item.y = layout.cy + v * layout.ay;
 
-        /* at the start: inside the screen, off TOOLS, apart */
-        const p = spreadPoint(item, layout, 1);
+        /* at the start: inside the screen, off TOOLS */
+        const p = spreadPoint(item, layout, 0);
 
-        if (!insideArea(p, item)) {
+        if (!insideArea(p, item) || onTitle(p, item)) {
           continue;
         }
 
-        if (p.x + item.w / 2 > title.left && p.x - item.w / 2 < title.right &&
-            p.y + item.h / 2 > title.top && p.y - item.h / 2 < title.bottom) {
-          continue;
-        }
-
-        const apart = scales.every(
-          (s) => {
-            const a = spreadPoint(item, layout, s);
-            return placed.every(
-              (other) => {
-                const b = spreadPoint(other, layout, s);
-                return Math.abs(a.x - b.x) >= (item.w + other.w) / 2 + gap ||
-                       Math.abs(a.y - b.y) >= (item.h + other.h) / 2 + gap;
-              }
-            );
+        /* apart from the others all the way, each with its speed */
+        const apart = steps.every(
+          (t) => {
+            const a = spreadPoint(item, layout, t);
+            return !onTitle(a, item) &&
+              placed.every((other) => apartFrom(a, item, spreadPoint(other, layout, t), other));
           }
         );
 
@@ -3340,7 +3375,7 @@
         }
 
         /* best: still inside the screen at the full spread */
-        if (insideArea(spreadPoint(item, layout, spreadScale), item)) {
+        if (insideArea(spreadPoint(item, layout, 1), item)) {
           found = true;
         }
         else if (!fallback) {
@@ -3363,8 +3398,8 @@
 
     }
 
-    /* one common spread for all labels: as wanted, or less if
-       some label would leave the screen or go under the header */
+    /* 1) one common spread: as wanted, or less if a label at its
+       middle speed would leave the screen or go under the header */
     let spread = spreadScale;
 
     placed.forEach(
@@ -3379,10 +3414,49 @@
     );
 
     layout.spread = Math.max(1, spread);
-    layout.spreadCut = layout.spread < spreadScale;
 
-    if (layout.spreadCut) {
-      console.warn("TOOLS: spread cut to", layout.spread.toFixed(3), "to stay on screen");
+    /* 2) the whole movement with the own speeds: nothing touches
+       another label, TOOLS, the header or the screen edge */
+    const allClear = () =>
+      steps.every(
+        (t) => placed.every(
+          (item, i) => {
+            const a = spreadPoint(item, layout, t);
+            return insideArea(a, item) && !onTitle(a, item) &&
+              placed.every((other, j) => j <= i || apartFrom(a, item, spreadPoint(other, layout, t), other));
+          }
+        )
+      );
+
+    /* if not, the range of speeds is narrowed step by step,
+       and as the last resort the common spread too */
+    let narrowed = false;
+
+    while (!allClear() && layout.variation > 0) {
+      layout.variation = Math.max(0, +(layout.variation - 0.01).toFixed(2));
+      narrowed = true;
+    }
+
+    for (let k = 0; k < 40 && !allClear() && layout.spread > 1; k++) {
+      layout.spread = 1 + (layout.spread - 1) * 0.9;
+      narrowed = true;
+    }
+
+    const low = 1 + (layout.spread - 1) * (1 - layout.variation);
+    const high = 1 + (layout.spread - 1) * (1 + layout.variation);
+    const report =
+      `TOOLS ${width}×${height}: label speeds ${low.toFixed(4)}…${high.toFixed(4)}` +
+      ` (spread ${layout.spread.toFixed(4)}, variation ${layout.variation.toFixed(2)})`;
+
+    if (narrowed || layout.spread < spreadScale) {
+      console.warn(report + " – narrowed to stay clear");
+    }
+    else {
+      console.info(report);
+    }
+
+    if (!allClear()) {
+      console.warn("TOOLS: labels still touch at the start, change seed or cloud");
     }
 
     layout.items = placed.sort((a, b) => a.index - b.index);
@@ -3405,56 +3479,43 @@
   document.fonts.ready.then(layoutTools);
 
 
-  function updateTools(toolsTime) {
+  /*
+    toolsTime – time inside the TOOLS part (old timeline units)
+    pastEnd   – px scrolled past the end of the section
+                (below 0 while the scene is still pinned)
+  */
+  function updateTools(toolsTime, pastEnd) {
 
-    const phases =
-      TOOLS_PHASES.map((h) => h / 6);
-
-    const stepOf = (n) => {
-      const start = phases.slice(0, n).reduce((s, p) => s + p, 0);
-      return clamp((toolsTime - start) / phases[n], 0, 1);
-    };
-
-    const comeIn = smoothstep(stepOf(0));
-    const spreadTime = stepOf(2);
-    const leave = smoothstep(stepOf(3));
-
-    /* the labels appear all at once at this point of the scroll */
-    const appearAt =
-      phases[0] + TOOLS_SETTINGS.appearAt * phases[1];
+    const comeIn =
+      smoothstep(clamp(toolsTime / (TOOLS_COME_IN / 6), 0, 1));
 
     const height = window.innerHeight;
     const titleH = toolsLabel.offsetHeight;
+    const { exitSpeed } = TOOLS_SETTINGS;
 
-    const scale =
-      toolsLayout ? lerp(1, toolsLayout.spread, spreadTime) : 1;
+    /* after the section ends the page moves the scene up by
+       itself; exitSpeed adds (or takes away) extra movement */
+    const exit = Math.max(0, pastEnd);
+    const extraY = (exitSpeed - 1) * exit;
 
-    /* how far everything has to go up to be under the header */
-    let lowest = height / 2 + titleH / 2;
-
-    if (toolsLayout) {
-      toolsLayout.items.forEach(
-        (item) => {
-          lowest = Math.max(lowest, spreadPoint(item, toolsLayout, scale).y + item.h / 2);
-        }
-      );
-    }
-
-    const leaveY = leave * (lowest + 20);
+    /* the cloud grows evenly until it has left the screen */
+    const spreadTime = clamp(exit * exitSpeed / height, 0, 1);
+    const gone = exit * exitSpeed >= height;
 
 
-    /* TOOLS: from below to the centre, stays there, then leaves */
+    /* TOOLS: from below to the centre, then up with the page */
     const titleTop =
-      lerp(height + 3, height / 2 - titleH / 2, comeIn) - leaveY;
+      lerp(height + 3, height / 2 - titleH / 2, comeIn) - extraY;
 
     toolsLabel.style.top = `${titleTop}px`;
     toolsLabel.style.visibility =
-      toolsTime > 0 && leave < 1 ? "visible" : "hidden";
+      toolsTime > 0 && !gone ? "visible" : "hidden";
 
 
-    /* the cloud: all labels switch on together */
+    /* the cloud: all labels switch on together when TOOLS
+       has arrived, i.e. at the end of the section */
     const cloudOn =
-      toolsTime > appearAt && leave < 1 && toolsLayout;
+      pastEnd > -0.5 && !gone && toolsLayout;
 
     if (!cloudOn) {
 
@@ -3472,11 +3533,11 @@
       (item) => {
 
         const button = toolButtons[item.index];
-        const p = spreadPoint(item, toolsLayout, scale);
+        const p = spreadPoint(item, toolsLayout, spreadTime);
 
         button.style.visibility = "visible";
         button.style.transform =
-          `translate(${p.x - item.w / 2}px, ${p.y - leaveY - item.h / 2}px)`;
+          `translate(${p.x - item.w / 2}px, ${p.y - extraY - item.h / 2}px)`;
 
       }
     );
