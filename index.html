@@ -589,6 +589,13 @@
       width: 320px;
       max-width: calc(100vw - 32px);
 
+      /* never taller than the screen under the header
+         (64px header + 16px edge above and below);
+         a longer text scrolls inside the window */
+      max-height: calc(100vh - 96px);
+      overflow-y: auto;
+      overscroll-behavior: contain;
+
       padding: 16px;
 
       border: 1px solid #000;
@@ -635,6 +642,11 @@
       width: auto;
       max-width: none;
 
+      /* at most 45 % of the screen height, the rest
+         scrolls inside the panel (not the page) */
+      max-height: 45vh;
+      max-height: 45svh;
+
       border-width: 1px 0 0;
     }
 
@@ -642,14 +654,6 @@
 
       .tools-label {
         font-size: 26px;
-      }
-
-      /* long names may wrap to two lines */
-      .tool-label {
-        max-width: 160px;
-
-        white-space: normal;
-        text-align: center;
       }
 
     }
@@ -1177,24 +1181,26 @@
   */
 
   const TOOLS = [
-    { platform: "AUTOCAD",  label: "Source Data Cleanup",                               description: "Removes unnecessary data from the source file and leaves a clean foundation for the project." },
-    { platform: "AUTOCAD",  label: "Automated Constraints Diagram",                     description: "Brings site constraints into a single diagram, so the project starts within the actual limits of the site." },
-    { platform: "AUTOCAD",  label: "Semi-Automated Fire Access Generation (SP / STU)",  description: "Generates fire access routes based on specified regulatory conditions, reducing repetitive trial and error." },
-    { platform: "AUTOCAD",  label: "Schedules",                                         description: "Turns project geometry into ready-to-use schedules — without manual counting or data re-entry." },
-    { platform: "AUTOCAD",  label: "SketchUp Export",                                   description: "Transfers the prepared AutoCAD file to SketchUp without repeated manual preparation." },
-    { platform: "AUTOCAD",  label: "Automatic Tagging",                                 description: "Automatically tags project elements while keeping the labels linked to their objects." },
-    { platform: "AUTOCAD",  label: "Paving Generator Feedback from SketchUp",           description: "Changes made to paving in SketchUp flow back into AutoCAD, turning two tools into one connected system." },
-    { platform: "AUTOCAD",  label: "Planting Mix Generator Feedback from SketchUp",     description: "Change planting mixes in SketchUp — the data automatically flows back into the working documentation." },
-    { platform: "AUTOCAD",  label: "Pavement Assembly Generator",                       description: "The tag becomes a control interface: change a layer thickness in the text, and the construction redraws itself automatically." },
-    { platform: "SKETCHUP", label: "Sunlight Analysis — Sun Hours",                     description: "Shows how much sunlight a space receives throughout the year." },
-    { platform: "SKETCHUP", label: "Sunlight Analysis — Shadow Envelope",               description: "Builds a spatial shadow envelope to quickly reveal how shadows affect the site." },
-    { platform: "SKETCHUP", label: "Lighting Diagram",                                  description: "Turns complex lighting calculations into a clear spatial diagram." },
-    { platform: "SKETCHUP", label: "2D → 3D",                                           description: "Turns flat project information into a working three-dimensional model." },
-    { platform: "SKETCHUP", label: "Terrain Generator",                                 description: "Creates terrain from defined parameters — from a simple mound to complex spatial geometry." },
-    { platform: "SKETCHUP", label: "Paving & Pattern Generator",                        description: "Generates paving from rules rather than manual placement — change parameters instead of hundreds of individual elements." },
-    { platform: "SKETCHUP", label: "Style Generator",                                   description: "Creates finished graphic output directly in SketchUp — without exporting to Illustrator or manually processing the drawing." },
-    { platform: "INDESIGN", label: "Automatic Cost Estimate Import from AutoCAD",       description: "Brings up-to-date data from AutoCAD directly into the presentation, eliminating manual table updates." },
-    { platform: "INDESIGN", label: "Automatic Bloom Calendars",                         description: "Builds flowering calendars from project data and turns them into ready-to-use presentation graphics." }
+    { platform: "AUTOCAD",  label: "Source Data Cleanup",              description: "Organizes and sorts information from source data files into layers, assembling a clean working base for the project with a configurable set of xrefs." },
+    { platform: "AUTOCAD",  label: "Constraints Plan",                 description: "Automatically compiles site constraints into a single plan with customizable graphics and layers. Highlights violations as you design." },
+    { platform: "AUTOCAD",  label: "Fire Access Roads",                description: "A semi-automatic generator of fire access roads per SP (Set of Rules) and STU (Special Technical Specifications). Observes required setbacks from buildings, connects to the existing or planned road network, and automatically generates turning radii, pads, and centerlines." },
+    { platform: "AUTOCAD",  label: "Schedules",                        description: "Turn design blocks, lines, and hatches into ready-made schedules, with no manual counting or retyping of data." },
+    { platform: "AUTOCAD",  label: "DWG to SketchUp",                  description: "Automatically prepares DWG files for transfer to SketchUp, with no manual preparation or post-processing." },
+    { platform: "AUTOCAD",  label: "Tagging",                          description: "Automatically places element tags and keeps them linked to objects and schedules." },
+    { platform: "AUTOCAD",  label: "Paving from SketchUp to AutoCAD",  description: "Paving changes made in SketchUp flow back into AutoCAD, turning two tools into a single system. Especially handy for layouts and schedules." },
+    { platform: "AUTOCAD",  label: "Mixes from SketchUp",              description: "Edit planting mixes in SketchUp, and the data flows back into AutoCAD as a planting plan." },
+    { platform: "AUTOCAD",  label: "Pavement Build-Up Generator",      description: "A customizable library of pavement build-ups. The callout becomes the control: change a layer's thickness in the text, and the section redraws automatically." },
+    { platform: "SKETCHUP", label: "Sun Hours",                        description: "Shows how much sunlight a space receives throughout the day for a given location and date. Legend colors can be customized to match your palette." },
+    { platform: "SKETCHUP", label: "Shadow Envelope",                  description: "Generates a shadow envelope over a specified time interval. Legend colors can be customized to match your palette." },
+    { platform: "SKETCHUP", label: "Lighting Analysis",                description: "Speeds up lighting analysis at early design stages by showing illuminance levels and the number of fixtures required." },
+    { platform: "SKETCHUP", label: "2D → 3D",                          description: "Turns flat design information into a working 3D model. Also lets you add elements from the library right inside SketchUp." },
+    { platform: "SKETCHUP", label: "Shovel",                           description: "Places CUT2 plants across surfaces and hills in one click." },
+    { platform: "SKETCHUP", label: "Plant Light Exposure",             description: "Checks the light exposure of a specific CUT2 plant, highlighting it according to its needs. Every plant is evaluated against its own requirements. Legend colors can be customized to match your palette." },
+    { platform: "SKETCHUP", label: "Hill Generator",                   description: "Creates smooth, lightweight terrain geometry from the parameters you set. Up to 30 hills in one click, in seconds." },
+    { platform: "SKETCHUP", label: "Pattern Generator",                description: "Generates paving, decking, and other layouts by rules rather than by hand: change parameters, not hundreds of individual elements." },
+    { platform: "SKETCHUP", label: "Styles",                           description: "Creates a ready-made graphic presentation directly in SketchUp, with no export to Illustrator and no manual graphic processing. Ready-made presets can be adjusted and customized." },
+    { platform: "INDESIGN", label: "Schedule Transfer",                description: "Brings schedules from AutoCAD straight into your presentation and updates them when the source data changes. Customizable presentation styles." },
+    { platform: "INDESIGN", label: "Bloom Calendar",                   description: "Automatically builds a bloom calendar from project data and turns it into ready-to-use presentation graphics." }
   ];
 
 
