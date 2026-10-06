@@ -815,10 +815,15 @@
 
     /* never taller than the screen under the header, so the
        whole video and its controls fit; on short screens the
-       16:9 picture gets black side bars */
+       picture gets black side bars */
     .video-frame {
       width: 100%;
-      aspect-ratio: 16 / 9;
+
+      /* the shape of the video; the script takes it from
+         VIDEO_SETTINGS.aspect (the value here is the same,
+         it only keeps the space reserved until the script
+         runs, so the page does not jump) */
+      aspect-ratio: var(--video-aspect, 1760 / 1036);
       max-height: calc(100vh - 64px);
 
       background: #000;
@@ -1869,26 +1874,49 @@
   ================================================== */
 
   /*
-    videoSrc          path to the mp4 file, e.g.
-                      "assets/video/demo.mp4"; empty = a black
-                      box with "DEMO COMING SOON"
-    posterSrc         picture shown before the video starts
-                      (empty = none)
+    Texts and files that depend on the language are written as
+    { en: "…", ru: "…" }. videoLang chooses which one the page
+    shows now; later the EN / RU switch will change only this
+    parameter. Only the chosen language is used: the other
+    video file is never downloaded.
+
+    videoSrc          path to the mp4 file for each language
+                      (empty = a black box with the "coming
+                      soon" text)
+    posterSrc         picture shown before the video starts, the
+                      same for both languages (empty = none)
+    aspect            width and height of the video in pixels;
+                      only their proportion matters. It reserves
+                      the right space on the page, so nothing
+                      jumps while the video loads. Change it if
+                      you replace the video with another shape.
     videoLabel        what the video is, for screen readers
-    caption           small text under the video
-    fullVersionHref   address of the long version (opens in a
-                      new tab); empty = the link is shown as not
-                      available yet
+    caption           small text under the video, per language
+                      (empty = nothing)
+    fullVersionHref   address of the long version for each
+                      language (opens in a new tab); empty = the
+                      link is shown as not available yet
     fullVersionLabel  text of that link
     comingSoon...     texts used while something is empty
   */
 
   const VIDEO_SETTINGS = {
-    videoSrc: "",
-    posterSrc: "",
-    videoLabel: "Short demo of the CUT2 plugins for SketchUp",
-    caption: "SKETCHUP PLUGINS · MVP",
-    fullVersionHref: "",
+    videoLang: "en",
+    videoSrc: {
+      en: "assets/video/demo-en.mp4",
+      ru: "assets/video/demo-ru.mp4"
+    },
+    posterSrc: "assets/video/demo-poster.jpg",
+    aspect: { width: 1760, height: 1036 },
+    videoLabel: "Demo of CUT2 plugins for SketchUp",
+    caption: {
+      en: "SKETCHUP PLUGINS · MVP",
+      ru: ""
+    },
+    fullVersionHref: {
+      en: "",
+      ru: ""
+    },
     fullVersionLabel: "WATCH FULL VERSION →",
     comingSoonVideo: "DEMO COMING SOON",
     comingSoonFullVersion: "FULL VERSION COMING SOON"
@@ -4432,14 +4460,28 @@
     const frame = document.getElementById("videoFrame");
     const link = document.getElementById("videoFullLink");
 
-    document.getElementById("videoCaption").textContent =
-      VIDEO_SETTINGS.caption;
+    /* the value for the chosen language */
+    const lang = VIDEO_SETTINGS.videoLang;
+    const pick = (value) =>
+      value && typeof value === "object" ? value[lang] : value;
 
-    if (VIDEO_SETTINGS.videoSrc) {
+    const videoSrc = pick(VIDEO_SETTINGS.videoSrc);
+    const fullHref = pick(VIDEO_SETTINGS.fullVersionHref);
+
+    /* the shape of the frame (and of the "coming soon" box) */
+    document.documentElement.style.setProperty(
+      "--video-aspect",
+      `${VIDEO_SETTINGS.aspect.width} / ${VIDEO_SETTINGS.aspect.height}`
+    );
+
+    document.getElementById("videoCaption").textContent =
+      pick(VIDEO_SETTINGS.caption) || "";
+
+    if (videoSrc) {
 
       const video = document.createElement("video");
 
-      video.src = VIDEO_SETTINGS.videoSrc;
+      video.src = videoSrc;
       video.controls = true;
       video.playsInline = true;
       video.preload = "metadata";
@@ -4465,9 +4507,9 @@
 
     }
 
-    if (VIDEO_SETTINGS.fullVersionHref) {
+    if (fullHref) {
 
-      link.href = VIDEO_SETTINGS.fullVersionHref;
+      link.href = fullHref;
       link.target = "_blank";
       link.rel = "noopener";
       link.textContent = VIDEO_SETTINGS.fullVersionLabel;
