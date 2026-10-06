@@ -870,6 +870,45 @@
       border: 1px solid transparent;
     }
 
+    /* ==================================================
+       CONTACT
+    ================================================== */
+
+    .contact-intro {
+      margin: 0 0 28px;
+    }
+
+    .contact-list {
+      margin: 0;
+      padding: 0;
+
+      list-style: none;
+
+      border-bottom: 1px solid #000;
+    }
+
+    /* label ……… value */
+    .contact-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+
+      gap: 12px;
+
+      padding: 18px 0;
+
+      border-top: 1px solid #000;
+    }
+
+    .contact-value {
+      overflow-wrap: anywhere;
+    }
+
+    .contact-empty {
+      margin: 0;
+    }
+
+
     /* gets the focus after the click only to keep the
        keyboard in place; no ring needed on plain text */
     .access-message:focus {
@@ -1007,6 +1046,10 @@
 
       .access-message {
         padding: 8px 0;
+      }
+
+      .contact-intro {
+        margin-bottom: 20px;
       }
 
       /* after the click: the message gets its own line
@@ -1356,6 +1399,24 @@
   </section>
 
 
+  <!-- ==================================================
+       CONTACT (filled from CONTACT_SETTINGS)
+  ================================================== -->
+
+  <section
+    class="page-section"
+    aria-labelledby="contactTitle"
+  >
+
+    <h2 class="section-title" id="contactTitle">CONTACT</h2>
+
+    <p class="contact-intro section-small" id="contactIntro"></p>
+
+    <div id="contactBody"></div>
+
+  </section>
+
+
 </main>
 
 
@@ -1669,6 +1730,33 @@
 
   const ACCESS_MESSAGE =
     "NOT AVAILABLE YET — THANK YOU FOR YOUR INTEREST.";
+
+
+  /* ==================================================
+     SETTINGS: CONTACT
+     (safe to tweak)
+  ================================================== */
+
+  /*
+    CONTACT_INTRO   small line under the CONTACT title
+    CONTACT_SETTINGS  one row per contact:
+      label   small name on the left, e.g. "EMAIL"
+      value   what is shown on the right, e.g. the address
+      href    where it leads: "mailto:…" for e-mail, a full
+              address "https://…" for anything else (opens in
+              a new tab). An e-mail value with an empty href
+              becomes a mailto link by itself.
+    Only rows with a value are shown. With no rows at all
+    the section says CONTACT_EMPTY.
+  */
+
+  const CONTACT_INTRO =
+    "CUT2 IS AN INDEPENDENT R&D PROJECT BY ANTON.";
+
+  const CONTACT_SETTINGS = [];
+
+  const CONTACT_EMPTY =
+    "CONTACTS COMING SOON";
 
 
   /* ==================================================
@@ -4245,6 +4333,84 @@
   }
 
   buildAccess();
+
+
+  /* ==================================================
+     CONTACT: rows from CONTACT_SETTINGS
+  ================================================== */
+
+  function buildContact() {
+
+    const body = document.getElementById("contactBody");
+
+    document.getElementById("contactIntro").textContent =
+      CONTACT_INTRO;
+
+    const rows =
+      CONTACT_SETTINGS.filter((row) => row.value && row.value.trim());
+
+    if (!rows.length) {
+
+      const empty = document.createElement("p");
+      empty.className = "contact-empty section-small";
+      empty.textContent = CONTACT_EMPTY;
+
+      body.appendChild(empty);
+      return;
+
+    }
+
+    const list = document.createElement("ul");
+    list.className = "contact-list";
+
+    rows.forEach(
+      (row) => {
+
+        const item = document.createElement("li");
+        item.className = "contact-row section-small";
+
+        const label = document.createElement("span");
+        label.textContent = row.label || "";
+
+        let href = (row.href || "").trim();
+
+        if (!href && /^[^\s@]+@[^\s@]+$/.test(row.value.trim())) {
+          href = "mailto:" + row.value.trim();
+        }
+
+        let value;
+
+        if (href) {
+
+          value = document.createElement("a");
+          value.className = "text-link";
+          value.href = href;
+
+          if (!href.startsWith("mailto:")) {
+            value.target = "_blank";
+            value.rel = "noopener";
+          }
+
+        }
+
+        else {
+          value = document.createElement("span");
+        }
+
+        value.classList.add("contact-value");
+        value.textContent = row.value;
+
+        item.append(label, value);
+        list.appendChild(item);
+
+      }
+    );
+
+    body.appendChild(list);
+
+  }
+
+  buildContact();
 
 
   updateAnimation();
