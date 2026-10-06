@@ -791,6 +791,93 @@
 
 
     /* ==================================================
+       ACCESS
+    ================================================== */
+
+    .access-list {
+      margin: 0;
+      padding: 0;
+
+      list-style: none;
+
+      border-bottom: 1px solid #000;
+    }
+
+    /* icon · name · status ……… button */
+    .access-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+
+      gap: 12px;
+
+      padding: 18px 0;
+
+      border-top: 1px solid #000;
+    }
+
+    .access-icon {
+      flex: none;
+
+      width: 24px;
+      height: 24px;
+
+      object-fit: contain;
+    }
+
+    .access-name-block {
+      display: flex;
+      align-items: baseline;
+
+      gap: 28px;
+    }
+
+    .access-status {
+      font-size: 10px;
+    }
+
+    .access-action {
+      margin-left: auto;
+
+      text-align: right;
+    }
+
+    .access-button {
+      margin: 0;
+      padding: 12px 16px;
+
+      border: 1px solid #000;
+      border-radius: 0;
+      background: none;
+      color: #000;
+
+      font-family: inherit;
+
+      cursor: pointer;
+    }
+
+    .access-button:hover {
+      background: #000;
+      color: #f3f0e8;
+    }
+
+    /* same height as the button (same padding, invisible
+       border), so the row does not jump after the click */
+    .access-message {
+      margin: 0;
+      padding: 12px 0;
+
+      border: 1px solid transparent;
+    }
+
+    /* gets the focus after the click only to keep the
+       keyboard in place; no ring needed on plain text */
+    .access-message:focus {
+      outline: none;
+    }
+
+
+    /* ==================================================
        MOBILE
     ================================================== */
 
@@ -905,6 +992,31 @@
 
       .video-frame {
         max-height: calc(100svh - 52px);
+      }
+
+      /* name with the status under it */
+      .access-name-block {
+        flex-direction: column;
+
+        gap: 0;
+      }
+
+      .access-button {
+        padding: 8px 12px;
+      }
+
+      .access-message {
+        padding: 8px 0;
+      }
+
+      /* after the click: the message gets its own line
+         under the name (24px icon + 12px gap in front) */
+      .access-action.is-done {
+        flex-basis: 100%;
+
+        padding-left: 36px;
+
+        text-align: left;
       }
 
       .video-frame video {
@@ -1228,6 +1340,22 @@
   </section>
 
 
+  <!-- ==================================================
+       ACCESS (rows built from ACCESS_SETTINGS)
+  ================================================== -->
+
+  <section
+    class="page-section"
+    aria-labelledby="accessTitle"
+  >
+
+    <h2 class="section-title" id="accessTitle">ACCESS</h2>
+
+    <ul class="access-list" id="accessList"></ul>
+
+  </section>
+
+
 </main>
 
 
@@ -1457,6 +1585,90 @@
     closeOnScroll: 10
 
   };
+
+
+  /* ==================================================
+     INTEREST: one place that reports a click on
+     REQUEST ACCESS
+  ================================================== */
+
+  /*
+    trackInterest("SKETCHUP") is called once per platform
+    when someone presses REQUEST ACCESS. Nothing is
+    downloaded and nothing is stored here. It:
+      1) sends the page event "cut2:interest" with the
+         platform, so any script can listen to it;
+      2) if a visitor counter is already on the page
+         (GoatCounter, Plausible or Yandex Metrika), also
+         tells it, as a goal named goalPrefix + platform in
+         small letters: interest-autocad, interest-sketchup,
+         interest-indesign. If there is no counter, nothing
+         happens and nothing breaks.
+    metrikaCounterId: the number of a Yandex Metrika counter,
+    only needed for Metrika (empty = Metrika is not used).
+  */
+
+  const INTEREST_SETTINGS = {
+    goalPrefix: "interest-",
+    metrikaCounterId: ""
+  };
+
+  function trackInterest(platform) {
+
+    const goal =
+      INTEREST_SETTINGS.goalPrefix + platform.toLowerCase();
+
+    window.dispatchEvent(
+      new CustomEvent("cut2:interest", { detail: { platform } })
+    );
+
+    try {
+
+      if (window.goatcounter && typeof window.goatcounter.count === "function") {
+        window.goatcounter.count({ path: goal, title: goal, event: true });
+      }
+
+      if (typeof window.plausible === "function") {
+        window.plausible(goal);
+      }
+
+      if (typeof window.ym === "function" && INTEREST_SETTINGS.metrikaCounterId) {
+        window.ym(INTEREST_SETTINGS.metrikaCounterId, "reachGoal", goal);
+      }
+
+    }
+
+    catch (error) {
+      console.warn("trackInterest: counter error", error);
+    }
+
+  }
+
+
+  /* ==================================================
+     SETTINGS: ACCESS
+     (safe to tweak)
+  ================================================== */
+
+  /*
+    One row per platform, in this order.
+    platform     "AUTOCAD" / "SKETCHUP" / "INDESIGN"
+                 (name and icon)
+    status       small text next to the name
+    buttonLabel  text on the button
+    ACCESS_MESSAGE replaces the button after the click.
+    It must not promise anything (no counter is connected
+    yet, no e-mails are sent).
+  */
+
+  const ACCESS_SETTINGS = [
+    { platform: "AUTOCAD",  status: "COMING SOON", buttonLabel: "REQUEST ACCESS" },
+    { platform: "SKETCHUP", status: "MVP",         buttonLabel: "REQUEST ACCESS" },
+    { platform: "INDESIGN", status: "COMING SOON", buttonLabel: "REQUEST ACCESS" }
+  ];
+
+  const ACCESS_MESSAGE =
+    "NOT AVAILABLE YET — THANK YOU FOR YOUR INTEREST.";
 
 
   /* ==================================================
@@ -3951,6 +4163,88 @@
   }
 
   buildVideo();
+
+
+  /* ==================================================
+     ACCESS: rows from ACCESS_SETTINGS
+  ================================================== */
+
+  /* platforms already requested in this visit of the
+     page: trackInterest is called only once for each */
+  const requestedPlatforms = new Set();
+
+  function buildAccess() {
+
+    const list = document.getElementById("accessList");
+
+    ACCESS_SETTINGS.forEach(
+      (row) => {
+
+        const item = document.createElement("li");
+        item.className = "access-row";
+
+        const icon = document.createElement("img");
+        icon.className = "access-icon";
+        icon.src = TOOL_ICONS[row.platform];
+        icon.alt = "";
+
+        const names = document.createElement("div");
+        names.className = "access-name-block";
+
+        const name = document.createElement("span");
+        name.className = "section-small";
+        name.textContent = row.platform;
+
+        const status = document.createElement("span");
+        status.className = "section-small access-status";
+        status.textContent = row.status;
+
+        names.append(name, status);
+
+        /* screen readers announce what appears here */
+        const action = document.createElement("div");
+        action.className = "access-action";
+        action.setAttribute("aria-live", "polite");
+
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "access-button section-small";
+        button.textContent = row.buttonLabel;
+        button.setAttribute("aria-label", row.buttonLabel + ": " + row.platform);
+
+        button.addEventListener(
+          "click",
+          () => {
+
+            if (!requestedPlatforms.has(row.platform)) {
+              requestedPlatforms.add(row.platform);
+              trackInterest(row.platform);
+            }
+
+            const message = document.createElement("p");
+            message.className = "access-message section-small";
+            message.textContent = ACCESS_MESSAGE;
+            message.tabIndex = -1;
+
+            action.classList.add("is-done");
+            action.replaceChildren(message);
+
+            /* keep the keyboard in the same place */
+            message.focus({ preventScroll: true });
+
+          }
+        );
+
+        action.appendChild(button);
+        item.append(icon, names, action);
+        list.appendChild(item);
+
+      }
+    );
+
+  }
+
+  buildAccess();
 
 
   updateAnimation();
