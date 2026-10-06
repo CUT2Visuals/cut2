@@ -148,7 +148,13 @@
       font-weight: 400;
     }
 
-    /* language button on the right: looks like plain text */
+    /*
+      Language button on the right: plain text that looks exactly
+      like the logo on the left (same size, weight, line height and
+      letter spacing, on desktop and on phone). It has no hover
+      effect and no animation; it only changes its text when the
+      language changes.
+    */
     .lang-button {
       /* the touch area is bigger than the text (at least 44px
          high, 12px wider on each side); the negative margin
@@ -166,21 +172,19 @@
       background: none;
       color: #000;
 
+      /* the same as .logo */
       font-family: inherit;
-      font-size: 12px;
+      font-size: 16px;
       font-weight: 400;
       line-height: normal;
-
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
+      letter-spacing: normal;
+      text-transform: none;
 
       cursor: pointer;
-    }
 
-    .lang-button:hover {
-      text-decoration: underline;
-      text-decoration-thickness: 1px;
-      text-underline-offset: 3px;
+      /* no animation, no grey flash when tapped on iPhone */
+      transition: none;
+      -webkit-tap-highlight-color: transparent;
     }
 
     .lang-button:focus {
@@ -1108,10 +1112,6 @@
       header {
         height: 52px;
         padding: 0 16px;
-      }
-
-      .lang-button {
-        font-size: 10px;
       }
 
       .lang-hint {
