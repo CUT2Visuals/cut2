@@ -1871,7 +1871,23 @@
                       write a number here instead of null.
 
       After the second stop the scene goes up with the page and
-      the cloud leaves under the header (exitSpeed below).
+      the cloud leaves under the header (exitSpeed below). While
+      it goes up, the labels keep drifting outwards, only softer:
+
+        exitDriftStart  how fast they drift at the start of the
+                        exit, as a part of their speed in the
+                        burst (0.5 = half as fast)
+        exitDriftEnd    the same at the end of the exit (0.2);
+                        in between it fades evenly, never to zero
+        exitDriftRamp   how much scrolling it takes the drift to
+                        get up to speed when the scene starts to
+                        move (so there is no jerk), in screen
+                        heights
+
+      Each label drifts with its own speed (spreadVariation), and
+      sideways each one stops softly at its own side margin
+      (margin below), depending on its own width; up and down
+      there is no limit, the labels leave the scene anyway.
 
       The height of the whole scene section is worked out from
       these numbers by the script (nothing to change in CSS; the
@@ -1880,8 +1896,8 @@
       default settings, see .asset-system).
     */
     timing: {
-      desktop: { comeIn: 0.4, hold: 0.4, spreadScroll: 0.5, holdAfter: null },
-      phone:   { comeIn: 0.5, hold: 0.5, spreadScroll: 0.6, holdAfter: null }
+      desktop: { comeIn: 0.4, hold: 0.4, spreadScroll: 0.5, holdAfter: null, exitDriftStart: 0.5, exitDriftEnd: 0.2, exitDriftRamp: 0.15 },
+      phone:   { comeIn: 0.5, hold: 0.5, spreadScroll: 0.6, holdAfter: null, exitDriftStart: 0.5, exitDriftEnd: 0.2, exitDriftRamp: 0.15 }
     },
 
     /* label size: copied from the captions under the
@@ -4142,7 +4158,14 @@
         startPx: toolsStartPx,
         comeLen: toolsComeLen,
         appearPx: toolsAppearPx,
-        spreadLen: toolsSpreadLen
+        spreadLen: toolsSpreadLen,
+        drift: {
+          spreadLen: toolsSpreadLen,
+          start: toolsTiming.exitDriftStart,
+          end: toolsTiming.exitDriftEnd,
+          length: stageH,
+          rampLen: toolsTiming.exitDriftRamp * stageH
+        }
       }
     );
 
@@ -4242,6 +4265,106 @@
       x: layout.cx + (item.x - layout.cx) * scale,
       y: layout.cy + (item.y - layout.cy) * scale
     };
+
+  }
+
+
+  /*
+    How far the drift has gone after "e" px of the exit, in px of
+    "burst scrolling": the drift speed is
+      ramp(e) × (start + (end − start) × e / length)
+    of the burst speed, where ramp goes smoothly from 0 to 1 over
+    the first rampLen px (so the labels start moving gently when
+    the scene starts to move). This is that speed added up (an
+    exact formula, so the positions are smooth and the same in
+    both scroll directions).
+  */
+  function exitDriftAmount(e, start, end, length, rampLen) {
+
+    if (e <= 0) {
+      return 0;
+    }
+
+    const m = (end - start) / length;
+
+    /* inside the ramp: speed = smoothstep(x / R) × (start + m·x) */
+    const inRamp = (x) => {
+      const u = x / rampLen;
+      return rampLen * (
+        start * (u * u * u - u * u * u * u / 2) +
+        m * rampLen * (3 * u * u * u * u / 4 - 2 * u * u * u * u * u / 5)
+      );
+    };
+
+    if (e <= rampLen) {
+      return inRamp(e);
+    }
+
+    return inRamp(rampLen) +
+      start * (e - rampLen) +
+      m * (e * e - rampLen * rampLen) / 2;
+
+  }
+
+
+  /*
+    Sideways a drifting label must not go past its own margin.
+    d is how far it would go, room how far it may go: it moves
+    freely, and in the last "soft" px it slows down smoothly and
+    stops at the margin (no sudden stop).
+  */
+  function softLimit(d, room) {
+
+    if (room <= 0.01) {
+      return 0;
+    }
+
+    const soft = Math.min(room, 24);
+    const free = room - soft;
+
+    if (d <= free) {
+      return d;
+    }
+
+    return free + soft * Math.tanh((d - free) / soft);
+
+  }
+
+
+  /* where a label is "e" px into the exit (the end of the burst
+     plus the drift) */
+  function exitPoint(item, layout, e, drift) {
+
+    const end = spreadPoint(item, layout, 1);
+
+    if (e <= 0) {
+      return end;
+    }
+
+    /* the burst speed of this label, in "scale" per px */
+    const rate =
+      (layout.spread - 1) * (1 + layout.variation * item.speed) / drift.spreadLen;
+
+    const extra =
+      rate * exitDriftAmount(e, drift.start, drift.end, drift.length, drift.rampLen);
+
+    /* sideways: up to this label's own margin */
+    const dx = (item.x - layout.cx) * extra;
+    const room = dx >= 0
+      ? layout.right - item.w / 2 - end.x
+      : end.x - (layout.left + item.w / 2);
+
+    const side = softLimit(Math.abs(dx), Math.max(0, room));
+    const x = end.x + Math.sign(dx) * side;
+
+    /* up and down: free. The part of the drift that the margin
+       holds back sideways goes up or down instead (away from
+       TOOLS), so a label at its margin keeps floating */
+    const blocked = Math.abs(dx) - side;
+    const away = item.y >= layout.cy ? 1 : -1;
+    const y = end.y + (item.y - layout.cy) * extra + away * blocked;
+
+    return { x, y };
 
   }
 
@@ -4505,6 +4628,11 @@
     }
 
     layout.items = placed.sort((a, b) => a.index - b.index);
+
+    /* the side margins, for the drift while the scene leaves */
+    layout.left = area.left;
+    layout.right = area.right;
+
     toolsLayout = layout;
 
   }
@@ -4593,7 +4721,12 @@
       (item) => {
 
         const button = toolButtons[item.index];
-        const p = spreadPoint(item, toolsLayout, spreadTime);
+
+        /* before the exit: the burst (and the stop after it);
+           on the exit: the end of the burst plus the drift */
+        const p = exit > 0
+          ? exitPoint(item, toolsLayout, exit, tl.drift)
+          : spreadPoint(item, toolsLayout, spreadTime);
 
         button.style.visibility = "visible";
         button.style.transform =
