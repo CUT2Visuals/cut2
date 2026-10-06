@@ -663,17 +663,19 @@
        SECTIONS AFTER THE SCENE (normal scrolling)
     ================================================== */
 
-    /* line on top, side space as in the header,
-       space above and below = header height */
+    /* no lines: the space above and below (= header
+       height, so 128px between two sections) keeps them
+       apart; side space as in the header */
     .page-section {
-      border-top: 1px solid #000;
-
       padding: 64px 28px;
     }
 
-    /* the same size as TOOLS and the other big words */
+    /* the same size as TOOLS and the other big words,
+       in the middle of the screen */
     .section-title {
       margin: 0 0 28px;
+
+      text-align: center;
 
       font-size: clamp(28px, 5vw, 72px);
       font-weight: 400;
@@ -794,26 +796,30 @@
        ACCESS
     ================================================== */
 
+    /* the three platforms one under another, the same on
+       every screen */
     .access-list {
       margin: 0;
       padding: 0;
 
       list-style: none;
 
-      border-bottom: 1px solid #000;
+      display: flex;
+      flex-direction: column;
+
+      gap: 28px;
     }
 
-    /* icon · name · status ……… button */
+    /* one platform: icon, name, status, button, all in
+       one column in the middle of the screen */
     .access-row {
       display: flex;
-      flex-wrap: wrap;
+      flex-direction: column;
       align-items: center;
 
       gap: 12px;
 
-      padding: 18px 0;
-
-      border-top: 1px solid #000;
+      text-align: center;
     }
 
     .access-icon {
@@ -825,11 +831,11 @@
       object-fit: contain;
     }
 
+    /* name with the status under it */
     .access-name-block {
       display: flex;
-      align-items: baseline;
-
-      gap: 28px;
+      flex-direction: column;
+      align-items: center;
     }
 
     .access-status {
@@ -837,9 +843,7 @@
     }
 
     .access-action {
-      margin-left: auto;
-
-      text-align: right;
+      text-align: center;
     }
 
     .access-button {
@@ -862,7 +866,7 @@
     }
 
     /* same height as the button (same padding, invisible
-       border), so the row does not jump after the click */
+       border), so nothing jumps after the click */
     .access-message {
       margin: 0;
       padding: 12px 0;
@@ -876,28 +880,33 @@
 
     .contact-intro {
       margin: 0 0 28px;
+
+      text-align: center;
     }
 
+    /* contacts one under another, in the middle */
     .contact-list {
       margin: 0;
       padding: 0;
 
       list-style: none;
 
-      border-bottom: 1px solid #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      gap: 12px;
     }
 
-    /* label ……… value */
+    /* (label) value */
     .contact-row {
       display: flex;
       flex-wrap: wrap;
-      justify-content: space-between;
+      justify-content: center;
 
       gap: 12px;
 
-      padding: 18px 0;
-
-      border-top: 1px solid #000;
+      text-align: center;
     }
 
     .contact-value {
@@ -906,6 +915,8 @@
 
     .contact-empty {
       margin: 0;
+
+      text-align: center;
     }
 
 
@@ -1033,13 +1044,6 @@
         max-height: calc(100svh - 52px);
       }
 
-      /* name with the status under it */
-      .access-name-block {
-        flex-direction: column;
-
-        gap: 0;
-      }
-
       .access-button {
         padding: 8px 12px;
       }
@@ -1050,16 +1054,6 @@
 
       .contact-intro {
         margin-bottom: 20px;
-      }
-
-      /* after the click: the message gets its own line
-         under the name (24px icon + 12px gap in front) */
-      .access-action.is-done {
-        flex-basis: 100%;
-
-        padding-left: 36px;
-
-        text-align: left;
       }
 
       .video-frame video {
@@ -1363,7 +1357,7 @@
 
 
   <!-- ==================================================
-       VIDEO (filled from VIDEO_SETTINGS by the script)
+       DEMO (filled from VIDEO_SETTINGS by the script)
   ================================================== -->
 
   <section
@@ -1371,7 +1365,7 @@
     aria-labelledby="videoTitle"
   >
 
-    <h2 class="section-title" id="videoTitle">VIDEO</h2>
+    <h2 class="section-title" id="videoTitle">DEMO</h2>
 
     <div class="video-frame" id="videoFrame"></div>
 
@@ -1740,8 +1734,9 @@
   /*
     CONTACT_INTRO   small line under the CONTACT title
     CONTACT_SETTINGS  one row per contact:
-      label   small name on the left, e.g. "EMAIL"
-      value   what is shown on the right, e.g. the address
+      label   small name in front of the value, e.g. "EMAIL"
+              (empty = not shown)
+      value   what is shown, e.g. the address
       href    where it leads: "mailto:…" for e-mail, a full
               address "https://…" for anything else (opens in
               a new tab). An e-mail value with an empty href
@@ -1751,9 +1746,16 @@
   */
 
   const CONTACT_INTRO =
-    "CUT2 IS AN INDEPENDENT R&D PROJECT BY ANTON.";
+    "CUT2 IS AN INDEPENDENT R&D PROJECT BY ANTON BRATKOV.";
 
-  const CONTACT_SETTINGS = [];
+  /*
+    When you have an e-mail on your own domain, write it
+    here twice instead of the gmail address: in "value"
+    (what people see) and in "href" after "mailto:".
+  */
+  const CONTACT_SETTINGS = [
+    { label: "", value: "anton.bratkov@gmail.com", href: "mailto:anton.bratkov@gmail.com" }
+  ];
 
   const CONTACT_EMPTY =
     "CONTACTS COMING SOON";
@@ -1767,7 +1769,7 @@
   /*
     videoSrc          path to the mp4 file, e.g.
                       "assets/video/demo.mp4"; empty = a black
-                      box with "VIDEO COMING SOON"
+                      box with "DEMO COMING SOON"
     posterSrc         picture shown before the video starts
                       (empty = none)
     videoLabel        what the video is, for screen readers
@@ -1786,7 +1788,7 @@
     caption: "SKETCHUP PLUGINS · MVP",
     fullVersionHref: "",
     fullVersionLabel: "WATCH FULL VERSION →",
-    comingSoonVideo: "VIDEO COMING SOON",
+    comingSoonVideo: "DEMO COMING SOON",
     comingSoonFullVersion: "FULL VERSION COMING SOON"
   };
 
@@ -4369,8 +4371,11 @@
         const item = document.createElement("li");
         item.className = "contact-row section-small";
 
-        const label = document.createElement("span");
-        label.textContent = row.label || "";
+        if (row.label) {
+          const label = document.createElement("span");
+          label.textContent = row.label;
+          item.appendChild(label);
+        }
 
         let href = (row.href || "").trim();
 
@@ -4400,7 +4405,7 @@
         value.classList.add("contact-value");
         value.textContent = row.value;
 
-        item.append(label, value);
+        item.appendChild(value);
         list.appendChild(item);
 
       }
