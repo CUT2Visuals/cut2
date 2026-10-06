@@ -4,16 +4,97 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>CUT2 — Asset Representations</title>
+  <!--
+    Page title, description and the picture for link previews.
+    These values repeat SEO_SETTINGS (in the script below). They
+    are written here in plain HTML on purpose: search engines and
+    social networks do not run scripts. If you change one, change
+    the other.
+  -->
+  <title>CUT2 — one project, multiple platforms</title>
+  <meta name="description" content="CUT2: tools for AutoCAD, SketchUp and InDesign built around one asset and its many representations. An independent R&amp;D project by Anton Bratkov.">
+  <link rel="canonical" href="https://cut2.tools/">
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <meta property="og:title" content="CUT2 — one project, multiple platforms">
+  <meta property="og:description" content="CUT2: tools for AutoCAD, SketchUp and InDesign built around one asset and its many representations. An independent R&amp;D project by Anton Bratkov.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://cut2.tools/">
+  <meta property="og:image" content="https://cut2.tools/og-image.png">
+  <meta property="og:image:alt" content="CUT2 — one project, multiple platforms">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#f3f0e8">
+
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+  <!-- the font is part of the site (fonts/), no Google Fonts -->
   <link
-    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap"
-    rel="stylesheet"
+    rel="preload"
+    href="fonts/ibm-plex-mono-latin-400.woff2"
+    as="font"
+    type="font/woff2"
+    crossorigin
+  >
+  <!-- tiny file (1 KB) with the arrow →; the TOOLS names use it -->
+  <link
+    rel="preload"
+    href="fonts/ibm-plex-mono-arrows-400.woff2"
+    as="font"
+    type="font/woff2"
+    crossorigin
   >
 
   <style>
+
+    /* ==================================================
+       FONT: IBM Plex Mono Regular 2.3 (SIL Open Font
+       License, see fonts/OFL.txt). Only the weight that
+       the site uses (400). The browser loads a file only
+       when the text needs its characters (unicode-range).
+    ================================================== */
+
+    /* Latin: letters, digits, punctuation, dashes, middle dot */
+    @font-face {
+      font-family: "IBM Plex Mono";
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+
+      src: url("fonts/ibm-plex-mono-latin-400.woff2") format("woff2");
+
+      unicode-range:
+        U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
+        U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F,
+        U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215,
+        U+FEFF, U+FFFD;
+    }
+
+    /* Cyrillic: for the future Russian version */
+    @font-face {
+      font-family: "IBM Plex Mono";
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+
+      src: url("fonts/ibm-plex-mono-cyrillic-400.woff2") format("woff2");
+
+      unicode-range:
+        U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+
+    /* the arrows ← and → (not in the Latin file above;
+       cut from the complete IBM Plex Mono 2.005) */
+    @font-face {
+      font-family: "IBM Plex Mono";
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+
+      src: url("fonts/ibm-plex-mono-arrows-400.woff2") format("woff2");
+
+      unicode-range: U+2190, U+2192;
+    }
 
     * {
       box-sizing: border-box;
@@ -67,12 +148,81 @@
       font-weight: 400;
     }
 
-    .header-title {
+    /* language button on the right: looks like plain text */
+    .lang-button {
+      /* the touch area is bigger than the text (at least 44px
+         high, 12px wider on each side); the negative margin
+         gives that space back, so the text stays exactly where
+         it was and the header does not change */
+      min-height: 44px;
+      margin: 0 -12px 0 0;
+      padding: 0 12px;
+
+      display: flex;
+      align-items: center;
+
+      border: 0;
+      border-radius: 0;
+      background: none;
+      color: #000;
+
+      font-family: inherit;
       font-size: 12px;
       font-weight: 400;
+      line-height: normal;
 
       text-transform: uppercase;
       letter-spacing: 0.04em;
+
+      cursor: pointer;
+    }
+
+    .lang-button:hover {
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+
+    .lang-button:focus {
+      outline: none;
+    }
+
+    /* the focus frame goes around the text, not around the
+       whole touch area */
+    .lang-button:focus-visible .lang-text {
+      outline: 1px solid #000;
+      outline-offset: 3px;
+    }
+
+    /* small note under the button; does not move anything */
+    .lang-hint {
+      position: fixed;
+      top: 72px;
+      right: 28px;
+
+      max-width: calc(100vw - 56px);
+
+      margin: 0;
+      padding: 8px 12px;
+
+      border: 1px solid #000;
+      background: #f3f0e8;
+      color: #000;
+
+      font-size: 12px;
+      font-weight: 400;
+      line-height: 1.5;
+
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+
+      z-index: 110;
+
+      visibility: hidden;
+    }
+
+    .lang-hint.is-visible {
+      visibility: visible;
     }
 
 
@@ -82,7 +232,7 @@
 
     .asset-system {
       position: relative;
-      height: 817vh;
+      height: 839vh;
     }
 
     .sticky-stage {
@@ -488,6 +638,14 @@
       object-fit: contain;
     }
 
+    /* pictures that are loaded but not shown: out of the layout,
+       invisible (the shown one keeps the same place as before) */
+    .representation-image.is-hidden {
+      position: absolute;
+
+      visibility: hidden;
+    }
+
     .representation-info {
       margin-top: 18px;
 
@@ -503,24 +661,432 @@
 
 
     /* ==================================================
-       NEXT
+       TOOLS
     ================================================== */
 
-    .next {
-      min-height: 100vh;
+    .tools-label {
+      position: absolute;
 
-      border-top: 1px solid #000;
+      left: 50%;
+      top: 0;
+
+      transform: translateX(-50%);
+
+      font-size: clamp(28px, 5vw, 72px);
+      font-weight: 400;
+
+      text-transform: uppercase;
+      white-space: nowrap;
+
+      visibility: hidden;
+
+      z-index: 4;
+    }
+
+    .tools-cloud {
+      position: absolute;
+
+      left: 0;
+      top: 0;
+
+      width: 100%;
+      height: 100%;
+
+      pointer-events: none;
+
+      z-index: 3;
+    }
+
+    /* one label of the cloud: plain text, real button */
+    .tool-label {
+      position: absolute;
+
+      left: 0;
+      top: 0;
+
+      margin: 0;
+      padding: 2px 4px;
+
+      border: 0;
+      background: none;
+      color: inherit;
+
+      font-family: inherit;
+      font-weight: 400;
+      line-height: 1.2;
+      text-transform: uppercase;
+      white-space: nowrap;
+
+      /* size and letter spacing are copied from
+         .representation-info by the script */
+
+      cursor: pointer;
+      pointer-events: auto;
+
+      transform-origin: center center;
+
+      visibility: hidden;
+    }
+
+    .tool-label:focus {
+      outline: none;
+    }
+
+    .tool-label:focus-visible {
+      outline: 1px solid #000;
+      outline-offset: 3px;
+    }
+
+    /* small window with the tool description */
+    .tool-popup {
+      position: fixed;
+
+      left: 0;
+      top: 0;
+
+      width: 320px;
+      max-width: calc(100vw - 32px);
+
+      /* never taller than the screen under the header
+         (64px header + 16px edge above and below);
+         a longer text scrolls inside the window */
+      max-height: calc(100vh - 96px);
+      overflow-y: auto;
+      overscroll-behavior: contain;
+
+      padding: 16px;
+
+      border: 1px solid #000;
+      background: #f3f0e8;
+      color: #000;
+
+      font-size: 12px;
+      line-height: 1.5;
+
+      z-index: 150;
+    }
+
+    .tool-popup[hidden] {
+      display: none;
+    }
+
+    .tool-popup:not([hidden]) {
+      display: flex;
+      align-items: flex-start;
+
+      gap: 12px;
+    }
+
+    .tool-popup-icon {
+      flex: none;
+
+      width: 24px;
+      height: 24px;
+
+      object-fit: contain;
+    }
+
+    .tool-popup-text {
+      margin: 0;
+    }
+
+    /* phone: panel at the bottom, full width */
+    .tool-popup.is-sheet {
+      left: 0;
+      right: 0;
+      top: auto;
+      bottom: 0;
+
+      width: auto;
+      max-width: none;
+
+      /* at most 45 % of the screen height, the rest
+         scrolls inside the panel (not the page) */
+      max-height: 45vh;
+      max-height: 45svh;
+
+      border-width: 1px 0 0;
+    }
+
+    @media (max-width: 700px) {
+
+      .tools-label {
+        font-size: 26px;
+      }
+
+    }
+
+
+    /* ==================================================
+       SECTIONS AFTER THE SCENE (normal scrolling)
+    ================================================== */
+
+    /* no lines: the space above and below (= header
+       height, so 128px between two sections) keeps them
+       apart; side space as in the header */
+    .page-section {
+      padding: 64px 28px;
+    }
+
+    /* the same size as TOOLS and the other big words,
+       in the middle of the screen */
+    .section-title {
+      margin: 0 0 28px;
+
+      text-align: center;
+
+      font-size: clamp(28px, 5vw, 72px);
+      font-weight: 400;
+      line-height: 1.2;
+
+      text-transform: uppercase;
+    }
+
+    /* small caption text, as under the representations */
+    .section-small {
+      font-size: 12px;
+      font-weight: 400;
+
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .text-link {
+      color: inherit;
+
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+
+    /* link without an address yet: dashed, goes nowhere */
+    .text-link[aria-disabled="true"] {
+      text-decoration-style: dashed;
+
+      cursor: default;
+    }
+
+    .page-section a:focus,
+    .page-section button:focus,
+    .page-section video:focus {
+      outline: none;
+    }
+
+    .page-section a:focus-visible,
+    .page-section button:focus-visible,
+    .page-section video:focus-visible {
+      outline: 1px solid #000;
+      outline-offset: 3px;
+    }
+
+    /* when Tab scrolls to an item, it stops below the
+       header (64px + 24px gap), not under it */
+    .page-section a,
+    .page-section button,
+    .page-section video {
+      scroll-margin-top: 88px;
+    }
+
+
+    /* ==================================================
+       VIDEO
+    ================================================== */
+
+    /* the video goes edge to edge, only the texts keep
+       the side space */
+    .video-section {
+      padding-left: 0;
+      padding-right: 0;
+    }
+
+    .video-section .section-title,
+    .video-info {
+      padding: 0 28px;
+    }
+
+    /* never taller than the screen under the header, so the
+       whole video and its controls fit; on short screens the
+       picture gets black side bars */
+    .video-frame {
+      width: 100%;
+
+      /* the shape of the video; the script takes it from
+         VIDEO_SETTINGS.aspect (the value here is the same,
+         it only keeps the space reserved until the script
+         runs, so the page does not jump) */
+      aspect-ratio: var(--video-aspect, 1760 / 1036);
+      max-height: calc(100vh - 64px);
+
+      background: #000;
+    }
+
+    .video-frame video {
+      display: block;
+
+      width: 100%;
+      height: 100%;
+
+      object-fit: contain;
+      background: #000;
+
+      scroll-margin-top: 64px;
+    }
+
+    /* black box while there is no video file yet */
+    .video-placeholder {
+      width: 100%;
+      height: 100%;
 
       display: flex;
       align-items: center;
       justify-content: center;
 
-      padding: 20px;
+      color: #f3f0e8;
+    }
 
-      font-size: clamp(24px, 4vw, 56px);
-      font-weight: 400;
+    .video-info {
+      margin-top: 18px;
+
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+
+      gap: 12px;
+    }
+
+
+    /* ==================================================
+       ACCESS
+    ================================================== */
+
+    /* the three platforms one under another, the same on
+       every screen */
+    .access-list {
+      margin: 0;
+      padding: 0;
+
+      list-style: none;
+
+      display: flex;
+      flex-direction: column;
+
+      gap: 28px;
+    }
+
+    /* one platform: icon, name, status, button, all in
+       one column in the middle of the screen */
+    .access-row {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      gap: 12px;
 
       text-align: center;
+    }
+
+    .access-icon {
+      flex: none;
+
+      width: 24px;
+      height: 24px;
+
+      object-fit: contain;
+    }
+
+    /* name with the status under it */
+    .access-name-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .access-status {
+      font-size: 10px;
+    }
+
+    .access-action {
+      text-align: center;
+    }
+
+    .access-button {
+      margin: 0;
+      padding: 12px 16px;
+
+      border: 1px solid #000;
+      border-radius: 0;
+      background: none;
+      color: #000;
+
+      font-family: inherit;
+
+      cursor: pointer;
+    }
+
+    .access-button:hover {
+      background: #000;
+      color: #f3f0e8;
+    }
+
+    /* same height as the button (same padding, invisible
+       border), so nothing jumps after the click */
+    .access-message {
+      margin: 0;
+      padding: 12px 0;
+
+      border: 1px solid transparent;
+    }
+
+    /* ==================================================
+       CONTACT
+    ================================================== */
+
+    .contact-intro {
+      margin: 0 0 28px;
+
+      text-align: center;
+    }
+
+    /* contacts one under another, in the middle */
+    .contact-list {
+      margin: 0;
+      padding: 0;
+
+      list-style: none;
+
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      gap: 12px;
+    }
+
+    /* (label) value */
+    .contact-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+
+      gap: 12px;
+
+      text-align: center;
+    }
+
+    .contact-value {
+      overflow-wrap: anywhere;
+    }
+
+    .contact-empty {
+      margin: 0;
+
+      text-align: center;
+    }
+
+
+    /* gets the focus after the click only to keep the
+       keyboard in place; no ring needed on plain text */
+    .access-message:focus {
+      outline: none;
     }
 
 
@@ -535,12 +1101,21 @@
         padding: 0 16px;
       }
 
-      .header-title {
+      .lang-button {
+        font-size: 10px;
+      }
+
+      .lang-hint {
+        top: 60px;
+        right: 16px;
+
+        max-width: calc(100vw - 32px);
+
         font-size: 10px;
       }
 
       .asset-system {
-        height: 817vh;
+        height: 839vh;
       }
 
       .sticky-stage {
@@ -610,29 +1185,113 @@
         font-size: 10px;
       }
 
-      .next {
-        min-height: 100svh;
+      .page-section {
+        padding: 52px 16px;
+      }
+
+      .section-title {
+        margin-bottom: 20px;
         font-size: 26px;
+      }
+
+      .section-small {
+        font-size: 10px;
+      }
+
+      .video-section {
+        padding-left: 0;
+        padding-right: 0;
+      }
+
+      .video-section .section-title,
+      .video-info {
+        padding: 0 16px;
+      }
+
+      .video-info {
+        margin-top: 12px;
+      }
+
+      .video-frame {
+        max-height: calc(100svh - 52px);
+      }
+
+      .access-button {
+        padding: 8px 12px;
+      }
+
+      .access-message {
+        padding: 8px 0;
+      }
+
+      .contact-intro {
+        margin-bottom: 20px;
+      }
+
+      .video-frame video {
+        scroll-margin-top: 52px;
       }
 
     }
 
   </style>
+  <!-- Yandex.Metrika counter -->
+  <script type="text/javascript">
+
+    /*
+      The counter works only on these addresses (the real
+      site). On any other address (a file on your computer,
+      localhost, 192.168.x.x, cut2visuals.github.io) it is not
+      loaded at all and nothing is sent to Yandex. If the site
+      gets one more address, add it to this list.
+    */
+    const METRIKA_HOSTS = ["cut2.tools", "www.cut2.tools"];
+
+    if (METRIKA_HOSTS.includes(location.hostname)) {
+
+      (function(m,e,t,r,i,k,a){
+          m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+          m[i].l=1*new Date();
+          for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+          k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+      })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=113483624', 'ym');
+
+      ym(113483624, 'init', {ssr:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+
+    }
+
+  </script>
+  <!-- /Yandex.Metrika counter -->
 </head>
 
 
 <body>
 
+<!-- Yandex.Metrika (for visitors without JavaScript) -->
+<noscript><div><img src="https://mc.yandex.ru/watch/113483624" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika -->
+
 
 <header>
 
   <div class="logo">
-    CUT2
+    CUT2 TOOLS
   </div>
 
-  <div class="header-title">
-    Asset Representations
-  </div>
+  <button
+    type="button"
+    class="lang-button"
+    id="langButton"
+    aria-describedby="langHint"
+  ><span class="lang-text" id="langText">RU</span></button>
+
+  <!-- note shown after pressing the button while Russian is not ready -->
+  <div
+    class="lang-hint"
+    id="langHint"
+    role="status"
+    aria-live="polite"
+  ></div>
 
 </header>
 
@@ -715,7 +1374,7 @@
           <img
             class="platform-icon"
             id="platformAutoCAD"
-            src="prototypes/asset-representations/asset-representations/platforms/autocad.svg"
+            src="prototypes/asset-representations/asset-representations/platforms/autocad.svg?v=4"
             alt="AutoCAD"
           >
 
@@ -734,7 +1393,7 @@
           <img
             class="platform-icon"
             id="platformSketchUp"
-            src="prototypes/asset-representations/asset-representations/platforms/sketchup.svg"
+            src="prototypes/asset-representations/asset-representations/platforms/sketchup.svg?v=4"
             alt="SketchUp"
           >
 
@@ -753,7 +1412,7 @@
           <img
             class="platform-icon"
             id="platformInDesign"
-            src="prototypes/asset-representations/asset-representations/platforms/indesign.svg"
+            src="prototypes/asset-representations/asset-representations/platforms/indesign.svg?v=4"
             alt="InDesign"
           >
 
@@ -799,7 +1458,7 @@
         </div>
 
         <img
-          src="prototypes/asset-representations/asset-representations/library-card.png?v=3"
+          src="prototypes/asset-representations/asset-representations/library-card.png?v=4"
           alt="CUT2 Asset Library"
         >
 
@@ -854,7 +1513,7 @@
           <img
             id="representationImage"
             class="representation-image"
-            src="prototypes/asset-representations/asset-representations/autocad/minimal.svg?v=3"
+            src="prototypes/asset-representations/asset-representations/autocad/minimal.svg?v=4"
             alt="AutoCAD Minimal"
           >
 
@@ -876,18 +1535,92 @@
       </div>
 
 
+      <!-- ==================================================
+           TOOLS
+      ================================================== -->
+
+      <div
+        class="tools-label"
+        id="toolsLabel"
+      >
+        TOOLS
+      </div>
+
+      <div
+        class="tools-cloud"
+        id="toolsCloud"
+      ></div>
+
+
+    </div>
+
+  </section>
+
+
+  <!-- tool description window (filled by the script) -->
+  <div
+    class="tool-popup"
+    id="toolPopup"
+    role="dialog"
+    aria-modal="false"
+    hidden
+  >
+    <img class="tool-popup-icon" id="toolPopupIcon" alt="">
+    <p class="tool-popup-text" id="toolPopupText"></p>
+  </div>
+
+
+  <!-- ==================================================
+       DEMO (filled from VIDEO_SETTINGS by the script)
+  ================================================== -->
+
+  <section
+    class="page-section video-section"
+    aria-labelledby="videoTitle"
+  >
+
+    <h2 class="section-title" id="videoTitle">DEMO</h2>
+
+    <div class="video-frame" id="videoFrame"></div>
+
+    <div class="video-info section-small">
+      <span id="videoCaption"></span>
+      <a class="text-link" id="videoFullLink"></a>
     </div>
 
   </section>
 
 
   <!-- ==================================================
-       NEXT
+       ACCESS (rows built from ACCESS_SETTINGS)
   ================================================== -->
 
-  <section class="next">
+  <section
+    class="page-section"
+    aria-labelledby="accessTitle"
+  >
 
-    THE SYSTEM CONTINUES.
+    <h2 class="section-title" id="accessTitle">ACCESS</h2>
+
+    <ul class="access-list" id="accessList"></ul>
+
+  </section>
+
+
+  <!-- ==================================================
+       CONTACT (filled from CONTACT_SETTINGS)
+  ================================================== -->
+
+  <section
+    class="page-section"
+    aria-labelledby="contactTitle"
+  >
+
+    <h2 class="section-title" id="contactTitle">CONTACT</h2>
+
+    <p class="contact-intro section-small" id="contactIntro"></p>
+
+    <div id="contactBody"></div>
 
   </section>
 
@@ -897,6 +1630,74 @@
 
 
 <script>
+
+  /* ==================================================
+     SETTINGS: LANGUAGE BUTTON (top right of the header)
+     (safe to tweak)
+  ================================================== */
+
+  /*
+    currentLang    language of the page now: "en" or "ru"
+    labels         text on the button for each current language:
+                   it names the language the button switches to
+                   (on the English page the button says RU)
+    ruAvailable    false = pressing the button only shows the
+                   note comingSoonText; true = it calls
+                   switchLanguage()
+    comingSoonText the note under the button
+    hintMs         how long the note stays, milliseconds (it also
+                   goes away on Esc, on scrolling and on a click
+                   elsewhere)
+
+    When the Russian version is ready: set ruAvailable = true
+    and write switchLanguage() below. Today it is a stub that
+    does nothing. Later the same function will also change
+    videoLang in VIDEO_SETTINGS (the video language).
+  */
+
+  const LANG_SETTINGS = {
+    currentLang: "en",
+    labels: { en: "RU", ru: "EN" },
+    ruAvailable: false,
+    comingSoonText: "RUSSIAN VERSION COMING SOON",
+    hintMs: 2500
+  };
+
+  function switchLanguage() {
+    console.log("language switch not implemented");
+  }
+
+
+  /* ==================================================
+     SETTINGS: SEO (title, description, link preview)
+  ================================================== */
+
+  /*
+    The page does not read these values: the same text is
+    written in <head> (title, meta description, canonical,
+    og:..., twitter:card), because search engines and social
+    networks do not run scripts. This block is the one place
+    to keep them together; when you change a value, change the
+    matching tag in <head> too.
+
+    title        page title (browser tab, search results)
+    description  short text under the title in search results
+                 and in link previews
+    siteUrl      the real address of the site (with the final /)
+    image        the picture for link previews (1200×630),
+                 a file in the root of the site; the tags use
+                 the full address siteUrl + image
+    imageAlt     what that picture shows, for screen readers
+  */
+
+  const SEO_SETTINGS = {
+    title: "CUT2 — one project, multiple platforms",
+    description: "CUT2: tools for AutoCAD, SketchUp and InDesign built around one asset and its many representations. An independent R&D project by Anton Bratkov.",
+    siteUrl: "https://cut2.tools/",
+    image: "og-image.png",
+    imageAlt: "CUT2 — one project, multiple platforms"
+  };
+
 
   /* ==================================================
      SETTINGS: CUT2 → ONE PROJECT
@@ -975,6 +1776,330 @@
     { char: "T", parent: "",  show: "stay", dir: "",      start: 0,    duration: 1,    closePockets: true },
     { char: "2", parent: "T", show: "out",  dir: "left",  start: 0.12, duration: 0.25, closePockets: true }
   ];
+
+
+  /* ==================================================
+     SETTINGS: TOOLS
+     (safe to tweak)
+  ================================================== */
+
+  /*
+    The tools in the cloud.
+
+    platform     "AUTOCAD" / "SKETCHUP" / "INDESIGN"
+                 (chooses the icon in the window)
+    label        name in the cloud (shown in capitals)
+    description  text in the window
+    Later a second language can be added next to these
+    fields (for an EN / RU switch).
+  */
+
+  const TOOLS = [
+    { platform: "AUTOCAD",  label: "Source Data Cleanup",              description: "Organizes and sorts information from source data files into layers, assembling a clean working base for the project with a configurable set of xrefs." },
+    { platform: "AUTOCAD",  label: "Constraints Plan",                 description: "Automatically compiles site constraints into a single plan with customizable graphics and layers. Highlights violations as you design." },
+    { platform: "AUTOCAD",  label: "Fire Access Roads",                description: "A semi-automatic generator of fire access roads per SP (Set of Rules) and STU (Special Technical Specifications). Observes required setbacks from buildings, connects to the existing or planned road network, and automatically generates turning radii, pads, and centerlines." },
+    { platform: "AUTOCAD",  label: "Schedules",                        description: "Turn design blocks, lines, and hatches into ready-made schedules, with no manual counting or retyping of data." },
+    { platform: "AUTOCAD",  label: "DWG to SketchUp",                  description: "Automatically prepares DWG files for transfer to SketchUp, with no manual preparation or post-processing." },
+    { platform: "AUTOCAD",  label: "Tagging",                          description: "Automatically places element tags and keeps them linked to objects and schedules." },
+    { platform: "AUTOCAD",  label: "Paving from SketchUp to AutoCAD",  description: "Paving changes made in SketchUp flow back into AutoCAD, turning two tools into a single system. Especially handy for layouts and schedules." },
+    { platform: "AUTOCAD",  label: "Mixes from SketchUp",              description: "Edit planting mixes in SketchUp, and the data flows back into AutoCAD as a planting plan." },
+    { platform: "AUTOCAD",  label: "Pavement Build-Up Generator",      description: "A customizable library of pavement build-ups. The callout becomes the control: change a layer's thickness in the text, and the section redraws automatically." },
+    { platform: "SKETCHUP", label: "Sun Hours",                        description: "Shows how much sunlight a space receives throughout the day for a given location and date. Legend colors can be customized to match your palette." },
+    { platform: "SKETCHUP", label: "Shadow Envelope",                  description: "Generates a shadow envelope over a specified time interval. Legend colors can be customized to match your palette." },
+    { platform: "SKETCHUP", label: "Lighting Analysis",                description: "Speeds up lighting analysis at early design stages by showing illuminance levels and the number of fixtures required." },
+    { platform: "SKETCHUP", label: "2D → 3D",                          description: "Turns flat design information into a working 3D model. Also lets you add elements from the library right inside SketchUp." },
+    { platform: "SKETCHUP", label: "Shovel",                           description: "Places CUT2 plants across surfaces and hills in one click." },
+    { platform: "SKETCHUP", label: "Plant Light Exposure",             description: "Checks the light exposure of a specific CUT2 plant, highlighting it according to its needs. Every plant is evaluated against its own requirements. Legend colors can be customized to match your palette." },
+    { platform: "SKETCHUP", label: "Hill Generator",                   description: "Creates smooth, lightweight terrain geometry from the parameters you set. Up to 30 hills in one click, in seconds." },
+    { platform: "SKETCHUP", label: "Pattern Generator",                description: "Generates paving, decking, and other layouts by rules rather than by hand: change parameters, not hundreds of individual elements." },
+    { platform: "SKETCHUP", label: "Styles",                           description: "Creates a ready-made graphic presentation directly in SketchUp, with no export to Illustrator and no manual graphic processing. Ready-made presets can be adjusted and customized." },
+    { platform: "INDESIGN", label: "Schedule Transfer",                description: "Brings schedules from AutoCAD straight into your presentation and updates them when the source data changes. Customizable presentation styles." },
+    { platform: "INDESIGN", label: "Bloom Calendar",                   description: "Automatically builds a bloom calendar from project data and turns it into ready-to-use presentation graphics." }
+  ];
+
+
+  /* Icons for the window, by platform */
+  const TOOL_ICONS = {
+    AUTOCAD:  "prototypes/asset-representations/asset-representations/platforms/autocad.svg?v=4",
+    SKETCHUP: "prototypes/asset-representations/asset-representations/platforms/sketchup.svg?v=4",
+    INDESIGN: "prototypes/asset-representations/asset-representations/platforms/indesign.svg?v=4"
+  };
+
+
+  /*
+    How TOOLS goes, with no pause anywhere:
+      1) representations leave, TOOLS comes to the centre
+         (TOOLS_COME_IN, in screen heights of scrolling);
+      2) at its end the labels appear all at once, and the
+         scene stops being pinned: TOOLS and the cloud go up
+         with the page like normal content, while the cloud
+         keeps spreading; the next section comes up from
+         below at the same time.
+    If you change TOOLS_COME_IN (now 0.22), also change the
+    height of .asset-system in CSS (two places):
+      817vh + 100vh × TOOLS_COME_IN   (0.22 → 839vh)
+  */
+
+  const TOOLS_COME_IN = 0.22;
+
+
+  const TOOLS_SETTINGS = {
+
+    /* label size: copied from the captions under the
+       representations pictures (.representation-info) */
+
+    /* free space around every label, px */
+    gap: 12,
+
+    /* distance from the screen edges and the header, px */
+    margin: 24,
+
+    /* the layout is "random" but always the same for the
+       same seed; change the number to get another layout */
+    seed: 2024,
+
+    /*
+      Shape of the cloud around TOOLS, in parts of the free
+      space (1 = up to the screen edge):
+        shift   – how far the cloud sits off TOOLS
+                  (x: + right, y: + down)
+        size    – how wide / tall the oval is
+        tilt    – turn of the oval, degrees
+        wobble  – how uneven the edge is (two waves)
+        clumps  – how many groups the labels gather in
+        clumpSpread – how loose a group is
+    */
+    cloud: {
+      shift: { x: 0.12, y: 0.06 },
+      size: { x: 0.8, y: 0.9 },
+      tilt: -14,
+      wobble: [0.12, 0.08],
+      clumps: 4,
+      clumpSpread: 0.28
+    },
+
+    /* the same for screens ≤ 700px wide */
+    cloudMobile: {
+      shift: { x: 0.05, y: 0.06 },
+      size: { x: 0.95, y: 0.9 },
+      tilt: -8,
+      wobble: [0.08, 0.06],
+      clumps: 3,
+      clumpSpread: 0.32
+    },
+
+    /*
+      While the scene goes up, the cloud grows around TOOLS:
+      every label moves away from TOOLS, from 1 to about
+      spreadScale (1.15 = 15 % further away). It grows evenly
+      with the scroll, from the moment the labels appear to
+      the moment the scene has left the screen.
+    */
+    spreadScale: 1.15,
+
+    /*
+      Every label spreads with its own speed: its factor is
+      somewhere in spreadScale ± spreadVariation × (spreadScale − 1)
+      (0.35 with 1.15 → from 1.0975 to 1.2025). The speeds are
+      fixed (taken from seed), not random on every visit.
+      If labels would touch each other, TOOLS, the header or
+      the screen edge, the range is narrowed by itself and the
+      result is written to the browser console.
+    */
+    spreadVariation: 0.35,
+
+    /*
+      How fast TOOLS and the cloud go up after the scene is
+      unpinned: 1 = exactly with the page (normal scrolling),
+      1.5 = half again as fast, 0.5 = half as fast.
+    */
+    exitSpeed: 1,
+
+    /* window text in capitals (true) or as written (false) */
+    descriptionUppercase: false,
+
+    /* the window closes when the page scrolls this far, px */
+    closeOnScroll: 10
+
+  };
+
+
+  /* ==================================================
+     INTEREST: one place that reports a click on
+     REQUEST ACCESS
+  ================================================== */
+
+  /*
+    trackInterest("SKETCHUP") is called once per platform
+    when someone presses REQUEST ACCESS. Nothing is
+    downloaded and nothing is stored here. It:
+      1) sends the page event "cut2:interest" with the
+         platform, so any script can listen to it;
+      2) if a visitor counter is already on the page
+         (GoatCounter, Plausible or Yandex Metrika), also
+         tells it, as a goal named goalPrefix + platform in
+         small letters: interest-autocad, interest-sketchup,
+         interest-indesign. If there is no counter, nothing
+         happens and nothing breaks.
+    metrikaCounterId: the number of the Yandex Metrika counter
+    (the counter code itself is in <head>, and it works only
+    on the real addresses, see METRIKA_HOSTS). Each click is
+    sent as the goal "interest-" + platform in small letters:
+    interest-autocad, interest-sketchup, interest-indesign.
+    Empty = Metrika is not used.
+  */
+
+  const INTEREST_SETTINGS = {
+    goalPrefix: "interest-",
+    metrikaCounterId: 113483624
+  };
+
+  function trackInterest(platform) {
+
+    const goal =
+      INTEREST_SETTINGS.goalPrefix + platform.toLowerCase();
+
+    window.dispatchEvent(
+      new CustomEvent("cut2:interest", { detail: { platform } })
+    );
+
+    try {
+
+      if (window.goatcounter && typeof window.goatcounter.count === "function") {
+        window.goatcounter.count({ path: goal, title: goal, event: true });
+      }
+
+      if (typeof window.plausible === "function") {
+        window.plausible(goal);
+      }
+
+      if (typeof window.ym === "function" && INTEREST_SETTINGS.metrikaCounterId) {
+        window.ym(INTEREST_SETTINGS.metrikaCounterId, "reachGoal", goal);
+      }
+
+    }
+
+    catch (error) {
+      console.warn("trackInterest: counter error", error);
+    }
+
+  }
+
+
+  /* ==================================================
+     SETTINGS: ACCESS
+     (safe to tweak)
+  ================================================== */
+
+  /*
+    One row per platform, in this order.
+    platform     "AUTOCAD" / "SKETCHUP" / "INDESIGN"
+                 (name and icon)
+    status       small text next to the name
+    buttonLabel  text on the button
+    ACCESS_MESSAGE replaces the button after the click.
+    It must not promise anything (no counter is connected
+    yet, no e-mails are sent).
+  */
+
+  const ACCESS_SETTINGS = [
+    { platform: "AUTOCAD",  status: "COMING SOON", buttonLabel: "REQUEST ACCESS" },
+    { platform: "SKETCHUP", status: "MVP",         buttonLabel: "REQUEST ACCESS" },
+    { platform: "INDESIGN", status: "COMING SOON", buttonLabel: "REQUEST ACCESS" }
+  ];
+
+  const ACCESS_MESSAGE =
+    "NOT AVAILABLE YET — THANK YOU FOR YOUR INTEREST.";
+
+
+  /* ==================================================
+     SETTINGS: CONTACT
+     (safe to tweak)
+  ================================================== */
+
+  /*
+    CONTACT_INTRO   small line under the CONTACT title
+    CONTACT_SETTINGS  one row per contact:
+      label   small name in front of the value, e.g. "EMAIL"
+              (empty = not shown)
+      value   what is shown, e.g. the address
+      href    where it leads: "mailto:…" for e-mail, a full
+              address "https://…" for anything else (opens in
+              a new tab). An e-mail value with an empty href
+              becomes a mailto link by itself.
+    Only rows with a value are shown. With no rows at all
+    the section says CONTACT_EMPTY.
+  */
+
+  const CONTACT_INTRO =
+    "CUT2 IS AN INDEPENDENT R&D PROJECT BY ANTON BRATKOV.";
+
+  /*
+    The contact is the e-mail on the cut2.tools domain. To
+    change it, write the new address twice: in "value"
+    (what people see) and in "href" after "mailto:".
+  */
+  const CONTACT_SETTINGS = [
+    { label: "", value: "hello@cut2.tools", href: "mailto:hello@cut2.tools" }
+  ];
+
+  const CONTACT_EMPTY =
+    "CONTACTS COMING SOON";
+
+
+  /* ==================================================
+     SETTINGS: VIDEO
+     (safe to tweak)
+  ================================================== */
+
+  /*
+    Texts and files that depend on the language are written as
+    { en: "…", ru: "…" }. videoLang chooses which one the page
+    shows now; later the EN / RU switch will change only this
+    parameter. Only the chosen language is used: the other
+    video file is never downloaded.
+
+    videoSrc          path to the mp4 file for each language
+                      (empty = a black box with the "coming
+                      soon" text)
+    posterSrc         picture shown before the video starts, the
+                      same for both languages (empty = none)
+    aspect            width and height of the video in pixels;
+                      only their proportion matters. It reserves
+                      the right space on the page, so nothing
+                      jumps while the video loads. Change it if
+                      you replace the video with another shape.
+    videoLabel        what the video is, for screen readers
+    caption           small text under the video, per language
+                      (empty = nothing)
+    fullVersionHref   address of the long version for each
+                      language (opens in a new tab); empty = the
+                      link is shown as not available yet
+    fullVersionLabel  text of that link
+    comingSoon...     texts used while something is empty
+  */
+
+  const VIDEO_SETTINGS = {
+    videoLang: "en",
+    videoSrc: {
+      en: "assets/video/demo-en.mp4",
+      ru: "assets/video/demo-ru.mp4"
+    },
+    posterSrc: "assets/video/demo-poster.jpg",
+    aspect: { width: 1760, height: 1036 },
+    videoLabel: "Demo of CUT2 plugins for SketchUp",
+    caption: {
+      en: "SKETCHUP PLUGINS · MVP",
+      ru: ""
+    },
+    fullVersionHref: {
+      en: "",
+      ru: ""
+    },
+    fullVersionLabel: "WATCH FULL VERSION →",
+    comingSoonVideo: "DEMO COMING SOON",
+    comingSoonFullVersion: "FULL VERSION COMING SOON"
+  };
 
 
   /* ==================================================
@@ -1417,8 +2542,28 @@
   }
 
 
-  /* build once the page font is ready (letters are text) */
-  document.fonts.ready.then(buildIntroLetters);
+  /*
+    Build once the font faces the page uses are really loaded
+    (the letters are measured as text):
+      latinLoaded  – letters, digits, dashes: the big words
+                     of the scene start with this
+      arrowsLoaded – the arrow →: the TOOLS names use it, so
+                     the cloud layout waits for it too
+    If a file can not be loaded, the page goes on after that
+    with the fallback font instead of waiting forever.
+  */
+  const latinLoaded =
+    document.fonts.load('400 16px "IBM Plex Mono"', "ONE PROJECT CUT2 0123456789 ·—")
+      .catch(() => {});
+
+  const arrowsLoaded =
+    document.fonts.load('400 16px "IBM Plex Mono"', "→")
+      .catch(() => {});
+
+  const fontsLoaded =
+    Promise.all([latinLoaded, arrowsLoaded]);
+
+  latinLoaded.then(buildIntroLetters);
 
   const projectArrow =
     document.getElementById("projectArrow");
@@ -1485,40 +2630,181 @@
     {
       platform: "AUTOCAD",
       type: "MINIMAL",
-      src: "prototypes/asset-representations/asset-representations/autocad/minimal.svg?v=3"
+      src: "prototypes/asset-representations/asset-representations/autocad/minimal.svg?v=4"
     },
 
     {
       platform: "AUTOCAD",
       type: "CONDITIONAL",
-      src: "prototypes/asset-representations/asset-representations/autocad/conditional.svg?v=3"
+      src: "prototypes/asset-representations/asset-representations/autocad/conditional.svg?v=4"
     },
 
     {
       platform: "AUTOCAD",
       type: "REALISTIC",
-      src: "prototypes/asset-representations/asset-representations/autocad/realistic.svg?v=3"
+      src: "prototypes/asset-representations/asset-representations/autocad/realistic.svg?v=4"
     },
 
     {
       platform: "SKETCHUP",
       type: "REALISTIC FACE ME",
-      src: "prototypes/asset-representations/asset-representations/sketchup/realistic-face-me.png?v=3"
+      src: "prototypes/asset-representations/asset-representations/sketchup/realistic-face-me.webp?v=4"
     },
 
     {
       platform: "SKETCHUP",
       type: "CONDITIONAL",
-      src: "prototypes/asset-representations/asset-representations/sketchup/conditional.png?v=3"
+      src: "prototypes/asset-representations/asset-representations/sketchup/conditional.webp?v=4"
     },
 
     {
       platform: "INDESIGN",
       type: "IMAGE",
-      src: "prototypes/asset-representations/asset-representations/publishing/image.jpg?v=3"
+      src: "prototypes/asset-representations/asset-representations/publishing/image.webp?v=4"
     }
 
   ];
+
+
+  /* ==================================================
+     REPRESENTATION PICTURES: loading and switching
+  ================================================== */
+
+  /*
+    Every picture has its own <img> inside the scene (the first
+    one is written in the page, the others are made here and
+    stay invisible). After the page has loaded they are filled
+    quietly, one after another, in the order they appear in the
+    scene, and decoded. Switching is then only showing one and
+    hiding another, so it is instant and needs no new download.
+    The caption (platform, type) and the picture always change
+    together: until the wanted picture is ready, the previous
+    picture AND its caption stay on the screen.
+  */
+
+  const representationImages =
+    representations.map(
+      (item, index) => {
+
+        if (index === 0) {
+          return representationImage;
+        }
+
+        const image = new Image();
+
+        image.className = "representation-image is-hidden";
+        image.alt = `${item.platform} ${item.type}`;
+
+        representationVisual.appendChild(image);
+
+        return image;
+
+      }
+    );
+
+  const representationLoads = [];
+  const representationReady = [];
+
+  function loadRepresentation(index) {
+
+    if (!representationLoads[index]) {
+
+      const image = representationImages[index];
+
+      if (!image.getAttribute("src")) {
+        image.src = representations[index].src;
+      }
+
+      representationLoads[index] =
+        image.decode()
+          .then(
+            () => { representationReady[index] = true; }
+          )
+          .catch(
+            () => {
+              console.warn("Representation picture did not load:", representations[index].src);
+            }
+          );
+
+    }
+
+    return representationLoads[index];
+
+  }
+
+  /* after the "load" event, with low priority, in order */
+  function preloadRepresentations() {
+
+    let next = 0;
+
+    const step = () => {
+
+      if (next >= representations.length) {
+        return;
+      }
+
+      loadRepresentation(next++).then(
+        () => setTimeout(step, 0)
+      );
+
+    };
+
+    step();
+
+  }
+
+  function startPreload() {
+
+    if ("requestIdleCallback" in window) {
+      requestIdleCallback(preloadRepresentations, { timeout: 2000 });
+    }
+    else {
+      setTimeout(preloadRepresentations, 200);
+    }
+
+  }
+
+  if (document.readyState === "complete") {
+    startPreload();
+  }
+  else {
+    window.addEventListener("load", startPreload);
+  }
+
+  /* the first picture is already in the page */
+  let shownRepresentation = 0;
+
+  /*
+    Called every frame with the wanted index; picture and text
+    are touched only when the index really changes and the new
+    picture is ready.
+  */
+  function showRepresentation(index) {
+
+    if (index === shownRepresentation) {
+      return;
+    }
+
+    if (!representationReady[index]) {
+
+      /* not ready: keep showing the previous one, and make
+         sure this one is being loaded right now */
+      loadRepresentation(index);
+      return;
+
+    }
+
+    const current = representations[index];
+
+    representationImages[shownRepresentation].classList.add("is-hidden");
+    representationImages[index].classList.remove("is-hidden");
+
+    representationPlatform.textContent = current.platform;
+    representationType.textContent = current.type;
+
+    shownRepresentation = index;
+
+  }
 
 
   /* ==================================================
@@ -1695,17 +2981,43 @@
       2) the old timeline, with a pause on
          ONE ASSET: pauseLength holds the timeline
          at pauseAt.
+      3) TOOLS coming in (TOOLS_COME_IN, in screen
+         heights; 1 screen height = 1/6 of the old
+         timeline).
       Section height: 700vh + 600vh × (INTRO_LENGTH
-      + pauseLength) = 817vh. Every old block keeps
-      its length in pixels.
+      + pauseLength) + 100vh × TOOLS_COME_IN = 839vh.
+      Every old block keeps its length in pixels.
+      After the section ends the scene is unpinned and
+      goes up; pastEnd counts those pixels.
     */
 
     const pauseAt = 0.53;
     const pauseLength = 0.07;
 
+    const toolsLength =
+      TOOLS_COME_IN / 6;
+
     const rawTimeline =
       passed / scrollable *
-      (1 + INTRO_LENGTH + pauseLength);
+      (1 + INTRO_LENGTH + pauseLength + toolsLength);
+
+    /* time inside the TOOLS part (old timeline units) */
+    const toolsTime =
+      Math.max(
+        0,
+        rawTimeline - INTRO_LENGTH - 1 - pauseLength
+      );
+
+    /* step 1 of TOOLS: representations leave upwards */
+    const toolsLeave =
+      smoothstep(
+        clamp(toolsTime / toolsLength, 0, 1)
+      );
+
+    /* scrolled past the end of the section, px
+       (below 0 before it) */
+    const pastEnd =
+      -sectionRect.top - scrollable;
 
     const introProgress =
       clamp(
@@ -1723,12 +3035,15 @@
       );
 
     const progress =
-      timeline < pauseAt
-        ? timeline
-        : Math.max(
-            pauseAt,
-            timeline - pauseLength
-          );
+      Math.min(
+        1,
+        timeline < pauseAt
+          ? timeline
+          : Math.max(
+              pauseAt,
+              timeline - pauseLength
+            )
+      );
 
 
     const centerY =
@@ -1737,9 +3052,19 @@
     const headerGap =
       24;
 
+    /*
+      Bottom of the header inside the scene, measured as
+      if the scene were still pinned. After the section
+      ends, the browser moves the scene up by itself; if
+      this followed the real scene top, the parked platform
+      group would be pulled back under the header by the
+      script one frame later, and on the way up it would
+      peek out below the header for that frame. This way
+      the parked parts simply go up with the scene.
+    */
     const headerBottom =
       headerRect.bottom -
-      stageRect.top;
+      Math.max(0, stageRect.top);
 
 
     /*
@@ -2433,10 +3758,16 @@
       );
 
 
+    /* TOOLS step 1: the label leaves under the header */
+    const labelLeaveY =
+      toolsLeave *
+      (finalLabelTop + labelHeight + 20);
+
     const labelY =
       labelEntryY -
       labelMoveProgress *
-      labelTravel;
+      labelTravel -
+      labelLeaveY;
 
 
     multipleLabel.style.opacity =
@@ -2457,7 +3788,7 @@
         );
 
       multipleLabel.style.top =
-        `${mobileTop + labelEntryY}px`;
+        `${mobileTop + labelEntryY - labelLeaveY}px`;
 
       multipleLabel.style.transform =
         `translateX(-50%)`;
@@ -2603,6 +3934,16 @@
       );
 
 
+    /* TOOLS step 1: the picture leaves under the header */
+    representation.style.transform =
+      `
+        translate(
+          -50%,
+          calc(-50% - ${toolsLeave * (representation.offsetTop + representation.offsetHeight / 2 + 20)}px)
+        )
+      `;
+
+
     if (progress >= representationStart) {
 
       representation.style.opacity = 1;
@@ -2631,21 +3972,7 @@
           firstFiveProgress -
           index;
 
-        const current =
-          representations[index];
-
-
-        representationImage.src =
-          current.src;
-
-        representationImage.alt =
-          `${current.platform} ${current.type}`;
-
-        representationPlatform.textContent =
-          current.platform;
-
-        representationType.textContent =
-          current.type;
+        showRepresentation(index);
 
 
         const rotation =
@@ -2683,21 +4010,7 @@
           );
 
 
-        const current =
-          representations[count - 1];
-
-
-        representationImage.src =
-          current.src;
-
-        representationImage.alt =
-          `${current.platform} ${current.type}`;
-
-        representationPlatform.textContent =
-          current.platform;
-
-        representationType.textContent =
-          current.type;
+        showRepresentation(count - 1);
 
 
         const rotation =
@@ -2733,11 +4046,945 @@
     }
 
 
+    /* ==================================================
+       12. TOOLS
+    ================================================== */
+
+    updateTools(toolsTime, pastEnd);
+
+
     requestAnimationFrame(
       updateAnimation
     );
 
   }
+
+
+  /* ==================================================
+     TOOLS: cloud of labels + description window
+  ================================================== */
+
+  const toolsLabel =
+    document.getElementById("toolsLabel");
+
+  const toolsCloud =
+    document.getElementById("toolsCloud");
+
+  const toolPopup =
+    document.getElementById("toolPopup");
+
+  const toolPopupIcon =
+    document.getElementById("toolPopupIcon");
+
+  const toolPopupText =
+    document.getElementById("toolPopupText");
+
+
+  /* the buttons, one per tool */
+  const toolButtons =
+    TOOLS.map(
+      (tool, index) => {
+
+        const button =
+          document.createElement("button");
+
+        button.type = "button";
+        button.className = "tool-label";
+        button.textContent = tool.label;
+        button.setAttribute("aria-expanded", "false");
+        button.setAttribute("aria-controls", "toolPopup");
+
+        button.addEventListener(
+          "click",
+          () => toggleToolPopup(index)
+        );
+
+        toolsCloud.appendChild(button);
+
+        return button;
+
+      }
+    );
+
+
+  /*
+    Rest layout for the current screen: TOOLS in the centre,
+    every label with its distance and angle around it.
+    Computed after the font is ready and on resize.
+  */
+  let toolsLayout = null;
+
+
+  /* small fixed-seed random generator (same numbers every time) */
+  function seededRandom(seed) {
+
+    let a = seed >>> 0;
+
+    return () => {
+      a = (a + 0x6D2B79F5) >>> 0;
+      let t = a;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+
+  }
+
+
+  /*
+    Where a label is when the cloud has spread by "t"
+    (0 = the moment the labels appear, 1 = the end).
+    Every label moves straight away from TOOLS, each with
+    its own speed: its end factor is
+      1 + (spread − 1) × (1 + variation × speed)
+    where speed is its fixed number from −1 to 1.
+  */
+  function spreadPoint(item, layout, t) {
+
+    const scale =
+      1 + (layout.spread - 1) * (1 + layout.variation * item.speed) * t;
+
+    return {
+      x: layout.cx + (item.x - layout.cx) * scale,
+      y: layout.cy + (item.y - layout.cy) * scale
+    };
+
+  }
+
+
+  function layoutTools() {
+
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    const mobile = width <= 700;
+
+    const { gap, margin, seed, spreadScale, spreadVariation } = TOOLS_SETTINGS;
+    const cloud = mobile ? TOOLS_SETTINGS.cloudMobile : TOOLS_SETTINGS.cloud;
+
+    /* the same size as the captions under the pictures */
+    const caption =
+      getComputedStyle(document.querySelector(".representation-info"));
+
+    toolButtons.forEach(
+      (button) => {
+        button.style.fontSize = caption.fontSize;
+        button.style.letterSpacing = caption.letterSpacing;
+      }
+    );
+
+    const headerBottom =
+      document.querySelector("header").getBoundingClientRect().bottom;
+
+    /* TOOLS rests in the centre of the screen */
+    const titleW = toolsLabel.offsetWidth;
+    const titleH = toolsLabel.offsetHeight;
+
+    const layout = {
+      cx: width / 2,
+      cy: height / 2,
+      ax: width / 2 - margin,
+      ay: height / 2 - margin - headerBottom / 2,
+      spread: spreadScale,
+      variation: spreadVariation,
+      items: []
+    };
+
+    const area = {
+      left: margin,
+      right: width - margin,
+      top: headerBottom + margin,
+      bottom: height - margin
+    };
+
+    const title = {
+      left: layout.cx - titleW / 2 - gap,
+      right: layout.cx + titleW / 2 + gap,
+      top: layout.cy - titleH / 2 - gap,
+      bottom: layout.cy + titleH / 2 + gap
+    };
+
+    const sizes =
+      toolButtons.map((b) => ({ w: b.offsetWidth, h: b.offsetHeight }));
+
+    /* the speed of every label, from −1 to 1: fixed numbers
+       from the seed, in the order of the TOOLS list */
+    const speedRandom = seededRandom(seed + 1);
+    const speeds = TOOLS.map(() => speedRandom() * 2 - 1);
+
+    /* the uneven, tilted, shifted oval */
+    const tilt = cloud.tilt * Math.PI / 180;
+
+    const insideCloud = (u, v) => {
+      const p = u - cloud.shift.x;
+      const q = v - cloud.shift.y;
+      const pr = p * Math.cos(-tilt) - q * Math.sin(-tilt);
+      const qr = p * Math.sin(-tilt) + q * Math.cos(-tilt);
+      const rho = Math.hypot(pr / cloud.size.x, qr / cloud.size.y);
+      const phi = Math.atan2(qr, pr);
+      const edge = 1 + cloud.wobble[0] * Math.sin(2 * phi + 1.3) + cloud.wobble[1] * Math.sin(3 * phi + 4.1);
+      return rho <= edge;
+    };
+
+    const insideArea = (p, item) =>
+      p.x - item.w / 2 >= area.left && p.x + item.w / 2 <= area.right &&
+      p.y - item.h / 2 >= area.top && p.y + item.h / 2 <= area.bottom;
+
+    const onTitle = (p, item) =>
+      p.x + item.w / 2 > title.left && p.x - item.w / 2 < title.right &&
+      p.y + item.h / 2 > title.top && p.y - item.h / 2 < title.bottom;
+
+    const apartFrom = (a, item, b, other) =>
+      Math.abs(a.x - b.x) >= (item.w + other.w) / 2 + gap ||
+      Math.abs(a.y - b.y) >= (item.h + other.h) / 2 + gap;
+
+    /* checked at 20 points of the movement plus the end */
+    const steps = [];
+    for (let k = 0; k <= 20; k++) {
+      steps.push(k / 20);
+    }
+
+    const random = seededRandom(seed);
+
+    /* clump centres: spread around TOOLS on the oval,
+       each a bit off its even place (fixed numbers) */
+    const clumps = [];
+    for (let k = 0; k < cloud.clumps; k++) {
+      const angle = (k / cloud.clumps) * 2 * Math.PI + (random() - 0.5) * 0.9;
+      const radius = 0.45 + random() * 0.3;
+      const p = Math.cos(angle) * radius * cloud.size.x;
+      const q = Math.sin(angle) * radius * cloud.size.y;
+      clumps.push({
+        u: cloud.shift.x + p * Math.cos(tilt) - q * Math.sin(tilt),
+        v: cloud.shift.y + p * Math.sin(tilt) + q * Math.cos(tilt)
+      });
+    }
+
+    /* longest labels first */
+    const order =
+      sizes.map((s, index) => ({ index, ...s }))
+        .sort((a, b) => b.w - a.w || a.index - b.index);
+
+    const placed = [];
+
+    for (const entry of order) {
+
+      const clump = clumps[entry.index % clumps.length];
+      const item = {
+        index: entry.index, w: entry.w, h: entry.h,
+        speed: speeds[entry.index], x: 0, y: 0
+      };
+      let fallback = null;
+      let found = false;
+
+      for (let attempt = 0; attempt < 3000 && !found; attempt++) {
+
+        const spread = cloud.clumpSpread * (1 + attempt / 600);
+        const u = clump.u + (random() + random() + random() - 1.5) / 1.5 * spread;
+        const v = clump.v + (random() + random() + random() - 1.5) / 1.5 * spread;
+
+        if (!insideCloud(u, v) && attempt < 1500) {
+          continue;
+        }
+
+        item.x = layout.cx + u * layout.ax;
+        item.y = layout.cy + v * layout.ay;
+
+        /* at the start: inside the screen, off TOOLS */
+        const p = spreadPoint(item, layout, 0);
+
+        if (!insideArea(p, item) || onTitle(p, item)) {
+          continue;
+        }
+
+        /* apart from the others all the way, each with its speed */
+        const apart = steps.every(
+          (t) => {
+            const a = spreadPoint(item, layout, t);
+            return !onTitle(a, item) &&
+              placed.every((other) => apartFrom(a, item, spreadPoint(other, layout, t), other));
+          }
+        );
+
+        if (!apart) {
+          continue;
+        }
+
+        /* best: still inside the screen at the full spread */
+        if (insideArea(spreadPoint(item, layout, 1), item)) {
+          found = true;
+        }
+        else if (!fallback) {
+          fallback = { x: item.x, y: item.y };
+        }
+
+      }
+
+      if (!found) {
+        if (fallback) {
+          item.x = fallback.x;
+          item.y = fallback.y;
+        }
+        else {
+          console.warn("TOOLS: no free place for", TOOLS[item.index].label);
+        }
+      }
+
+      placed.push(item);
+
+    }
+
+    /* 1) one common spread: as wanted, or less if a label at its
+       middle speed would leave the screen or go under the header */
+    let spread = spreadScale;
+
+    placed.forEach(
+      (item) => {
+        const dx = item.x - layout.cx;
+        const dy = item.y - layout.cy;
+        if (dx > 0) spread = Math.min(spread, (area.right - item.w / 2 - layout.cx) / dx);
+        if (dx < 0) spread = Math.min(spread, (area.left + item.w / 2 - layout.cx) / dx);
+        if (dy > 0) spread = Math.min(spread, (area.bottom - item.h / 2 - layout.cy) / dy);
+        if (dy < 0) spread = Math.min(spread, (area.top + item.h / 2 - layout.cy) / dy);
+      }
+    );
+
+    layout.spread = Math.max(1, spread);
+
+    /* 2) the whole movement with the own speeds: nothing touches
+       another label, TOOLS, the header or the screen edge */
+    const allClear = () =>
+      steps.every(
+        (t) => placed.every(
+          (item, i) => {
+            const a = spreadPoint(item, layout, t);
+            return insideArea(a, item) && !onTitle(a, item) &&
+              placed.every((other, j) => j <= i || apartFrom(a, item, spreadPoint(other, layout, t), other));
+          }
+        )
+      );
+
+    /* if not, the range of speeds is narrowed step by step,
+       and as the last resort the common spread too */
+    let narrowed = false;
+
+    while (!allClear() && layout.variation > 0) {
+      layout.variation = Math.max(0, +(layout.variation - 0.01).toFixed(2));
+      narrowed = true;
+    }
+
+    for (let k = 0; k < 40 && !allClear() && layout.spread > 1; k++) {
+      layout.spread = 1 + (layout.spread - 1) * 0.9;
+      narrowed = true;
+    }
+
+    const low = 1 + (layout.spread - 1) * (1 - layout.variation);
+    const high = 1 + (layout.spread - 1) * (1 + layout.variation);
+    const report =
+      `TOOLS ${width}×${height}: label speeds ${low.toFixed(4)}…${high.toFixed(4)}` +
+      ` (spread ${layout.spread.toFixed(4)}, variation ${layout.variation.toFixed(2)})`;
+
+    if (narrowed || layout.spread < spreadScale) {
+      console.warn(report + " – narrowed to stay clear");
+    }
+    else {
+      console.info(report);
+    }
+
+    if (!allClear()) {
+      console.warn("TOOLS: labels still touch at the start, change seed or cloud");
+    }
+
+    layout.items = placed.sort((a, b) => a.index - b.index);
+    toolsLayout = layout;
+
+  }
+
+
+  /* recompute the layout on resize, after the size settles */
+  let toolsResizeTimer = null;
+
+  window.addEventListener(
+    "resize",
+    () => {
+      clearTimeout(toolsResizeTimer);
+      toolsResizeTimer = setTimeout(layoutTools, 150);
+    }
+  );
+
+  fontsLoaded.then(layoutTools);
+
+
+  /*
+    toolsTime – time inside the TOOLS part (old timeline units)
+    pastEnd   – px scrolled past the end of the section
+                (below 0 while the scene is still pinned)
+  */
+  function updateTools(toolsTime, pastEnd) {
+
+    const comeIn =
+      smoothstep(clamp(toolsTime / (TOOLS_COME_IN / 6), 0, 1));
+
+    const height = window.innerHeight;
+    const titleH = toolsLabel.offsetHeight;
+    const { exitSpeed } = TOOLS_SETTINGS;
+
+    /* after the section ends the page moves the scene up by
+       itself; exitSpeed adds (or takes away) extra movement */
+    const exit = Math.max(0, pastEnd);
+    const extraY = (exitSpeed - 1) * exit;
+
+    /* the cloud grows evenly until it has left the screen */
+    const spreadTime = clamp(exit * exitSpeed / height, 0, 1);
+    const gone = exit * exitSpeed >= height;
+
+
+    /* TOOLS: from below to the centre, then up with the page */
+    const titleTop =
+      lerp(height + 3, height / 2 - titleH / 2, comeIn) - extraY;
+
+    toolsLabel.style.top = `${titleTop}px`;
+    toolsLabel.style.visibility =
+      toolsTime > 0 && !gone ? "visible" : "hidden";
+
+
+    /* the cloud: all labels switch on together when TOOLS
+       has arrived, i.e. at the end of the section */
+    const cloudOn =
+      pastEnd > -0.5 && !gone && toolsLayout;
+
+    if (!cloudOn) {
+
+      toolButtons.forEach((b) => { b.style.visibility = "hidden"; });
+
+      if (openToolIndex >= 0) {
+        closeToolPopup(false);
+      }
+
+      return;
+
+    }
+
+    toolsLayout.items.forEach(
+      (item) => {
+
+        const button = toolButtons[item.index];
+        const p = spreadPoint(item, toolsLayout, spreadTime);
+
+        button.style.visibility = "visible";
+        button.style.transform =
+          `translate(${p.x - item.w / 2}px, ${p.y - extraY - item.h / 2}px)`;
+
+      }
+    );
+
+  }
+
+
+  /* ---------- description window ---------- */
+
+  let openToolIndex = -1;
+  let openToolScrollY = 0;
+
+
+  function toggleToolPopup(index) {
+
+    if (openToolIndex === index) {
+      closeToolPopup(true);
+      return;
+    }
+
+    if (openToolIndex >= 0) {
+      closeToolPopup(false);
+    }
+
+    const tool = TOOLS[index];
+    const button = toolButtons[index];
+
+    toolPopupIcon.src = TOOL_ICONS[tool.platform];
+    toolPopupText.textContent = tool.description;
+    toolPopupText.style.textTransform =
+      TOOLS_SETTINGS.descriptionUppercase ? "uppercase" : "none";
+
+    /* the name is not shown, but screen readers get it */
+    toolPopup.setAttribute("aria-label", tool.label);
+
+    toolPopup.hidden = false;
+    button.setAttribute("aria-expanded", "true");
+
+    openToolIndex = index;
+    openToolScrollY = window.scrollY;
+
+    placeToolPopup(button);
+
+  }
+
+
+  function placeToolPopup(button) {
+
+    const mobile = window.innerWidth <= 700;
+
+    toolPopup.classList.toggle("is-sheet", mobile);
+
+    if (mobile) {
+      toolPopup.style.left = "";
+      toolPopup.style.top = "";
+      return;
+    }
+
+    const edge = 16;
+    const rect = button.getBoundingClientRect();
+    const box = toolPopup.getBoundingClientRect();
+
+    const headerBottom =
+      document.querySelector("header").getBoundingClientRect().bottom;
+
+    let left = rect.left + rect.width / 2 - box.width / 2;
+    left = clamp(left, edge, window.innerWidth - box.width - edge);
+
+    /* below the label, or above it if there is no room */
+    let top = rect.bottom + 10;
+
+    if (top + box.height > window.innerHeight - edge) {
+      top = rect.top - box.height - 10;
+    }
+
+    top = clamp(top, headerBottom + 8, window.innerHeight - box.height - edge);
+
+    toolPopup.style.left = `${left}px`;
+    toolPopup.style.top = `${top}px`;
+
+  }
+
+
+  function closeToolPopup(returnFocus) {
+
+    if (openToolIndex < 0) {
+      return;
+    }
+
+    const button = toolButtons[openToolIndex];
+
+    toolPopup.hidden = true;
+    button.setAttribute("aria-expanded", "false");
+    openToolIndex = -1;
+
+    if (returnFocus) {
+      button.focus({ preventScroll: true });
+    }
+
+  }
+
+
+  /* Esc closes */
+  document.addEventListener(
+    "keydown",
+    (event) => {
+      if (event.key === "Escape" && openToolIndex >= 0) {
+        closeToolPopup(true);
+      }
+    }
+  );
+
+  /* a click outside the window (and outside its label) closes */
+  document.addEventListener(
+    "pointerdown",
+    (event) => {
+
+      if (openToolIndex < 0) {
+        return;
+      }
+
+      const button = toolButtons[openToolIndex];
+
+      if (toolPopup.contains(event.target) || button.contains(event.target)) {
+        return;
+      }
+
+      closeToolPopup(false);
+
+      /* the browser moves focus to the clicked spot after this
+         event; give it back to the label unless the click went
+         to something that takes focus itself */
+      setTimeout(
+        () => {
+          if (!document.activeElement || document.activeElement === document.body) {
+            button.focus({ preventScroll: true });
+          }
+        },
+        0
+      );
+
+    }
+  );
+
+  /* scrolling moves the cloud, so the window closes */
+  window.addEventListener(
+    "scroll",
+    () => {
+      if (openToolIndex >= 0 &&
+          Math.abs(window.scrollY - openToolScrollY) > TOOLS_SETTINGS.closeOnScroll) {
+        closeToolPopup(true);
+      }
+    },
+    { passive: true }
+  );
+
+
+  /* ==================================================
+     VIDEO: filled from VIDEO_SETTINGS
+  ================================================== */
+
+  function buildVideo() {
+
+    const frame = document.getElementById("videoFrame");
+    const link = document.getElementById("videoFullLink");
+
+    /* the value for the chosen language */
+    const lang = VIDEO_SETTINGS.videoLang;
+    const pick = (value) =>
+      value && typeof value === "object" ? value[lang] : value;
+
+    const videoSrc = pick(VIDEO_SETTINGS.videoSrc);
+    const fullHref = pick(VIDEO_SETTINGS.fullVersionHref);
+
+    /* the shape of the frame (and of the "coming soon" box) */
+    document.documentElement.style.setProperty(
+      "--video-aspect",
+      `${VIDEO_SETTINGS.aspect.width} / ${VIDEO_SETTINGS.aspect.height}`
+    );
+
+    document.getElementById("videoCaption").textContent =
+      pick(VIDEO_SETTINGS.caption) || "";
+
+    if (videoSrc) {
+
+      const video = document.createElement("video");
+
+      video.src = videoSrc;
+      video.controls = true;
+      video.playsInline = true;
+      video.preload = "metadata";
+      video.setAttribute("playsinline", "");
+      video.setAttribute("aria-label", VIDEO_SETTINGS.videoLabel);
+
+      if (VIDEO_SETTINGS.posterSrc) {
+        video.poster = VIDEO_SETTINGS.posterSrc;
+      }
+
+      frame.appendChild(video);
+
+    }
+
+    else {
+
+      const box = document.createElement("div");
+
+      box.className = "video-placeholder section-small";
+      box.textContent = VIDEO_SETTINGS.comingSoonVideo;
+
+      frame.appendChild(box);
+
+    }
+
+    if (fullHref) {
+
+      link.href = fullHref;
+      link.target = "_blank";
+      link.rel = "noopener";
+      link.textContent = VIDEO_SETTINGS.fullVersionLabel;
+
+    }
+
+    else {
+
+      /* no address yet: still reachable with Tab and read
+         out, but marked as not available and goes nowhere */
+      link.setAttribute("role", "link");
+      link.setAttribute("aria-disabled", "true");
+      link.tabIndex = 0;
+      link.textContent = VIDEO_SETTINGS.comingSoonFullVersion;
+
+    }
+
+  }
+
+  buildVideo();
+
+
+  /* ==================================================
+     ACCESS: rows from ACCESS_SETTINGS
+  ================================================== */
+
+  /* platforms already requested in this visit of the
+     page: trackInterest is called only once for each */
+  const requestedPlatforms = new Set();
+
+  function buildAccess() {
+
+    const list = document.getElementById("accessList");
+
+    ACCESS_SETTINGS.forEach(
+      (row) => {
+
+        const item = document.createElement("li");
+        item.className = "access-row";
+
+        const icon = document.createElement("img");
+        icon.className = "access-icon";
+        icon.src = TOOL_ICONS[row.platform];
+        icon.alt = "";
+
+        const names = document.createElement("div");
+        names.className = "access-name-block";
+
+        const name = document.createElement("span");
+        name.className = "section-small";
+        name.textContent = row.platform;
+
+        const status = document.createElement("span");
+        status.className = "section-small access-status";
+        status.textContent = row.status;
+
+        names.append(name, status);
+
+        /* screen readers announce what appears here */
+        const action = document.createElement("div");
+        action.className = "access-action";
+        action.setAttribute("aria-live", "polite");
+
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "access-button section-small";
+        button.textContent = row.buttonLabel;
+        button.setAttribute("aria-label", row.buttonLabel + ": " + row.platform);
+
+        button.addEventListener(
+          "click",
+          () => {
+
+            if (!requestedPlatforms.has(row.platform)) {
+              requestedPlatforms.add(row.platform);
+              trackInterest(row.platform);
+            }
+
+            const message = document.createElement("p");
+            message.className = "access-message section-small";
+            message.textContent = ACCESS_MESSAGE;
+            message.tabIndex = -1;
+
+            action.classList.add("is-done");
+            action.replaceChildren(message);
+
+            /* keep the keyboard in the same place */
+            message.focus({ preventScroll: true });
+
+          }
+        );
+
+        action.appendChild(button);
+        item.append(icon, names, action);
+        list.appendChild(item);
+
+      }
+    );
+
+  }
+
+  buildAccess();
+
+
+  /* ==================================================
+     CONTACT: rows from CONTACT_SETTINGS
+  ================================================== */
+
+  function buildContact() {
+
+    const body = document.getElementById("contactBody");
+
+    document.getElementById("contactIntro").textContent =
+      CONTACT_INTRO;
+
+    const rows =
+      CONTACT_SETTINGS.filter((row) => row.value && row.value.trim());
+
+    if (!rows.length) {
+
+      const empty = document.createElement("p");
+      empty.className = "contact-empty section-small";
+      empty.textContent = CONTACT_EMPTY;
+
+      body.appendChild(empty);
+      return;
+
+    }
+
+    const list = document.createElement("ul");
+    list.className = "contact-list";
+
+    rows.forEach(
+      (row) => {
+
+        const item = document.createElement("li");
+        item.className = "contact-row section-small";
+
+        if (row.label) {
+          const label = document.createElement("span");
+          label.textContent = row.label;
+          item.appendChild(label);
+        }
+
+        let href = (row.href || "").trim();
+
+        if (!href && /^[^\s@]+@[^\s@]+$/.test(row.value.trim())) {
+          href = "mailto:" + row.value.trim();
+        }
+
+        let value;
+
+        if (href) {
+
+          value = document.createElement("a");
+          value.className = "text-link";
+          value.href = href;
+
+          if (!href.startsWith("mailto:")) {
+            value.target = "_blank";
+            value.rel = "noopener";
+          }
+
+        }
+
+        else {
+          value = document.createElement("span");
+        }
+
+        value.classList.add("contact-value");
+        value.textContent = row.value;
+
+        item.appendChild(value);
+        list.appendChild(item);
+
+      }
+    );
+
+    body.appendChild(list);
+
+  }
+
+  buildContact();
+
+
+  /* ==================================================
+     LANGUAGE BUTTON and its note
+  ================================================== */
+
+  const langButton = document.getElementById("langButton");
+  const langText = document.getElementById("langText");
+  const langHint = document.getElementById("langHint");
+
+  let langHintTimer = null;
+  let langHintScrollY = 0;
+
+  function setupLangButton() {
+
+    const { currentLang, labels, ruAvailable } = LANG_SETTINGS;
+
+    langText.textContent = labels[currentLang];
+
+    /* what a screen reader says: the language it switches to */
+    if (currentLang === "en") {
+
+      langButton.setAttribute(
+        "aria-label",
+        ruAvailable ? "Русская версия" : "Russian version (coming soon)"
+      );
+
+      if (ruAvailable) {
+        langButton.setAttribute("lang", "ru");
+      }
+      else {
+        langButton.removeAttribute("lang");
+      }
+
+    }
+
+    else {
+      langButton.setAttribute("aria-label", "English version");
+      langButton.setAttribute("lang", "en");
+    }
+
+  }
+
+  function hideLangHint() {
+
+    clearTimeout(langHintTimer);
+    langHint.classList.remove("is-visible");
+    langHint.textContent = "";
+
+  }
+
+  function showLangHint() {
+
+    langHint.classList.add("is-visible");
+    langHint.textContent = LANG_SETTINGS.comingSoonText;
+
+    langHintScrollY = window.scrollY;
+
+    clearTimeout(langHintTimer);
+    langHintTimer = setTimeout(hideLangHint, LANG_SETTINGS.hintMs);
+
+  }
+
+  langButton.addEventListener(
+    "click",
+    () => {
+
+      if (LANG_SETTINGS.ruAvailable) {
+        switchLanguage();
+        return;
+      }
+
+      /* pressing again while the note is visible closes it */
+      if (langHint.classList.contains("is-visible")) {
+        hideLangHint();
+      }
+      else {
+        showLangHint();
+      }
+
+    }
+  );
+
+  document.addEventListener(
+    "keydown",
+    (event) => {
+      if (event.key === "Escape") {
+        hideLangHint();
+      }
+    }
+  );
+
+  document.addEventListener(
+    "pointerdown",
+    (event) => {
+      if (!langButton.contains(event.target) && !langHint.contains(event.target)) {
+        hideLangHint();
+      }
+    }
+  );
+
+  window.addEventListener(
+    "scroll",
+    () => {
+      if (langHint.classList.contains("is-visible") &&
+          Math.abs(window.scrollY - langHintScrollY) > 10) {
+        hideLangHint();
+      }
+    },
+    { passive: true }
+  );
+
+  setupLangButton();
 
 
   updateAnimation();
