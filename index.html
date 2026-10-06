@@ -4,7 +4,29 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>CUT2 — Asset Representations</title>
+  <!--
+    Page title, description and the picture for link previews.
+    These values repeat SEO_SETTINGS (in the script below). They
+    are written here in plain HTML on purpose: search engines and
+    social networks do not run scripts. If you change one, change
+    the other.
+  -->
+  <title>CUT2 — one project, multiple platforms</title>
+  <meta name="description" content="CUT2: tools for AutoCAD, SketchUp and InDesign built around one asset and its many representations. An independent R&amp;D project by Anton Bratkov.">
+  <link rel="canonical" href="https://cut2.tools/">
+
+  <meta property="og:title" content="CUT2 — one project, multiple platforms">
+  <meta property="og:description" content="CUT2: tools for AutoCAD, SketchUp and InDesign built around one asset and its many representations. An independent R&amp;D project by Anton Bratkov.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://cut2.tools/">
+  <meta property="og:image" content="https://cut2.tools/og-image.png">
+  <meta property="og:image:alt" content="CUT2 — one project, multiple platforms">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#f3f0e8">
+
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
 
   <!-- the font is part of the site (fonts/), no Google Fonts -->
   <link
@@ -1519,6 +1541,37 @@
 
 
 <script>
+
+  /* ==================================================
+     SETTINGS: SEO (title, description, link preview)
+  ================================================== */
+
+  /*
+    The page does not read these values: the same text is
+    written in <head> (title, meta description, canonical,
+    og:..., twitter:card), because search engines and social
+    networks do not run scripts. This block is the one place
+    to keep them together; when you change a value, change the
+    matching tag in <head> too.
+
+    title        page title (browser tab, search results)
+    description  short text under the title in search results
+                 and in link previews
+    siteUrl      the real address of the site (with the final /)
+    image        the picture for link previews (1200×630),
+                 a file in the root of the site; the tags use
+                 the full address siteUrl + image
+    imageAlt     what that picture shows, for screen readers
+  */
+
+  const SEO_SETTINGS = {
+    title: "CUT2 — one project, multiple platforms",
+    description: "CUT2: tools for AutoCAD, SketchUp and InDesign built around one asset and its many representations. An independent R&D project by Anton Bratkov.",
+    siteUrl: "https://cut2.tools/",
+    image: "og-image.png",
+    imageAlt: "CUT2 — one project, multiple platforms"
+  };
+
 
   /* ==================================================
      SETTINGS: CUT2 → ONE PROJECT
