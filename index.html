@@ -1114,12 +1114,24 @@
         font-size: 10px;
       }
 
+      /*
+        Phone browsers (Safari) move their address bar and
+        tool bar while the page is scrolled, and the visible
+        height changes. The scene must not follow that, so it
+        is as tall as the LARGEST visible height (bars folded
+        away): 100lvh. 100vh is the fallback for old browsers
+        (in Safari it means the same). The scene is then
+        always big enough, never cut off above the bottom edge,
+        and its size does not change while scrolling.
+      */
       .asset-system {
         height: 839vh;
+        height: 839lvh;
       }
 
       .sticky-stage {
-        height: 100svh;
+        height: 100vh;
+        height: 100lvh;
       }
 
       .project-label,
@@ -2964,9 +2976,18 @@
       header.getBoundingClientRect();
 
 
+    /*
+      The height of the scene (CSS: 100vh, on phones 100lvh).
+      It does not change when the browser bars move, unlike
+      window.innerHeight, so everything below is measured from
+      it: scroll progress, positions, the place where blocks
+      come in from below.
+    */
+    const stageH = stage.offsetHeight;
+
     const scrollable =
       section.offsetHeight -
-      window.innerHeight;
+      stageH;
 
     const passed =
       clamp(
@@ -3047,7 +3068,7 @@
 
 
     const centerY =
-      window.innerHeight / 2;
+      stageH / 2;
 
     const headerGap =
       24;
@@ -3642,7 +3663,7 @@
 
 
     const cardTravel =
-      window.innerHeight * 0.82;
+      stageH * 0.82;
 
 
     const cardY =
@@ -3746,7 +3767,7 @@
       (3 - 2 * labelEntryProgress);
 
     const labelEntryShift =
-      window.innerHeight +
+      stageH +
       3 -
       (centerY - labelHeight / 2);
 
@@ -4050,7 +4071,7 @@
        12. TOOLS
     ================================================== */
 
-    updateTools(toolsTime, pastEnd);
+    updateTools(toolsTime, pastEnd, stageH);
 
 
     requestAnimationFrame(
@@ -4152,11 +4173,27 @@
   }
 
 
+  /* width x scene height of the last layout */
+  let toolsLayoutKey = "";
+
   function layoutTools() {
 
     const width = window.innerWidth;
-    const height = window.innerHeight;
+
+    /* the height of the scene, not of the window: it does not
+       change when the browser bars move */
+    const height = document.querySelector(".sticky-stage").offsetHeight;
     const mobile = width <= 700;
+
+    /* same size as last time: the layout would come out
+       exactly the same, so do nothing */
+    const key = width + "x" + height;
+
+    if (key === toolsLayoutKey && toolsLayout) {
+      return;
+    }
+
+    toolsLayoutKey = key;
 
     const { gap, margin, seed, spreadScale, spreadVariation } = TOOLS_SETTINGS;
     const cloud = mobile ? TOOLS_SETTINGS.cloudMobile : TOOLS_SETTINGS.cloud;
@@ -4400,7 +4437,14 @@
   }
 
 
-  /* recompute the layout on resize, after the size settles */
+  /*
+    Recompute the layout when the window size really changes
+    (width, rotation, a different window), after the size
+    settles. A change of the visible height only because the
+    browser bars moved does not change the scene height, so
+    layoutTools() sees the same size and keeps the cloud as
+    it is.
+  */
   let toolsResizeTimer = null;
 
   window.addEventListener(
@@ -4418,13 +4462,13 @@
     toolsTime – time inside the TOOLS part (old timeline units)
     pastEnd   – px scrolled past the end of the section
                 (below 0 while the scene is still pinned)
+    height    – height of the scene in px
   */
-  function updateTools(toolsTime, pastEnd) {
+  function updateTools(toolsTime, pastEnd, height) {
 
     const comeIn =
       smoothstep(clamp(toolsTime / (TOOLS_COME_IN / 6), 0, 1));
 
-    const height = window.innerHeight;
     const titleH = toolsLabel.offsetHeight;
     const { exitSpeed } = TOOLS_SETTINGS;
 
