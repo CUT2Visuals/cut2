@@ -660,24 +660,133 @@
 
 
     /* ==================================================
-       NEXT
+       SECTIONS AFTER THE SCENE (normal scrolling)
     ================================================== */
 
-    .next {
-      min-height: 100vh;
-
+    /* line on top, side space as in the header,
+       space above and below = header height */
+    .page-section {
       border-top: 1px solid #000;
+
+      padding: 64px 28px;
+    }
+
+    /* the same size as TOOLS and the other big words */
+    .section-title {
+      margin: 0 0 28px;
+
+      font-size: clamp(28px, 5vw, 72px);
+      font-weight: 400;
+      line-height: 1.2;
+
+      text-transform: uppercase;
+    }
+
+    /* small caption text, as under the representations */
+    .section-small {
+      font-size: 12px;
+      font-weight: 400;
+
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .text-link {
+      color: inherit;
+
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+
+    /* link without an address yet: dashed, goes nowhere */
+    .text-link[aria-disabled="true"] {
+      text-decoration-style: dashed;
+
+      cursor: default;
+    }
+
+    .page-section a:focus,
+    .page-section button:focus,
+    .page-section video:focus {
+      outline: none;
+    }
+
+    .page-section a:focus-visible,
+    .page-section button:focus-visible,
+    .page-section video:focus-visible {
+      outline: 1px solid #000;
+      outline-offset: 3px;
+    }
+
+    /* when Tab scrolls to an item, it stops below the
+       header (64px + 24px gap), not under it */
+    .page-section a,
+    .page-section button,
+    .page-section video {
+      scroll-margin-top: 88px;
+    }
+
+
+    /* ==================================================
+       VIDEO
+    ================================================== */
+
+    /* the video goes edge to edge, only the texts keep
+       the side space */
+    .video-section {
+      padding-left: 0;
+      padding-right: 0;
+    }
+
+    .video-section .section-title,
+    .video-info {
+      padding: 0 28px;
+    }
+
+    /* never taller than the screen under the header, so the
+       whole video and its controls fit; on short screens the
+       16:9 picture gets black side bars */
+    .video-frame {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      max-height: calc(100vh - 64px);
+
+      background: #000;
+    }
+
+    .video-frame video {
+      display: block;
+
+      width: 100%;
+      height: 100%;
+
+      object-fit: contain;
+      background: #000;
+
+      scroll-margin-top: 64px;
+    }
+
+    /* black box while there is no video file yet */
+    .video-placeholder {
+      width: 100%;
+      height: 100%;
 
       display: flex;
       align-items: center;
       justify-content: center;
 
-      padding: 20px;
+      color: #f3f0e8;
+    }
 
-      font-size: clamp(24px, 4vw, 56px);
-      font-weight: 400;
+    .video-info {
+      margin-top: 18px;
 
-      text-align: center;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+
+      gap: 12px;
     }
 
 
@@ -767,9 +876,39 @@
         font-size: 10px;
       }
 
-      .next {
-        min-height: 100svh;
+      .page-section {
+        padding: 52px 16px;
+      }
+
+      .section-title {
+        margin-bottom: 20px;
         font-size: 26px;
+      }
+
+      .section-small {
+        font-size: 10px;
+      }
+
+      .video-section {
+        padding-left: 0;
+        padding-right: 0;
+      }
+
+      .video-section .section-title,
+      .video-info {
+        padding: 0 16px;
+      }
+
+      .video-info {
+        margin-top: 12px;
+      }
+
+      .video-frame {
+        max-height: calc(100svh - 52px);
+      }
+
+      .video-frame video {
+        scroll-margin-top: 52px;
       }
 
     }
@@ -1069,12 +1208,22 @@
 
 
   <!-- ==================================================
-       NEXT
+       VIDEO (filled from VIDEO_SETTINGS by the script)
   ================================================== -->
 
-  <section class="next">
+  <section
+    class="page-section video-section"
+    aria-labelledby="videoTitle"
+  >
 
-    THE SYSTEM CONTINUES.
+    <h2 class="section-title" id="videoTitle">VIDEO</h2>
+
+    <div class="video-frame" id="videoFrame"></div>
+
+    <div class="video-info section-small">
+      <span id="videoCaption"></span>
+      <a class="text-link" id="videoFullLink"></a>
+    </div>
 
   </section>
 
@@ -1307,6 +1456,38 @@
     /* the window closes when the page scrolls this far, px */
     closeOnScroll: 10
 
+  };
+
+
+  /* ==================================================
+     SETTINGS: VIDEO
+     (safe to tweak)
+  ================================================== */
+
+  /*
+    videoSrc          path to the mp4 file, e.g.
+                      "assets/video/demo.mp4"; empty = a black
+                      box with "VIDEO COMING SOON"
+    posterSrc         picture shown before the video starts
+                      (empty = none)
+    videoLabel        what the video is, for screen readers
+    caption           small text under the video
+    fullVersionHref   address of the long version (opens in a
+                      new tab); empty = the link is shown as not
+                      available yet
+    fullVersionLabel  text of that link
+    comingSoon...     texts used while something is empty
+  */
+
+  const VIDEO_SETTINGS = {
+    videoSrc: "",
+    posterSrc: "",
+    videoLabel: "Short demo of the CUT2 plugins for SketchUp",
+    caption: "SKETCHUP PLUGINS · MVP",
+    fullVersionHref: "",
+    fullVersionLabel: "WATCH FULL VERSION →",
+    comingSoonVideo: "VIDEO COMING SOON",
+    comingSoonFullVersion: "FULL VERSION COMING SOON"
   };
 
 
@@ -3703,6 +3884,73 @@
     },
     { passive: true }
   );
+
+
+  /* ==================================================
+     VIDEO: filled from VIDEO_SETTINGS
+  ================================================== */
+
+  function buildVideo() {
+
+    const frame = document.getElementById("videoFrame");
+    const link = document.getElementById("videoFullLink");
+
+    document.getElementById("videoCaption").textContent =
+      VIDEO_SETTINGS.caption;
+
+    if (VIDEO_SETTINGS.videoSrc) {
+
+      const video = document.createElement("video");
+
+      video.src = VIDEO_SETTINGS.videoSrc;
+      video.controls = true;
+      video.playsInline = true;
+      video.preload = "metadata";
+      video.setAttribute("playsinline", "");
+      video.setAttribute("aria-label", VIDEO_SETTINGS.videoLabel);
+
+      if (VIDEO_SETTINGS.posterSrc) {
+        video.poster = VIDEO_SETTINGS.posterSrc;
+      }
+
+      frame.appendChild(video);
+
+    }
+
+    else {
+
+      const box = document.createElement("div");
+
+      box.className = "video-placeholder section-small";
+      box.textContent = VIDEO_SETTINGS.comingSoonVideo;
+
+      frame.appendChild(box);
+
+    }
+
+    if (VIDEO_SETTINGS.fullVersionHref) {
+
+      link.href = VIDEO_SETTINGS.fullVersionHref;
+      link.target = "_blank";
+      link.rel = "noopener";
+      link.textContent = VIDEO_SETTINGS.fullVersionLabel;
+
+    }
+
+    else {
+
+      /* no address yet: still reachable with Tab and read
+         out, but marked as not available and goes nowhere */
+      link.setAttribute("role", "link");
+      link.setAttribute("aria-disabled", "true");
+      link.tabIndex = 0;
+      link.textContent = VIDEO_SETTINGS.comingSoonFullVersion;
+
+    }
+
+  }
+
+  buildVideo();
 
 
   updateAnimation();
