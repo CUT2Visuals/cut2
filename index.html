@@ -236,16 +236,16 @@
 
     /*
       The script sets the exact height from TOOLS_SETTINGS.timing
-      (817vh + 100vh × (comeIn + hold + the extra pinned part of
-      spreadScroll)). The values here are the same numbers for
-      the default settings, so the page has the right length
-      before the script runs:
-        desktop 817 + 40 + 40 + 0     = 897vh
-        phone   817 + 50 + 50 + 20    = 937vh
+      (817vh + 100vh × (comeIn + hold + spreadScroll + holdAfter)).
+      The values here are the same numbers for the default
+      settings, so the page has the right length before the
+      script runs:
+        desktop 817 + 40 + 40 + 50 + 40   = 987vh
+        phone   817 + 50 + 50 + 60 + 50   = 1027vh
     */
     .asset-system {
       position: relative;
-      height: 897vh;
+      height: 987vh;
     }
 
     .sticky-stage {
@@ -1134,8 +1134,8 @@
         and its size does not change while scrolling.
       */
       .asset-system {
-        height: 937vh;
-        height: 937lvh;
+        height: 1027vh;
+        height: 1027lvh;
       }
 
       .sticky-stage {
@@ -1858,24 +1858,30 @@
                       up to the centre (longer = calmer)
         hold          TOOLS stands still in the centre, alone,
                       with nothing around it: a short stop
-                      (about a second of ordinary scrolling)
-        spreadScroll  after the stop all the labels appear at
-                      once and move apart over this much
-                      scrolling (longer = slower). Over 1 means
-                      the scene stays pinned for the extra part
-                      while the labels spread; then it goes up
-                      with the page and the cloud is gone exactly
-                      when the spreading is finished.
+                      before the burst (about a second of
+                      ordinary scrolling)
+        spreadScroll  the burst: all the labels appear at once
+                      and at that very moment start to move
+                      apart; this is how much scrolling it takes
+                      (shorter = faster)
+        holdAfter     the stop after the burst: the cloud stands
+                      still, the scene stays pinned.
+                      null = the same as hold, so the two stops
+                      change together. To make them different,
+                      write a number here instead of null.
+
+      After the second stop the scene goes up with the page and
+      the cloud leaves under the header (exitSpeed below).
 
       The height of the whole scene section is worked out from
       these numbers by the script (nothing to change in CSS; the
       CSS only holds the same numbers for the first moment before
-      the script runs: 897vh desktop and 937vh phone for the
+      the script runs: 987vh desktop and 1027vh phone for the
       default settings, see .asset-system).
     */
     timing: {
-      desktop: { comeIn: 0.4, hold: 0.4, spreadScroll: 1.0 },
-      phone:   { comeIn: 0.5, hold: 0.5, spreadScroll: 1.2 }
+      desktop: { comeIn: 0.4, hold: 0.4, spreadScroll: 0.5, holdAfter: null },
+      phone:   { comeIn: 0.5, hold: 0.5, spreadScroll: 0.6, holdAfter: null }
     },
 
     /* label size: copied from the captions under the
@@ -1926,7 +1932,8 @@
       from TOOLS, from 1 to about spreadScale (1.15 = 15 %
       further away). It grows evenly with the scroll (one
       smooth movement, no steps), from the moment the labels
-      appear over the length spreadScroll (see timing above).
+      appear over the length spreadScroll (see timing above),
+      and then stands still for holdAfter.
     */
     spreadScale: 1.15,
 
@@ -3011,15 +3018,23 @@
     const toolsHoldLen = toolsTiming.hold * stageH;
     const toolsSpreadLen = toolsTiming.spreadScroll * stageH;
 
-    /* the labels appear here and start to spread */
+    /* the stop after the burst: the same as the first stop
+       unless holdAfter is a number */
+    const toolsHoldAfterLen =
+      (toolsTiming.holdAfter == null
+        ? toolsTiming.hold
+        : toolsTiming.holdAfter) * stageH;
+
+    /* the labels appear here and, in the same moment, start
+       to spread */
     const toolsAppearPx =
       toolsStartPx + toolsComeLen + toolsHoldLen;
 
-    /* the scene is pinned until the spreading has only one
-       screen height left (that last screen it goes up with
-       the page); not shorter than one screen */
+    /* the scene stays pinned through the burst and the stop
+       after it; then it goes up with the page (one more screen
+       height of scrolling) */
     const sectionPx =
-      toolsAppearPx + Math.max(toolsSpreadLen, stageH);
+      toolsAppearPx + toolsSpreadLen + toolsHoldAfterLen + stageH;
 
     if (section.dataset.px !== String(sectionPx)) {
       section.style.height = `${sectionPx}px`;
