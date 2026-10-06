@@ -488,6 +488,14 @@
       object-fit: contain;
     }
 
+    /* pictures that are loaded but not shown: out of the layout,
+       invisible (the shown one keeps the same place as before) */
+    .representation-image.is-hidden {
+      position: absolute;
+
+      visibility: hidden;
+    }
+
     .representation-info {
       margin-top: 18px;
 
@@ -1160,7 +1168,7 @@
           <img
             class="platform-icon"
             id="platformAutoCAD"
-            src="prototypes/asset-representations/asset-representations/platforms/autocad.svg"
+            src="prototypes/asset-representations/asset-representations/platforms/autocad.svg?v=4"
             alt="AutoCAD"
           >
 
@@ -1179,7 +1187,7 @@
           <img
             class="platform-icon"
             id="platformSketchUp"
-            src="prototypes/asset-representations/asset-representations/platforms/sketchup.svg"
+            src="prototypes/asset-representations/asset-representations/platforms/sketchup.svg?v=4"
             alt="SketchUp"
           >
 
@@ -1198,7 +1206,7 @@
           <img
             class="platform-icon"
             id="platformInDesign"
-            src="prototypes/asset-representations/asset-representations/platforms/indesign.svg"
+            src="prototypes/asset-representations/asset-representations/platforms/indesign.svg?v=4"
             alt="InDesign"
           >
 
@@ -1244,7 +1252,7 @@
         </div>
 
         <img
-          src="prototypes/asset-representations/asset-representations/library-card.png?v=3"
+          src="prototypes/asset-representations/asset-representations/library-card.png?v=4"
           alt="CUT2 Asset Library"
         >
 
@@ -1299,7 +1307,7 @@
           <img
             id="representationImage"
             class="representation-image"
-            src="prototypes/asset-representations/asset-representations/autocad/minimal.svg?v=3"
+            src="prototypes/asset-representations/asset-representations/autocad/minimal.svg?v=4"
             alt="AutoCAD Minimal"
           >
 
@@ -1538,9 +1546,9 @@
 
   /* Icons for the window, by platform */
   const TOOL_ICONS = {
-    AUTOCAD:  "prototypes/asset-representations/asset-representations/platforms/autocad.svg",
-    SKETCHUP: "prototypes/asset-representations/asset-representations/platforms/sketchup.svg",
-    INDESIGN: "prototypes/asset-representations/asset-representations/platforms/indesign.svg"
+    AUTOCAD:  "prototypes/asset-representations/asset-representations/platforms/autocad.svg?v=4",
+    SKETCHUP: "prototypes/asset-representations/asset-representations/platforms/sketchup.svg?v=4",
+    INDESIGN: "prototypes/asset-representations/asset-representations/platforms/indesign.svg?v=4"
   };
 
 
@@ -2301,40 +2309,181 @@
     {
       platform: "AUTOCAD",
       type: "MINIMAL",
-      src: "prototypes/asset-representations/asset-representations/autocad/minimal.svg?v=3"
+      src: "prototypes/asset-representations/asset-representations/autocad/minimal.svg?v=4"
     },
 
     {
       platform: "AUTOCAD",
       type: "CONDITIONAL",
-      src: "prototypes/asset-representations/asset-representations/autocad/conditional.svg?v=3"
+      src: "prototypes/asset-representations/asset-representations/autocad/conditional.svg?v=4"
     },
 
     {
       platform: "AUTOCAD",
       type: "REALISTIC",
-      src: "prototypes/asset-representations/asset-representations/autocad/realistic.svg?v=3"
+      src: "prototypes/asset-representations/asset-representations/autocad/realistic.svg?v=4"
     },
 
     {
       platform: "SKETCHUP",
       type: "REALISTIC FACE ME",
-      src: "prototypes/asset-representations/asset-representations/sketchup/realistic-face-me.png?v=3"
+      src: "prototypes/asset-representations/asset-representations/sketchup/realistic-face-me.webp?v=4"
     },
 
     {
       platform: "SKETCHUP",
       type: "CONDITIONAL",
-      src: "prototypes/asset-representations/asset-representations/sketchup/conditional.png?v=3"
+      src: "prototypes/asset-representations/asset-representations/sketchup/conditional.webp?v=4"
     },
 
     {
       platform: "INDESIGN",
       type: "IMAGE",
-      src: "prototypes/asset-representations/asset-representations/publishing/image.jpg?v=3"
+      src: "prototypes/asset-representations/asset-representations/publishing/image.webp?v=4"
     }
 
   ];
+
+
+  /* ==================================================
+     REPRESENTATION PICTURES: loading and switching
+  ================================================== */
+
+  /*
+    Every picture has its own <img> inside the scene (the first
+    one is written in the page, the others are made here and
+    stay invisible). After the page has loaded they are filled
+    quietly, one after another, in the order they appear in the
+    scene, and decoded. Switching is then only showing one and
+    hiding another, so it is instant and needs no new download.
+    The caption (platform, type) and the picture always change
+    together: until the wanted picture is ready, the previous
+    picture AND its caption stay on the screen.
+  */
+
+  const representationImages =
+    representations.map(
+      (item, index) => {
+
+        if (index === 0) {
+          return representationImage;
+        }
+
+        const image = new Image();
+
+        image.className = "representation-image is-hidden";
+        image.alt = `${item.platform} ${item.type}`;
+
+        representationVisual.appendChild(image);
+
+        return image;
+
+      }
+    );
+
+  const representationLoads = [];
+  const representationReady = [];
+
+  function loadRepresentation(index) {
+
+    if (!representationLoads[index]) {
+
+      const image = representationImages[index];
+
+      if (!image.getAttribute("src")) {
+        image.src = representations[index].src;
+      }
+
+      representationLoads[index] =
+        image.decode()
+          .then(
+            () => { representationReady[index] = true; }
+          )
+          .catch(
+            () => {
+              console.warn("Representation picture did not load:", representations[index].src);
+            }
+          );
+
+    }
+
+    return representationLoads[index];
+
+  }
+
+  /* after the "load" event, with low priority, in order */
+  function preloadRepresentations() {
+
+    let next = 0;
+
+    const step = () => {
+
+      if (next >= representations.length) {
+        return;
+      }
+
+      loadRepresentation(next++).then(
+        () => setTimeout(step, 0)
+      );
+
+    };
+
+    step();
+
+  }
+
+  function startPreload() {
+
+    if ("requestIdleCallback" in window) {
+      requestIdleCallback(preloadRepresentations, { timeout: 2000 });
+    }
+    else {
+      setTimeout(preloadRepresentations, 200);
+    }
+
+  }
+
+  if (document.readyState === "complete") {
+    startPreload();
+  }
+  else {
+    window.addEventListener("load", startPreload);
+  }
+
+  /* the first picture is already in the page */
+  let shownRepresentation = 0;
+
+  /*
+    Called every frame with the wanted index; picture and text
+    are touched only when the index really changes and the new
+    picture is ready.
+  */
+  function showRepresentation(index) {
+
+    if (index === shownRepresentation) {
+      return;
+    }
+
+    if (!representationReady[index]) {
+
+      /* not ready: keep showing the previous one, and make
+         sure this one is being loaded right now */
+      loadRepresentation(index);
+      return;
+
+    }
+
+    const current = representations[index];
+
+    representationImages[shownRepresentation].classList.add("is-hidden");
+    representationImages[index].classList.remove("is-hidden");
+
+    representationPlatform.textContent = current.platform;
+    representationType.textContent = current.type;
+
+    shownRepresentation = index;
+
+  }
 
 
   /* ==================================================
@@ -3502,21 +3651,7 @@
           firstFiveProgress -
           index;
 
-        const current =
-          representations[index];
-
-
-        representationImage.src =
-          current.src;
-
-        representationImage.alt =
-          `${current.platform} ${current.type}`;
-
-        representationPlatform.textContent =
-          current.platform;
-
-        representationType.textContent =
-          current.type;
+        showRepresentation(index);
 
 
         const rotation =
@@ -3554,21 +3689,7 @@
           );
 
 
-        const current =
-          representations[count - 1];
-
-
-        representationImage.src =
-          current.src;
-
-        representationImage.alt =
-          `${current.platform} ${current.type}`;
-
-        representationPlatform.textContent =
-          current.platform;
-
-        representationType.textContent =
-          current.type;
+        showRepresentation(count - 1);
 
 
         const rotation =
