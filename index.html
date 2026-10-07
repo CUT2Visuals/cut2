@@ -1736,6 +1736,16 @@
       multipleRepresentations: "MULTIPLE REPRESENTATIONS",
       toolsTitle: "TOOLS",
 
+      /* the type under each representation picture (on the
+         right; the platform on the left is not translated) */
+      representationTypes: {
+        "MINIMAL": "MINIMAL",
+        "CONDITIONAL": "CONDITIONAL",
+        "REALISTIC": "REALISTIC",
+        "REALISTIC FACE ME": "REALISTIC FACE ME",
+        "IMAGE": "IMAGE"
+      },
+
       /* section titles */
       demoTitle: "DEMO",
       accessTitle: "ACCESS",
@@ -1771,6 +1781,14 @@
       oneAsset: "ОДИН АССЕТ",
       multipleRepresentations: "НЕСКОЛЬКО ПРЕДСТАВЛЕНИЙ",
       toolsTitle: "ИНСТРУМЕНТЫ",
+
+      representationTypes: {
+        "MINIMAL": "МИНИМАЛЬНОЕ",
+        "CONDITIONAL": "УСЛОВНОЕ",
+        "REALISTIC": "РЕАЛИСТИЧНОЕ",
+        "REALISTIC FACE ME": "РЕАЛИСТИЧНОЕ · FACE ME",
+        "IMAGE": "ИЗОБРАЖЕНИЕ"
+      },
 
       demoTitle: "ДЕМО",
       accessTitle: "ДОСТУП",
@@ -3239,6 +3257,7 @@
 
         image.className = "representation-image is-hidden";
         image.alt = `${item.platform} ${item.type}`;
+        image.dataset.altEn = image.alt;
 
         representationVisual.appendChild(image);
 
@@ -3319,6 +3338,35 @@
   /* the first picture is already in the page */
   let shownRepresentation = 0;
 
+  representationImage.dataset.altEn = representationImage.alt;
+
+  /* the type of a representation in the current language */
+  function representationTypeText(type) {
+    const types = I18N[currentLang].representationTypes || {};
+    return types[type] || type;
+  }
+
+  /*
+    The language changed: only the caption of the picture on the
+    screen and the alt texts change; the picture, its movement
+    and the scroll stay as they are.
+  */
+  function updateRepresentationLanguage() {
+
+    representationType.textContent =
+      representationTypeText(representations[shownRepresentation].type);
+
+    representationImages.forEach(
+      (image, index) => {
+        const item = representations[index];
+        image.alt = currentLang === "en"
+          ? image.dataset.altEn
+          : `${item.platform} ${representationTypeText(item.type)}`;
+      }
+    );
+
+  }
+
   /*
     Called every frame with the wanted index; picture and text
     are touched only when the index really changes and the new
@@ -3345,7 +3393,7 @@
     representationImages[index].classList.remove("is-hidden");
 
     representationPlatform.textContent = current.platform;
-    representationType.textContent = current.type;
+    representationType.textContent = representationTypeText(current.type);
 
     shownRepresentation = index;
 
@@ -5860,6 +5908,7 @@
 
     refreshToolsLanguage();
     rebuildIntroLetters();
+    updateRepresentationLanguage();
 
   }
 
