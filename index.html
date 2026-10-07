@@ -1337,7 +1337,7 @@
         class="project-label"
         id="projectLabel"
       >
-        <span class="visually-hidden">CUT2 / ONE PROJECT</span><span
+        <span class="visually-hidden" data-i18n="projectSr">CUT2 / ONE PROJECT</span><span
           class="project-sizer"
           id="projectSizer"
           aria-hidden="true"
@@ -1726,7 +1726,11 @@
       langButtonAria: "Russian version",
       langButtonAriaLang: "ru",
 
-      /* big words of the scene */
+      /* big words of the scene (the start of the scene,
+         CUT2 → ONE PROJECT, is drawn letter by letter, see
+         INTRO_CELLS and INTRO_CELLS_RU; this is only what a
+         screen reader says there) */
+      projectSr: "CUT2 / ONE PROJECT",
       multiplePlatforms: "MULTIPLE PLATFORMS",
       oneAsset: "ONE ASSET",
       multipleRepresentations: "MULTIPLE REPRESENTATIONS",
@@ -1762,6 +1766,7 @@
       langButtonAria: "English version",
       langButtonAriaLang: "en",
 
+      projectSr: "CUT2 / ОДИН ПРОЕКТ",
       multiplePlatforms: "НЕСКОЛЬКО ПЛАТФОРМ",
       oneAsset: "ОДИН АССЕТ",
       multipleRepresentations: "НЕСКОЛЬКО ПРЕДСТАВЛЕНИЙ",
@@ -1961,6 +1966,41 @@
     { char: "E", parent: "C", show: "in",   dir: "left",  start: 0.20, duration: 0.25, closePockets: true },
     { char: "C", parent: "",  show: "stay", dir: "",      start: 0,    duration: 1,    closePockets: true },
     { char: "U", parent: "C", show: "out",  dir: "left",  start: 0.00, duration: 0.25, closePockets: true },
+    { char: "T", parent: "",  show: "stay", dir: "",      start: 0,    duration: 1,    closePockets: true },
+    { char: "2", parent: "T", show: "out",  dir: "left",  start: 0.12, duration: 0.25, closePockets: true }
+  ];
+
+
+  /*
+    The same for the Russian page: CUT2 → ОДИН ПРОЕКТ.
+    Same rules and fields as INTRO_CELLS above. The line of
+    cells, left to right: О Д И Н _ П Р О Е К C U T 2.
+    Only T is shared: the Latin T and the Cyrillic Т of IBM
+    Plex Mono are exactly the same letter, so it simply
+    stays. C, U and 2 hide under their neighbours (U and 2
+    under T, C under К right after К has come out of it);
+    all the letters of ОДИН ПРОЕКТ come out of neighbours,
+    like a tree: К from C, Н and Р from К, Д from Н, then the
+    last six at once, each in its own gap.
+    The two languages are independent: change one, the other
+    stays as it is.
+  */
+
+  const INTRO_CELLS_EN = INTRO_CELLS;
+
+  const INTRO_CELLS_RU = [
+    { char: "О", parent: "Д", show: "in",   dir: "left",  start: 0.75, duration: 0.25, closePockets: true },
+    { char: "Д", parent: "Н", show: "in",   dir: "left",  start: 0.50, duration: 0.25, closePockets: true },
+    { char: "И", parent: "Н", show: "in",   dir: "left",  start: 0.76, duration: 0.24, closePockets: true },
+    { char: "Н", parent: "К", show: "in",   dir: "left",  start: 0.28, duration: 0.22, closePockets: true },
+    { char: " ", parent: "Н", show: "in",   dir: "right", start: 0.77, duration: 0.23, closePockets: true },
+    { char: "П", parent: "Р", show: "in",   dir: "left",  start: 0.75, duration: 0.25, closePockets: true },
+    { char: "Р", parent: "К", show: "in",   dir: "left",  start: 0.52, duration: 0.23, closePockets: true },
+    { char: "О", parent: "Р", show: "in",   dir: "right", start: 0.78, duration: 0.22, closePockets: true },
+    { char: "Е", parent: "К", show: "in",   dir: "left",  start: 0.76, duration: 0.24, closePockets: true },
+    { char: "К", parent: "C", show: "in",   dir: "left",  start: 0.02, duration: 0.25, closePockets: true },
+    { char: "C", parent: "К", show: "out",  dir: "left",  start: 0.27, duration: 0.25, closePockets: true },
+    { char: "U", parent: "T", show: "out",  dir: "right", start: 0.00, duration: 0.25, closePockets: true },
     { char: "T", parent: "",  show: "stay", dir: "",      start: 0,    duration: 1,    closePockets: true },
     { char: "2", parent: "T", show: "out",  dir: "left",  start: 0.12, duration: 0.25, closePockets: true }
   ];
@@ -2590,6 +2630,56 @@
   };
 
 
+  /*
+    Cyrillic letters of ОДИН ПРОЕКТ, from the same official
+    font file (IBM Plex Mono Regular 2.3, Cyrillic part), the
+    same kind of data as GLYPHS. "closed" here is the outer
+    contour with every pocket closed by straight lines (for
+    example between the arms of К, or between the foot and
+    the leg of Д). О, Р, Е and Т are not repeated: they are
+    exactly the Latin O, P, E and T of the font.
+  */
+
+  const GLYPHS_RU = {
+    "Д": {
+      ink: "M14 73L74 73Q119 137 142 237.5Q165 338 165 493L165 698L491 698L491 73L576 73L576 -150L499 -150L499 0L91 0L91 -150L14 -150ZM407 625L247 625L247 487Q247 328 225.5 228Q204 128 170 73L407 73Z",
+      outer: "M14 73L74 73Q119 137 142 237.5Q165 338 165 493L165 698L491 698L491 73L576 73L576 -150L499 -150L499 0L91 0L91 -150L14 -150Z",
+      closed: "M14 -150L576 -150L576 73L491 698L165 698L14 73Z",
+      deep: { left: 165, right: 491 }
+    },
+    "И": {
+      ink: "M80 698L164 698L164 346L150 144L155 144L440 698L520 698L520 0L436 0L436 352L450 554L445 554L160 0L80 0Z",
+      outer: "M80 698L164 698L164 346L150 144L155 144L440 698L520 698L520 0L436 0L436 352L450 554L445 554L160 0L80 0Z",
+      closed: "M80 0L520 0L520 698L80 698Z",
+      deep: { left: 80, right: 520 }
+    },
+    "Н": {
+      ink: "M436 317L164 317L164 0L80 0L80 698L164 698L164 390L436 390L436 698L520 698L520 0L436 0Z",
+      outer: "M436 317L164 317L164 0L80 0L80 698L164 698L164 390L436 390L436 698L520 698L520 0L436 0Z",
+      closed: "M80 0L520 0L520 698L80 698Z",
+      deep: { left: 80, right: 520 }
+    },
+    "П": {
+      ink: "M83 698L517 698L517 0L433 0L433 625L167 625L167 0L83 0Z",
+      outer: "M83 698L517 698L517 0L433 0L433 625L167 625L167 0L83 0Z",
+      closed: "M83 0L517 0L517 698L83 698Z",
+      deep: { left: 83, right: 517 }
+    },
+    "К": {
+      ink: "M80 698L164 698L164 390L287 390L435 698L524 698L391 422Q374 387 359 373.5Q344 360 326 357L326 352Q348 347 363 331.5Q378 316 396 275L486 73L551 73L551 0L488 0Q458 0 435 17.5Q412 35 395 74L287 318L164 318L164 0L80 0Z",
+      outer: "M80 698L164 698L164 390L287 390L435 698L524 698L391 422Q374 387 359 373.5Q344 360 326 357L326 352Q348 347 363 331.5Q378 316 396 275L486 73L551 73L551 0L488 0Q458 0 435 17.5Q412 35 395 74L287 318L164 318L164 0L80 0Z",
+      closed: "M80 0L551 0L551 73L524 698L80 698Z",
+      deep: { left: 80, right: 326 }
+    }
+  };
+
+  /* Cyrillic letters that are drawn exactly like Latin ones */
+  const GLYPH_SAME = { "О": "O", "Р": "P", "Е": "E", "Т": "T" };
+
+  const glyphOf = (char) =>
+    GLYPHS[char] || GLYPHS_RU[char] || GLYPHS[GLYPH_SAME[char]];
+
+
   /* ==================================================
      ELEMENTS
   ================================================== */
@@ -2673,7 +2763,7 @@
       return { d: null, deep: edge === "left" ? 0 : 600 };
     }
 
-    const glyph = GLYPHS[char];
+    const glyph = glyphOf(char);
 
     return {
       d: closePockets ? glyph.closed : glyph.outer,
@@ -2720,7 +2810,7 @@
     canvas.height = 800;
 
     const g = canvas.getContext("2d", { willReadFrequently: true });
-    const childPath = new Path2D(GLYPHS[child].ink);
+    const childPath = new Path2D(glyphOf(child).ink);
 
     const sticksOut = (depth) => {
 
@@ -2770,8 +2860,26 @@
   /* filled by buildIntroLetters() once the font is ready */
   let introLetters = [];
 
+  /* the cells the letters were built for (English or Russian) */
+  let introCells = INTRO_CELLS;
 
-  function buildIntroLetters() {
+  /* the last progress drawn, to redraw at once after a rebuild */
+  let lastIntroProgress = 0;
+
+
+  /*
+    Builds the letters for the current language. Runs once the
+    font is ready, and again (rebuild) when the language
+    changes; "redraw" then puts them in place right away.
+  */
+  function buildIntroLetters(rebuild) {
+
+    projectSvg.replaceChildren();
+
+    const INTRO_CELLS =
+      currentLang === "ru" ? INTRO_CELLS_RU : INTRO_CELLS_EN;
+
+    introCells = INTRO_CELLS;
 
     projectSvg.setAttribute("shape-rendering", "geometricPrecision");
 
@@ -2785,7 +2893,7 @@
     const zoneIdOf = (char, edge, closePockets) => {
 
       const key =
-        `${char === "2" ? "two" : char}-${edge}-${closePockets ? "c" : "o"}`;
+        `${char === "2" ? "two" : /^[A-Za-z0-9]$/.test(char) ? char : "u" + char.codePointAt(0)}-${edge}-${closePockets ? "c" : "o"}`;
 
       if (!zoneIds[key]) {
 
@@ -2949,7 +3057,30 @@
       }
     );
 
-    updateAnimation();
+    if (rebuild) {
+      updateIntroCells(lastIntroProgress);
+    }
+    else {
+      updateAnimation();
+    }
+
+  }
+
+
+  /* the language changed: build the start of the scene again in
+     that language, after its font is loaded (the scroll and
+     everything else stay as they are) */
+  function rebuildIntroLetters() {
+
+    const lang = currentLang;
+
+    Promise.all([latinLoaded, langFontReady(lang)]).then(
+      () => {
+        if (lang === currentLang && introLetters.length) {
+          buildIntroLetters(true);
+        }
+      }
+    );
 
   }
 
@@ -2975,7 +3106,9 @@
   const fontsLoaded =
     Promise.all([latinLoaded, arrowsLoaded]);
 
-  latinLoaded.then(buildIntroLetters);
+  Promise.all([latinLoaded, langFontReady(currentLang)]).then(
+    () => buildIntroLetters(false)
+  );
 
   const projectArrow =
     document.getElementById("projectArrow");
@@ -3260,10 +3393,15 @@
 
   function updateIntroCells(introProgress) {
 
+    lastIntroProgress = introProgress;
+
     /* letters are built when the font is ready */
     if (!introLetters.length) {
       return;
     }
+
+    /* the cells of the language the letters were built for */
+    const INTRO_CELLS = introCells;
 
     const charWidth =
       projectSizer.offsetWidth / 11;
@@ -5721,6 +5859,7 @@
     buildContact();
 
     refreshToolsLanguage();
+    rebuildIntroLetters();
 
   }
 
