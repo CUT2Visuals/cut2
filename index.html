@@ -1293,6 +1293,22 @@
         height: 48svh;
       }
 
+      /*
+        In-app browsers (Telegram and others) change the
+        visible height, and with it 100lvh / 100svh, while the
+        page is scrolled. So on phones the script measures
+        those heights and keeps ONE stable value of each
+        (SCENE_HEIGHT): the scene and the pictures in it take
+        their size from it, not from the window.
+      */
+      .stable-stage .sticky-stage {
+        height: var(--stage-h);
+      }
+
+      .stable-stage .representation-visual {
+        height: calc(var(--stage-small-h) * 0.48);
+      }
+
       .representation-image {
         width: 70%;
         height: 70%;
@@ -3729,10 +3745,123 @@
 
 
   /* ==================================================
+     STABLE SCENE HEIGHT (phones)
+  ================================================== */
+
+  /*
+    On phones (700px wide or less) the scene does not follow
+    every change of the visible height. Two invisible probes
+    measure 100lvh and 100svh; the remembered values change
+    only when
+      - the width or the orientation changes,
+      - the height grows above the remembered one,
+      - it shrinks by more than shrinkRatio and stays so for
+        longer than shrinkMs.
+    In Safari 100lvh / 100svh do not move, so nothing changes
+    there; in in-app browsers they do, and the scene keeps
+    its size.
+  */
+  const SCENE_HEIGHT = {
+    shrinkRatio: 0.25,
+    shrinkMs: 400
+  };
+
+  const stageProbes = ["100lvh", "100svh"].map(
+    (unit) => {
+      const probe = document.createElement("div");
+      probe.className = "stage-probe-" + unit.slice(3);
+      probe.setAttribute("aria-hidden", "true");
+      probe.style.cssText =
+        "position:fixed;top:0;left:0;width:0;height:100vh;" +
+        "visibility:hidden;pointer-events:none;";
+      probe.style.height = unit;
+      document.body.appendChild(probe);
+      return probe;
+    }
+  );
+
+  const stableHeights = [
+    { key: "", h: 0, since: 0 },
+    { key: "", h: 0, since: 0 }
+  ];
+
+  function stableSceneHeights() {
+
+    const width = window.innerWidth;
+    const now = performance.now();
+
+    return stableHeights.map(
+      (state, index) => {
+
+        const raw = Math.max(
+          stageProbes[index].offsetHeight,
+          index === 0 ? window.innerHeight : 0
+        );
+
+        const key = width + (width > raw ? "L" : "P");
+
+        if (key !== state.key || raw > state.h) {
+          state.key = key;
+          state.h = raw;
+          state.since = 0;
+        }
+        else if (raw < state.h * (1 - SCENE_HEIGHT.shrinkRatio)) {
+          if (!state.since) {
+            state.since = now;
+          }
+          else if (now - state.since > SCENE_HEIGHT.shrinkMs) {
+            state.h = raw;
+            state.since = 0;
+          }
+        }
+        else {
+          state.since = 0;
+        }
+
+        return state.h;
+
+      }
+    );
+
+  }
+
+  /* sets the stable height on phones (CSS variables), or
+     takes it away on wider screens */
+  function applySceneHeight() {
+
+    const root = document.documentElement;
+
+    if (window.innerWidth > 700) {
+      if (root.classList.contains("stable-stage")) {
+        root.classList.remove("stable-stage");
+        root.style.removeProperty("--stage-h");
+        root.style.removeProperty("--stage-small-h");
+      }
+      return;
+    }
+
+    const [large, small] = stableSceneHeights();
+
+    if (root.style.getPropertyValue("--stage-h") !== large + "px") {
+      root.style.setProperty("--stage-h", large + "px");
+    }
+
+    if (root.style.getPropertyValue("--stage-small-h") !== small + "px") {
+      root.style.setProperty("--stage-small-h", small + "px");
+    }
+
+    root.classList.add("stable-stage");
+
+  }
+
+
+  /* ==================================================
      ANIMATION
   ================================================== */
 
   function updateAnimation() {
+
+    applySceneHeight();
 
     const section =
       document.querySelector(".asset-system");
@@ -3745,8 +3874,9 @@
 
 
     /*
-      Height of the scene (CSS 100vh, on phones 100lvh) and the
-      length of the TOOLS part, all in px. The section is made
+      Height of the scene (CSS 100vh, on phones the stable
+      height from SCENE_HEIGHT) and the length of the TOOLS
+      part, all in px. The section is made
       exactly as long as the scene needs; it is set before the
       positions are read.
     */
