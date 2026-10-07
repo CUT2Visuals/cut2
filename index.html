@@ -143,9 +143,96 @@
       z-index: 100;
     }
 
+    /*
+      CUT2 TOOLS on the left: a link to the very top of the page.
+      It looks exactly as before (plain black text). Like the
+      language button it has a touch area at least 44px high and
+      12px wider than the text; the negative margin gives that
+      space back, so the text stays where it was.
+    */
     .logo {
+      min-height: 44px;
+      margin: 0 0 0 -12px;
+      padding: 0 12px;
+
+      display: flex;
+      align-items: center;
+
+      color: #000;
+      text-decoration: none;
+
       font-size: 16px;
       font-weight: 400;
+
+      transition: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .logo:focus {
+      outline: none;
+    }
+
+    .logo:focus-visible .logo-text {
+      outline: 1px solid #000;
+      outline-offset: 3px;
+    }
+
+    /*
+      The section links in the middle (DEMO / ACCESS / CONTACT).
+      Desktop: the group is centred on the page (not between
+      the logo and the button), with equal gaps. The group
+      itself lets clicks through; only the links take them.
+    */
+    .site-nav {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+
+      height: 100%;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      gap: 40px;
+
+      pointer-events: none;
+    }
+
+    /* same look as the language button: plain text, no
+       underline, no hover effect, no animation */
+    .site-nav a {
+      min-height: 44px;
+      margin: 0 -12px;
+      padding: 0 12px;
+
+      display: flex;
+      align-items: center;
+
+      color: #000;
+      text-decoration: none;
+
+      font-size: 16px;
+      font-weight: 400;
+      line-height: normal;
+      letter-spacing: normal;
+      text-transform: uppercase;
+      white-space: nowrap;
+
+      pointer-events: auto;
+
+      transition: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .site-nav a:focus {
+      outline: none;
+    }
+
+    .site-nav a:focus-visible .nav-text {
+      outline: 1px solid #000;
+      outline-offset: 3px;
     }
 
     /*
@@ -839,6 +926,16 @@
        apart; side space as in the header */
     .page-section {
       padding: 64px 28px;
+
+      /* a jump to #demo / #access / #contact stops with the
+         section right under the header */
+      scroll-margin-top: 64px;
+    }
+
+    /* the section titles take the focus after a jump from the
+       header; they are not buttons, so no frame */
+    .section-title:focus {
+      outline: none;
     }
 
     /* the same size as TOOLS and the other big words,
@@ -1208,6 +1305,47 @@
 
       .page-section {
         padding: 52px 16px;
+        scroll-margin-top: 52px;
+      }
+
+      /*
+        Phone: the logo, the three links and the language button
+        are spread evenly over the width (equal spaces between
+        all of them). The links are smaller (11.5px: the biggest
+        size at which the Russian names still fit on a 320px
+        screen with at least 12px between everything).
+      */
+      .site-nav {
+        position: static;
+
+        height: auto;
+
+        flex: 1 1 auto;
+        justify-content: space-evenly;
+
+        gap: 0;
+
+        /* the language button starts 12px left of its text (its
+           touch area); the spaces are counted to the text */
+        margin-right: -12px;
+      }
+
+      .site-nav a {
+        margin: 0 -6px;
+        padding: 0 6px;
+
+        font-size: 11.5px;
+      }
+
+      /* the touch areas never cover each other: the language
+         button already reaches 12px to the left of its text */
+      .site-nav a:last-child {
+        margin-right: 0;
+        padding-right: 0;
+      }
+
+      .logo {
+        padding-right: 0;
       }
 
       .section-title {
@@ -1295,9 +1433,14 @@
 
 <header>
 
-  <div class="logo">
-    CUT2 TOOLS
-  </div>
+  <!-- the name is not translated -->
+  <a class="logo" href="#" id="homeLink"><span class="logo-text">CUT2 TOOLS</span></a>
+
+  <nav class="site-nav" aria-label="Sections" data-i18n-aria="navLabel">
+    <a href="#demo" lang="en" data-nav="demo" data-i18n-aria="navDemo" aria-label="Demo"><span class="nav-text" data-i18n="demoTitle">DEMO</span></a>
+    <a href="#access" lang="en" data-nav="access" data-i18n-aria="navAccess" aria-label="Access"><span class="nav-text" data-i18n="accessTitle">ACCESS</span></a>
+    <a href="#contact" lang="en" data-nav="contact" data-i18n-aria="navContact" aria-label="Contact"><span class="nav-text" data-i18n="contactTitle">CONTACT</span></a>
+  </nav>
 
   <button
     type="button"
@@ -1600,10 +1743,11 @@
 
   <section
     class="page-section video-section"
+    id="demo"
     aria-labelledby="videoTitle"
   >
 
-    <h2 class="section-title" id="videoTitle" data-i18n="demoTitle">DEMO</h2>
+    <h2 class="section-title" id="videoTitle" data-i18n="demoTitle" tabindex="-1">DEMO</h2>
 
     <div class="video-frame" id="videoFrame"></div>
 
@@ -1621,10 +1765,11 @@
 
   <section
     class="page-section"
+    id="access"
     aria-labelledby="accessTitle"
   >
 
-    <h2 class="section-title" id="accessTitle" data-i18n="accessTitle">ACCESS</h2>
+    <h2 class="section-title" id="accessTitle" data-i18n="accessTitle" tabindex="-1">ACCESS</h2>
 
     <ul class="access-list" id="accessList"></ul>
 
@@ -1637,10 +1782,11 @@
 
   <section
     class="page-section"
+    id="contact"
     aria-labelledby="contactTitle"
   >
 
-    <h2 class="section-title" id="contactTitle" data-i18n="contactTitle">CONTACT</h2>
+    <h2 class="section-title" id="contactTitle" data-i18n="contactTitle" tabindex="-1">CONTACT</h2>
 
     <p class="contact-intro section-small" id="contactIntro"></p>
 
@@ -1726,6 +1872,14 @@
       langButtonAria: "Russian version",
       langButtonAriaLang: "ru",
 
+      /* the section links in the header: what a screen reader
+         says (the visible names are demoTitle, accessTitle,
+         contactTitle) */
+      navLabel: "Sections",
+      navDemo: "Demo",
+      navAccess: "Access",
+      navContact: "Contact",
+
       /* big words of the scene (the start of the scene,
          CUT2 → ONE PROJECT, is drawn letter by letter, see
          INTRO_CELLS and INTRO_CELLS_RU; this is only what a
@@ -1775,6 +1929,11 @@
 
       langButtonAria: "English version",
       langButtonAriaLang: "en",
+
+      navLabel: "Разделы",
+      navDemo: "Демо",
+      navAccess: "Доступ",
+      navContact: "Контакты",
 
       projectSr: "CUT2 / ОДИН ПРОЕКТ",
       multiplePlatforms: "НЕСКОЛЬКО ПЛАТФОРМ",
@@ -1877,6 +2036,28 @@
   function t(key) {
     return I18N[currentLang][key];
   }
+
+
+  /* ==================================================
+     SETTINGS: HEADER LINKS (CUT2 TOOLS, DEMO, ACCESS, CONTACT)
+     (safe to tweak)
+  ================================================== */
+
+  /*
+    scrollMs   how the page moves after a click on a header link:
+               0 = at once (jumps straight to the place);
+               more than 0 = a short smooth move that takes this
+               many milliseconds (gentle start and stop). A smooth
+               move stops as soon as the visitor scrolls (wheel,
+               touch, keys). Visitors who asked their system for
+               less motion always get the jump.
+    The page stops with the section right under the header;
+    CUT2 TOOLS goes to the very top.
+  */
+
+  const NAV_SETTINGS = {
+    scrollMs: 0
+  };
 
 
   /* ==================================================
@@ -5899,6 +6080,17 @@
       }
     );
 
+    /* what screen readers say, and the language of the links */
+    document.querySelectorAll("[data-i18n-aria]").forEach(
+      (element) => {
+        element.setAttribute("aria-label", t(element.dataset.i18nAria));
+      }
+    );
+
+    document.querySelectorAll(".site-nav a").forEach(
+      (link) => { link.setAttribute("lang", lang); }
+    );
+
     setupLangButton();
 
     VIDEO_SETTINGS.videoLang = lang;
@@ -6001,6 +6193,185 @@
     },
     { passive: true }
   );
+
+  /* ==================================================
+     HEADER LINKS: jump to a section (or to the top)
+  ================================================== */
+
+  const NAV_SECTIONS = ["demo", "access", "contact"];
+
+  /* where the page has to stop: the top of the section right
+     under the header, measured now (not remembered); never
+     further than the page can scroll */
+  function navTargetY(id) {
+
+    if (!id) {
+      return 0;
+    }
+
+    const section = document.getElementById(id);
+    const headerBottom = document.querySelector("header").getBoundingClientRect().bottom;
+    const maxY = document.documentElement.scrollHeight - window.innerHeight;
+    const y = section.getBoundingClientRect().top + window.scrollY - headerBottom;
+
+    return Math.max(0, Math.min(Math.round(y), Math.floor(maxY)));
+
+  }
+
+  let navAnimation = null;
+
+  function stopNavAnimation() {
+    if (navAnimation) {
+      cancelAnimationFrame(navAnimation.frame);
+      navAnimation = null;
+    }
+  }
+
+  /* a visitor who scrolls takes over at once */
+  ["wheel", "touchstart"].forEach(
+    (type) => window.addEventListener(type, stopNavAnimation, { passive: true })
+  );
+
+  window.addEventListener(
+    "keydown",
+    (event) => {
+      if (["ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End", " "].includes(event.key)) {
+        stopNavAnimation();
+      }
+    }
+  );
+
+  function scrollPageTo(y, done) {
+
+    stopNavAnimation();
+
+    const reduce =
+      window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (!(NAV_SETTINGS.scrollMs > 0) || reduce) {
+      window.scrollTo(0, y);
+      done();
+      return;
+    }
+
+    const from = window.scrollY;
+    const start = performance.now();
+    const length = NAV_SETTINGS.scrollMs;
+
+    const step = (now) => {
+      const k = Math.min(1, (now - start) / length);
+      const e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+      window.scrollTo(0, Math.round(from + (y - from) * e));
+      if (k < 1) {
+        navAnimation.frame = requestAnimationFrame(step);
+      }
+      else {
+        navAnimation = null;
+        done();
+      }
+    };
+
+    navAnimation = { frame: requestAnimationFrame(step) };
+
+  }
+
+  /*
+    Goes to a section (or to the top when id is empty), puts the
+    keyboard on the section title and writes #section into the
+    address (or removes it) without a new history entry; ?lang
+    and the rest of the address stay.
+  */
+  function navigateTo(id, options) {
+
+    const opts = options || {};
+
+    scrollPageTo(
+      navTargetY(id),
+      () => {
+
+        if (id && opts.focus !== false) {
+          const title = document.getElementById(id).querySelector(".section-title");
+          if (title) {
+            title.focus({ preventScroll: true });
+          }
+        }
+
+        if (opts.address !== false) {
+          try {
+            const address = new URL(window.location.href);
+            address.hash = id ? "#" + id : "";
+            window.history.replaceState(window.history.state, "", address.toString());
+          }
+          catch (error) {
+            /* the address can not be changed here: the jump still works */
+          }
+        }
+
+      }
+    );
+
+  }
+
+  /* clicks: a normal click jumps; a click with Ctrl / Cmd /
+     Shift or the middle button does what the browser does */
+  const navClick = (id) => (event) => {
+
+    if (event.defaultPrevented || event.button !== 0 ||
+        event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+      return;
+    }
+
+    event.preventDefault();
+    navigateTo(id);
+
+  };
+
+  document.getElementById("homeLink").addEventListener("click", navClick(""));
+
+  document.querySelectorAll(".site-nav a").forEach(
+    (link) => link.addEventListener("click", navClick(link.dataset.nav))
+  );
+
+  /*
+    Opened with #demo, #access or #contact in the address: the
+    browser jumps there early, before the scene has its final
+    height and the fonts are loaded; once everything is ready
+    the page is put exactly on the section, once. A normal
+    reload or back / forward keeps the place the browser
+    restores.
+  */
+  (() => {
+
+    const id = window.location.hash.slice(1);
+
+    if (!NAV_SECTIONS.includes(id)) {
+      return;
+    }
+
+    let kind = "navigate";
+
+    try {
+      const entry = performance.getEntriesByType("navigation")[0];
+      kind = entry ? entry.type : "navigate";
+    }
+    catch (error) {
+      kind = "navigate";
+    }
+
+    if (kind === "reload" || kind === "back_forward") {
+      return;
+    }
+
+    Promise.all([fontsLoaded, langFontReady(currentLang)]).then(
+      () => requestAnimationFrame(
+        () => requestAnimationFrame(
+          () => navigateTo(id, { address: false })
+        )
+      )
+    );
+
+  })();
+
 
   /* the page opens in the detected language */
   if (currentLang !== "en") {
