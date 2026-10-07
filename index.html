@@ -1376,6 +1376,7 @@
       <div
         class="platforms-label"
         id="platformsLabel"
+        data-i18n="multiplePlatforms"
       >
         MULTIPLE PLATFORMS
       </div>
@@ -1474,7 +1475,7 @@
         id="assetCard"
       >
 
-        <div class="asset-label">
+        <div class="asset-label" data-i18n="oneAsset">
           ONE ASSET
         </div>
 
@@ -1512,6 +1513,7 @@
       <div
         class="multiple-label"
         id="multipleLabel"
+        data-i18n="multipleRepresentations"
       >
         MULTIPLE REPRESENTATIONS
       </div>
@@ -1563,6 +1565,7 @@
       <div
         class="tools-label"
         id="toolsLabel"
+        data-i18n="toolsTitle"
       >
         TOOLS
       </div>
@@ -1600,7 +1603,7 @@
     aria-labelledby="videoTitle"
   >
 
-    <h2 class="section-title" id="videoTitle">DEMO</h2>
+    <h2 class="section-title" id="videoTitle" data-i18n="demoTitle">DEMO</h2>
 
     <div class="video-frame" id="videoFrame"></div>
 
@@ -1621,7 +1624,7 @@
     aria-labelledby="accessTitle"
   >
 
-    <h2 class="section-title" id="accessTitle">ACCESS</h2>
+    <h2 class="section-title" id="accessTitle" data-i18n="accessTitle">ACCESS</h2>
 
     <ul class="access-list" id="accessList"></ul>
 
@@ -1637,7 +1640,7 @@
     aria-labelledby="contactTitle"
   >
 
-    <h2 class="section-title" id="contactTitle">CONTACT</h2>
+    <h2 class="section-title" id="contactTitle" data-i18n="contactTitle">CONTACT</h2>
 
     <p class="contact-intro section-small" id="contactIntro"></p>
 
@@ -1658,34 +1661,198 @@
   ================================================== */
 
   /*
-    currentLang    language of the page now: "en" or "ru"
+    The site is one page in two languages; the button in the
+    header switches between them at once, without reloading.
+
+    defaultLang    language when nothing else says otherwise
+    autoDetect     false = the browser language is ignored;
+                   true = a browser set to Russian opens the
+                   Russian page (only if nothing else is set)
     labels         text on the button for each current language:
                    it names the language the button switches to
                    (on the English page the button says RU)
-    ruAvailable    false = pressing the button only shows the
-                   note comingSoonText; true = it calls
-                   switchLanguage()
-    comingSoonText the note under the button
-    hintMs         how long the note stays, milliseconds (it also
-                   goes away on Esc, on scrolling and on a click
-                   elsewhere)
+    ruAvailable    true = the button switches the language;
+                   false = it only shows the note comingSoonText
+                   (as before the Russian version existed)
+    comingSoonText the note under the button (only when
+                   ruAvailable is false)
+    hintMs         how long that note stays, milliseconds
+    storageKey     name under which the browser remembers the
+                   chosen language
 
-    When the Russian version is ready: set ruAvailable = true
-    and write switchLanguage() below. Today it is a stub that
-    does nothing. Later the same function will also change
-    videoLang in VIDEO_SETTINGS (the video language).
+    Which language opens:
+      1) ?lang=ru or ?lang=en in the address (only for this
+         visit, it does not change what is remembered);
+      2) the language chosen earlier with the button;
+      3) defaultLang.
   */
 
   const LANG_SETTINGS = {
-    currentLang: "en",
+    defaultLang: "en",
+    autoDetect: false,
     labels: { en: "RU", ru: "EN" },
-    ruAvailable: false,
+    ruAvailable: true,
     comingSoonText: "RUSSIAN VERSION COMING SOON",
-    hintMs: 2500
+    hintMs: 2500,
+    storageKey: "cut2-lang"
   };
 
-  function switchLanguage() {
-    console.log("language switch not implemented");
+
+  /* ==================================================
+     TEXTS IN TWO LANGUAGES
+     (safe to tweak)
+  ================================================== */
+
+  /*
+    Every text of the page that changes with the language. The
+    English ones are exactly the texts the page had before.
+    Big words of the scene and small captions are shown in
+    capitals by the CSS anyway; write them in capitals here too.
+    Not translated on purpose (the same in both languages):
+    CUT2, CUT2 TOOLS, the platform names (AUTOCAD, SKETCHUP,
+    INDESIGN), the captions under the representation pictures,
+    MVP, the asset card. The names and descriptions of the
+    tools are in the TOOLS list (label / description).
+  */
+
+  const I18N = {
+
+    en: {
+      /* browser tab */
+      pageTitle: "CUT2 — one project, multiple platforms",
+
+      /* the language button: what a screen reader says
+         (the language it switches to, in that language) */
+      langButtonAria: "Russian version",
+      langButtonAriaLang: "ru",
+
+      /* big words of the scene */
+      multiplePlatforms: "MULTIPLE PLATFORMS",
+      oneAsset: "ONE ASSET",
+      multipleRepresentations: "MULTIPLE REPRESENTATIONS",
+      toolsTitle: "TOOLS",
+
+      /* section titles */
+      demoTitle: "DEMO",
+      accessTitle: "ACCESS",
+      contactTitle: "CONTACT",
+
+      /* DEMO */
+      videoLabel: "Demo of CUT2 plugins for SketchUp",
+      videoCaption: "SKETCHUP PLUGINS · MVP",
+      watchFull: "WATCH FULL VERSION →",
+      fullComingSoon: "FULL VERSION COMING SOON",
+      demoComingSoon: "DEMO COMING SOON",
+
+      /* ACCESS: status of each platform (see ACCESS_SETTINGS),
+         the button, and the message after the click (it must
+         not promise anything) */
+      status: { comingSoon: "COMING SOON", mvp: "MVP" },
+      requestAccess: "REQUEST ACCESS",
+      accessMessage: "NOT AVAILABLE YET — THANK YOU FOR YOUR INTEREST.",
+
+      /* CONTACT */
+      contactIntro: "CUT2 IS AN INDEPENDENT R&D PROJECT BY ANTON BRATKOV.",
+      contactsComingSoon: "CONTACTS COMING SOON"
+    },
+
+    ru: {
+      pageTitle: "CUT2 — один проект, несколько платформ",
+
+      langButtonAria: "English version",
+      langButtonAriaLang: "en",
+
+      multiplePlatforms: "НЕСКОЛЬКО ПЛАТФОРМ",
+      oneAsset: "ОДИН АССЕТ",
+      multipleRepresentations: "НЕСКОЛЬКО ПРЕДСТАВЛЕНИЙ",
+      toolsTitle: "ИНСТРУМЕНТЫ",
+
+      demoTitle: "ДЕМО",
+      accessTitle: "ДОСТУП",
+      contactTitle: "КОНТАКТЫ",
+
+      videoLabel: "Демонстрация плагинов CUT2 для SketchUp",
+      videoCaption: "ПЛАГИНЫ ДЛЯ SKETCHUP · MVP",
+      watchFull: "СМОТРЕТЬ ПОЛНУЮ ВЕРСИЮ →",
+      fullComingSoon: "ПОЛНАЯ ВЕРСИЯ СКОРО",
+      demoComingSoon: "ДЕМО СКОРО",
+
+      status: { comingSoon: "СКОРО", mvp: "MVP" },
+      requestAccess: "ЗАПРОСИТЬ ДОСТУП",
+      accessMessage: "ПОКА НЕДОСТУПНО — СПАСИБО ЗА ИНТЕРЕС.",
+
+      contactIntro: "CUT2 — НЕЗАВИСИМЫЙ R&D-ПРОЕКТ АНТОНА БРАТКОВА.",
+      contactsComingSoon: "КОНТАКТЫ СКОРО"
+    }
+
+  };
+
+
+  /* ---------- which language the page opens in ---------- */
+
+  /* the browser memory may be switched off (for example in a
+     private tab in Safari): then the choice lives only while
+     the page is open */
+  function readStoredLang() {
+    try {
+      return window.localStorage.getItem(LANG_SETTINGS.storageKey);
+    }
+    catch (error) {
+      return null;
+    }
+  }
+
+  function storeLang(lang) {
+    try {
+      window.localStorage.setItem(LANG_SETTINGS.storageKey, lang);
+    }
+    catch (error) {
+      /* not available: keep it in memory only */
+    }
+  }
+
+  function detectLanguage() {
+
+    const known = (value) => value === "en" || value === "ru";
+
+    if (!LANG_SETTINGS.ruAvailable) {
+      return "en";
+    }
+
+    let fromAddress = null;
+
+    try {
+      fromAddress = new URL(window.location.href).searchParams.get("lang");
+    }
+    catch (error) {
+      fromAddress = null;
+    }
+
+    if (known(fromAddress)) {
+      return fromAddress;
+    }
+
+    const stored = readStoredLang();
+
+    if (known(stored)) {
+      return stored;
+    }
+
+    if (LANG_SETTINGS.autoDetect &&
+        /^ru\b/i.test(navigator.language || "")) {
+      return "ru";
+    }
+
+    return known(LANG_SETTINGS.defaultLang) ? LANG_SETTINGS.defaultLang : "en";
+
+  }
+
+  /* the language of the page right now */
+  let currentLang = detectLanguage();
+
+  /* the text "key" in the current language */
+  function t(key) {
+    return I18N[currentLang][key];
   }
 
 
@@ -2051,21 +2218,18 @@
     One row per platform, in this order.
     platform     "AUTOCAD" / "SKETCHUP" / "INDESIGN"
                  (name and icon)
-    status       small text next to the name
-    buttonLabel  text on the button
-    ACCESS_MESSAGE replaces the button after the click.
-    It must not promise anything (no counter is connected
-    yet, no e-mails are sent).
+    status       which status text is shown next to the name:
+                 "comingSoon" or "mvp" (the texts themselves are
+                 in I18N → status, in both languages)
+    The button text and the message after the click are in
+    I18N too (requestAccess, accessMessage).
   */
 
   const ACCESS_SETTINGS = [
-    { platform: "AUTOCAD",  status: "COMING SOON", buttonLabel: "REQUEST ACCESS" },
-    { platform: "SKETCHUP", status: "MVP",         buttonLabel: "REQUEST ACCESS" },
-    { platform: "INDESIGN", status: "COMING SOON", buttonLabel: "REQUEST ACCESS" }
+    { platform: "AUTOCAD",  status: "comingSoon" },
+    { platform: "SKETCHUP", status: "mvp" },
+    { platform: "INDESIGN", status: "comingSoon" }
   ];
-
-  const ACCESS_MESSAGE =
-    "NOT AVAILABLE YET — THANK YOU FOR YOUR INTEREST.";
 
 
   /* ==================================================
@@ -2074,7 +2238,6 @@
   ================================================== */
 
   /*
-    CONTACT_INTRO   small line under the CONTACT title
     CONTACT_SETTINGS  one row per contact:
       label   small name in front of the value, e.g. "EMAIL"
               (empty = not shown)
@@ -2084,11 +2247,9 @@
               a new tab). An e-mail value with an empty href
               becomes a mailto link by itself.
     Only rows with a value are shown. With no rows at all
-    the section says CONTACT_EMPTY.
+    the section says contactsComingSoon (in I18N). The line
+    under the title is contactIntro (in I18N).
   */
-
-  const CONTACT_INTRO =
-    "CUT2 IS AN INDEPENDENT R&D PROJECT BY ANTON BRATKOV.";
 
   /*
     The contact is the e-mail on the cut2.tools domain. To
@@ -2099,8 +2260,6 @@
     { label: "", value: "hello@cut2.tools", href: "mailto:hello@cut2.tools" }
   ];
 
-  const CONTACT_EMPTY =
-    "CONTACTS COMING SOON";
 
 
   /* ==================================================
@@ -2110,10 +2269,10 @@
 
   /*
     Texts and files that depend on the language are written as
-    { en: "…", ru: "…" }. videoLang chooses which one the page
-    shows now; later the EN / RU switch will change only this
-    parameter. Only the chosen language is used: the other
-    video file is never downloaded.
+    { en: "…", ru: "…" }. videoLang is the language shown now;
+    the EN / RU button in the header sets it (you do not need
+    to change it here). Only the chosen language is used: the
+    other video file is not downloaded.
 
     videoSrc          path to the mp4 file for each language
                       (empty = a black box with the "coming
@@ -2125,14 +2284,13 @@
                       the right space on the page, so nothing
                       jumps while the video loads. Change it if
                       you replace the video with another shape.
-    videoLabel        what the video is, for screen readers
     caption           small text under the video, per language
-                      (empty = nothing)
+                      (empty = the text videoCaption from I18N)
     fullVersionHref   address of the long version for each
                       language (opens in a new tab); empty = the
                       link is shown as not available yet
-    fullVersionLabel  text of that link
-    comingSoon...     texts used while something is empty
+    The other texts (what the video is for screen readers,
+    the link text, the "coming soon" texts) are in I18N.
   */
 
   const VIDEO_SETTINGS = {
@@ -2143,7 +2301,6 @@
     },
     posterSrc: "assets/video/demo-poster.jpg",
     aspect: { width: 1760, height: 1036 },
-    videoLabel: "Demo of CUT2 plugins for SketchUp",
     caption: {
       en: "SKETCHUP PLUGINS · MVP",
       ru: ""
@@ -2151,10 +2308,7 @@
     fullVersionHref: {
       en: "",
       ru: ""
-    },
-    fullVersionLabel: "WATCH FULL VERSION →",
-    comingSoonVideo: "DEMO COMING SOON",
-    comingSoonFullVersion: "FULL VERSION COMING SOON"
+    }
   };
 
 
@@ -4369,8 +4523,44 @@
   }
 
 
-  /* width x scene height of the last layout */
+  /* language, width and scene height of the last layout, and
+     the layouts already made (one per language and size) */
   let toolsLayoutKey = "";
+  const toolsLayouts = {};
+
+  /* the Cyrillic font file is loaded only when Russian is
+     used; the layout waits for it (the names are measured) */
+  function langFontReady(lang) {
+
+    if (lang !== "ru") {
+      return Promise.resolve();
+    }
+
+    return document.fonts
+      .load('400 16px "IBM Plex Mono"', "ИНСТРУМЕНТЫ АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ")
+      .catch(() => {});
+
+  }
+
+  /* the language changed: close the window, take the layout
+     of this language (made once, after its font is loaded) */
+  function refreshToolsLanguage() {
+
+    if (openToolIndex >= 0) {
+      closeToolPopup(false);
+    }
+
+    const lang = currentLang;
+
+    Promise.all([fontsLoaded, langFontReady(lang)]).then(
+      () => {
+        if (lang === currentLang) {
+          layoutTools();
+        }
+      }
+    );
+
+  }
 
   function layoutTools() {
 
@@ -4381,15 +4571,21 @@
     const height = document.querySelector(".sticky-stage").offsetHeight;
     const mobile = width <= 700;
 
-    /* same size as last time: the layout would come out
-       exactly the same, so do nothing */
-    const key = width + "x" + height;
+    /* same language and size as last time: the layout would
+       come out exactly the same, so do nothing; a layout made
+       earlier for this language and size is taken as it is */
+    const key = currentLang + ":" + width + "x" + height;
 
     if (key === toolsLayoutKey && toolsLayout) {
       return;
     }
 
     toolsLayoutKey = key;
+
+    if (toolsLayouts[key]) {
+      toolsLayout = toolsLayouts[key];
+      return;
+    }
 
     const { gap, margin, seed, spreadScale, spreadVariation } = TOOLS_SETTINGS;
     const cloud = mobile ? TOOLS_SETTINGS.cloudMobile : TOOLS_SETTINGS.cloud;
@@ -4634,6 +4830,7 @@
     layout.right = area.right;
 
     toolsLayout = layout;
+    toolsLayouts[key] = layout;
 
   }
 
@@ -4656,7 +4853,7 @@
     }
   );
 
-  fontsLoaded.then(layoutTools);
+  Promise.all([fontsLoaded, langFontReady(currentLang)]).then(layoutTools);
 
 
   /*
@@ -4892,12 +5089,19 @@
      VIDEO: filled from VIDEO_SETTINGS
   ================================================== */
 
+  /*
+    Fills the DEMO section for the current language. Runs at the
+    start and again when the language changes. Only the file of
+    the current language is loaded. If a video is playing when
+    the language changes, it stops and goes back to the start:
+    the other language is another file, so it can not go on
+    from the same moment.
+  */
   function buildVideo() {
 
     const frame = document.getElementById("videoFrame");
     const link = document.getElementById("videoFullLink");
 
-    /* the value for the chosen language */
     const lang = VIDEO_SETTINGS.videoLang;
     const pick = (value) =>
       value && typeof value === "object" ? value[lang] : value;
@@ -4911,45 +5115,76 @@
       `${VIDEO_SETTINGS.aspect.width} / ${VIDEO_SETTINGS.aspect.height}`
     );
 
+    /* the caption from VIDEO_SETTINGS, or the I18N text when
+       it is empty for this language */
     document.getElementById("videoCaption").textContent =
-      pick(VIDEO_SETTINGS.caption) || "";
+      pick(VIDEO_SETTINGS.caption) || t("videoCaption");
+
+    let video = frame.querySelector("video");
 
     if (videoSrc) {
 
-      const video = document.createElement("video");
+      frame.querySelectorAll(".video-placeholder").forEach((box) => box.remove());
 
-      video.src = videoSrc;
-      video.controls = true;
-      video.playsInline = true;
-      video.preload = "metadata";
-      video.setAttribute("playsinline", "");
-      video.setAttribute("aria-label", VIDEO_SETTINGS.videoLabel);
+      if (!video) {
 
-      if (VIDEO_SETTINGS.posterSrc) {
-        video.poster = VIDEO_SETTINGS.posterSrc;
+        video = document.createElement("video");
+
+        video.controls = true;
+        video.playsInline = true;
+        video.preload = "metadata";
+        video.setAttribute("playsinline", "");
+
+        if (VIDEO_SETTINGS.posterSrc) {
+          video.poster = VIDEO_SETTINGS.posterSrc;
+        }
+
+        frame.appendChild(video);
+
       }
 
-      frame.appendChild(video);
+      if (video.getAttribute("src") !== videoSrc) {
+        video.pause();
+        video.setAttribute("src", videoSrc);
+        video.load();
+      }
+
+      video.setAttribute("aria-label", t("videoLabel"));
 
     }
 
     else {
 
-      const box = document.createElement("div");
+      if (video) {
+        video.pause();
+        video.remove();
+      }
 
-      box.className = "video-placeholder section-small";
-      box.textContent = VIDEO_SETTINGS.comingSoonVideo;
+      let box = frame.querySelector(".video-placeholder");
 
-      frame.appendChild(box);
+      if (!box) {
+        box = document.createElement("div");
+        box.className = "video-placeholder section-small";
+        frame.appendChild(box);
+      }
+
+      box.textContent = t("demoComingSoon");
 
     }
+
+    link.removeAttribute("href");
+    link.removeAttribute("target");
+    link.removeAttribute("rel");
+    link.removeAttribute("role");
+    link.removeAttribute("aria-disabled");
+    link.removeAttribute("tabindex");
 
     if (fullHref) {
 
       link.href = fullHref;
       link.target = "_blank";
       link.rel = "noopener";
-      link.textContent = VIDEO_SETTINGS.fullVersionLabel;
+      link.textContent = t("watchFull");
 
     }
 
@@ -4960,12 +5195,13 @@
       link.setAttribute("role", "link");
       link.setAttribute("aria-disabled", "true");
       link.tabIndex = 0;
-      link.textContent = VIDEO_SETTINGS.comingSoonFullVersion;
+      link.textContent = t("fullComingSoon");
 
     }
 
   }
 
+  VIDEO_SETTINGS.videoLang = currentLang;
   buildVideo();
 
 
@@ -4977,9 +5213,13 @@
      page: trackInterest is called only once for each */
   const requestedPlatforms = new Set();
 
+  /* runs at the start and again when the language changes;
+     a platform already requested keeps showing the message */
   function buildAccess() {
 
     const list = document.getElementById("accessList");
+
+    list.replaceChildren();
 
     ACCESS_SETTINGS.forEach(
       (row) => {
@@ -5001,7 +5241,8 @@
 
         const status = document.createElement("span");
         status.className = "section-small access-status";
-        status.textContent = row.status;
+        status.textContent =
+          I18N[currentLang].status[row.status] || row.status;
 
         names.append(name, status);
 
@@ -5010,11 +5251,25 @@
         action.className = "access-action";
         action.setAttribute("aria-live", "polite");
 
+        const showMessage = () => {
+
+          const message = document.createElement("p");
+          message.className = "access-message section-small";
+          message.textContent = t("accessMessage");
+          message.tabIndex = -1;
+
+          action.classList.add("is-done");
+          action.replaceChildren(message);
+
+          return message;
+
+        };
+
         const button = document.createElement("button");
         button.type = "button";
         button.className = "access-button section-small";
-        button.textContent = row.buttonLabel;
-        button.setAttribute("aria-label", row.buttonLabel + ": " + row.platform);
+        button.textContent = t("requestAccess");
+        button.setAttribute("aria-label", t("requestAccess") + ": " + row.platform);
 
         button.addEventListener(
           "click",
@@ -5025,21 +5280,18 @@
               trackInterest(row.platform);
             }
 
-            const message = document.createElement("p");
-            message.className = "access-message section-small";
-            message.textContent = ACCESS_MESSAGE;
-            message.tabIndex = -1;
-
-            action.classList.add("is-done");
-            action.replaceChildren(message);
-
             /* keep the keyboard in the same place */
-            message.focus({ preventScroll: true });
+            showMessage().focus({ preventScroll: true });
 
           }
         );
 
-        action.appendChild(button);
+        if (requestedPlatforms.has(row.platform)) {
+          showMessage();
+        }
+        else {
+          action.appendChild(button);
+        }
         item.append(icon, names, action);
         list.appendChild(item);
 
@@ -5055,12 +5307,15 @@
      CONTACT: rows from CONTACT_SETTINGS
   ================================================== */
 
+  /* runs at the start and again when the language changes */
   function buildContact() {
 
     const body = document.getElementById("contactBody");
 
+    body.replaceChildren();
+
     document.getElementById("contactIntro").textContent =
-      CONTACT_INTRO;
+      t("contactIntro");
 
     const rows =
       CONTACT_SETTINGS.filter((row) => row.value && row.value.trim());
@@ -5069,7 +5324,7 @@
 
       const empty = document.createElement("p");
       empty.className = "contact-empty section-small";
-      empty.textContent = CONTACT_EMPTY;
+      empty.textContent = t("contactsComingSoon");
 
       body.appendChild(empty);
       return;
@@ -5145,30 +5400,70 @@
 
   function setupLangButton() {
 
-    const { currentLang, labels, ruAvailable } = LANG_SETTINGS;
+    const { labels, ruAvailable } = LANG_SETTINGS;
 
     langText.textContent = labels[currentLang];
 
-    /* what a screen reader says: the language it switches to */
-    if (currentLang === "en") {
-
-      langButton.setAttribute(
-        "aria-label",
-        ruAvailable ? "Русская версия" : "Russian version (coming soon)"
-      );
-
-      if (ruAvailable) {
-        langButton.setAttribute("lang", "ru");
-      }
-      else {
-        langButton.removeAttribute("lang");
-      }
-
+    /* what a screen reader says: the language it switches to,
+       in that language */
+    if (!ruAvailable) {
+      langButton.setAttribute("aria-label", "Russian version (coming soon)");
+      langButton.removeAttribute("lang");
+      return;
     }
 
-    else {
-      langButton.setAttribute("aria-label", "English version");
-      langButton.setAttribute("lang", "en");
+    langButton.setAttribute("aria-label", t("langButtonAria"));
+    langButton.setAttribute("lang", t("langButtonAriaLang"));
+
+  }
+
+
+  /*
+    Puts the whole page into "lang" at once: texts, the browser
+    tab, the language of the page, the video, the access and
+    contact rows, the TOOLS cloud. The scroll position stays.
+  */
+  function applyLanguage(lang) {
+
+    currentLang = lang;
+
+    document.documentElement.lang = lang;
+    document.title = t("pageTitle");
+
+    document.querySelectorAll("[data-i18n]").forEach(
+      (element) => {
+        element.textContent = t(element.dataset.i18n);
+      }
+    );
+
+    setupLangButton();
+
+    VIDEO_SETTINGS.videoLang = lang;
+    buildVideo();
+    buildAccess();
+    buildContact();
+
+    refreshToolsLanguage();
+
+  }
+
+  /* the button: the other language, remembered, and the
+     address updated (?lang=…) without reloading */
+  function switchLanguage() {
+
+    const next = currentLang === "en" ? "ru" : "en";
+
+    applyLanguage(next);
+    storeLang(next);
+
+    try {
+      const address = new URL(window.location.href);
+      address.searchParams.set("lang", next);
+      window.history.replaceState(window.history.state, "", address.toString());
+    }
+    catch (error) {
+      /* the address can not be changed here (for example a
+         local file in some browsers): the language still works */
     }
 
   }
@@ -5242,7 +5537,13 @@
     { passive: true }
   );
 
-  setupLangButton();
+  /* the page opens in the detected language */
+  if (currentLang !== "en") {
+    applyLanguage(currentLang);
+  }
+  else {
+    setupLangButton();
+  }
 
 
   updateAnimation();
