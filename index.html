@@ -2588,6 +2588,47 @@
       clumpSpread: 0.28
     },
 
+    /*
+      Phones only (≤ 700px wide): where TOOLS and the cloud
+      stand. The cloud keeps clear of a band at the bottom of
+      the scene (safeBottom), because there the browser's own
+      bars can cover the page. The band is worked out from the
+      difference between the largest and the smallest visible
+      height of this browser (Safari with its bars: big band;
+      an app's built-in browser without bars: small band), so it
+      does not change while the bars move.
+        safeBottomFactor   1 = the band exactly as big as the
+                           bars; less = less empty space at the
+                           bottom, but the lowest label may go
+                           under the bar
+        safeBottomFallback the band, px, when the browser does
+                           not tell its heights
+        safeBottomMin      the band is never smaller, px
+        safeBottomMax      … and never bigger, px
+        opticalShift       optical centre: the composition stands
+                           this many px above the middle of the
+                           free space, then it looks centred
+        opticalShiftMin    on low screens where the 20 labels do
+                           not fit, first the band is made smaller
+                           (not below safeBottomMin), then the
+                           shift (not below this), px
+        tinyScreenStageH   a scene lower than this (px) is a tiny
+                           screen (iPhone SE 1st generation,
+                           320×568): there the 20 labels need
+                           more room, so…
+        safeBottomMinTiny  … the band may get this small there
+                           (instead of safeBottomMin), px
+    */
+    phone: {
+      safeBottomFactor: 1.0,
+      safeBottomFallback: 96,
+      safeBottomMin: 56,
+      safeBottomMax: 160,
+      opticalShift: 16,
+      opticalShiftMin: 8,
+      tinyScreenStageH: 600,
+      safeBottomMinTiny: 48
+    },
     /* the same for screens ≤ 700px wide */
     cloudMobile: {
       shift: { x: 0.05, y: 0.06 },
@@ -5256,6 +5297,66 @@
   }
 
 
+  /*
+    Where TOOLS and the cloud stand, for a scene of this
+    height. Desktop: TOOLS in the middle of the scene, the
+    cloud down to margin above the bottom (as always). Phone:
+    the free space goes from the header (plus margin) down to
+    the band safeBottom (TOOLS_SETTINGS.phone); TOOLS stands
+    opticalShift above its middle. With factor / shift the
+    layout can ask for a smaller band or shift (low screens).
+  */
+  function toolsPlace(width, height, factor, shift) {
+
+    const { margin } = TOOLS_SETTINGS;
+    const headerBottom =
+      document.querySelector("header").getBoundingClientRect().bottom;
+
+    if (width > 700) {
+      return {
+        cy: height / 2,
+        top: headerBottom + margin,
+        bottom: height - margin,
+        safeBottom: margin,
+        factor: 1,
+        shift: 0
+      };
+    }
+
+    const phone = TOOLS_SETTINGS.phone;
+    const f = factor === undefined ? phone.safeBottomFactor : factor;
+    const sh = shift === undefined ? phone.opticalShift : shift;
+
+    /* the stable heights of the scene (see SCENE_HEIGHT), not
+       the window height of this moment */
+    const lvh = stableHeights[0].h;
+    const svh = stableHeights[1].h;
+    const known = lvh > 0 && svh > 0 && svh <= lvh;
+    const bars = known ? lvh - svh + 16 : phone.safeBottomFallback;
+
+    const min = height < phone.tinyScreenStageH
+      ? phone.safeBottomMinTiny
+      : phone.safeBottomMin;
+
+    const safeBottom =
+      Math.round(clamp(bars * f, min, phone.safeBottomMax));
+
+    const top = headerBottom + margin;
+    const bottom = height - safeBottom;
+
+    return {
+      cy: (top + bottom) / 2 - sh,
+      top,
+      bottom,
+      safeBottom,
+      min,
+      factor: f,
+      shift: sh
+    };
+
+  }
+
+
   /* language, width and scene height of the last layout, and
      the layouts already made (one per language and size) */
   let toolsLayoutKey = "";
@@ -5336,7 +5437,9 @@
     /* same language and size as last time: the layout would
        come out exactly the same, so do nothing; a layout made
        earlier for this language and size is taken as it is */
-    const key = currentLang + ":" + width + "x" + height;
+    const place = toolsPlace(width, height);
+    const key = currentLang + ":" + width + "x" + height +
+      (mobile ? ":" + place.safeBottom : "");
 
     if (key === toolsLayoutKey && toolsLayout) {
       return;
@@ -5366,169 +5469,211 @@
     const headerBottom =
       document.querySelector("header").getBoundingClientRect().bottom;
 
-    /* TOOLS rests in the centre of the screen */
+    /* TOOLS rests in the centre of the composition */
     const titleW = toolsLabel.offsetWidth;
     const titleH = toolsLabel.offsetHeight;
 
-    const layout = {
-      cx: width / 2,
-      cy: height / 2,
-      ax: width / 2 - margin,
-      ay: height / 2 - margin - headerBottom / 2,
-      spread: spreadScale,
-      variation: spreadVariation,
-      items: []
-    };
+    /*
+      One try of the placement for the place "at". On phones,
+      if not all 20 labels find a place, it is tried again with
+      a smaller bottom band (down to safeBottomMin), then with a
+      smaller optical shift (down to opticalShiftMin).
+    */
+    const attempt = (at, last) => {
 
-    const area = {
-      left: margin,
-      right: width - margin,
-      top: headerBottom + margin,
-      bottom: height - margin
-    };
-
-    const title = {
-      left: layout.cx - titleW / 2 - gap,
-      right: layout.cx + titleW / 2 + gap,
-      top: layout.cy - titleH / 2 - gap,
-      bottom: layout.cy + titleH / 2 + gap
-    };
-
-    const sizes =
-      toolButtons.map((b) => {
-        /* whole px for the layout, and the exact size for the
-           check of the exit (labels are a fraction of a px
-           bigger than offsetWidth / offsetHeight say) */
-        const r = b.getBoundingClientRect();
-        return { w: b.offsetWidth, h: b.offsetHeight, wf: r.width, hf: r.height };
-      });
-
-    /* the speed of every label, from −1 to 1: fixed numbers
-       from the seed, in the order of the TOOLS list */
-    const speedRandom = seededRandom(seed + 1);
-    const speeds = TOOLS.map(() => speedRandom() * 2 - 1);
-
-    /* the uneven, tilted, shifted oval */
-    const tilt = cloud.tilt * Math.PI / 180;
-
-    const insideCloud = (u, v) => {
-      const p = u - cloud.shift.x;
-      const q = v - cloud.shift.y;
-      const pr = p * Math.cos(-tilt) - q * Math.sin(-tilt);
-      const qr = p * Math.sin(-tilt) + q * Math.cos(-tilt);
-      const rho = Math.hypot(pr / cloud.size.x, qr / cloud.size.y);
-      const phi = Math.atan2(qr, pr);
-      const edge = 1 + cloud.wobble[0] * Math.sin(2 * phi + 1.3) + cloud.wobble[1] * Math.sin(3 * phi + 4.1);
-      return rho <= edge;
-    };
-
-    const insideArea = (p, item) =>
-      p.x - item.w / 2 >= area.left && p.x + item.w / 2 <= area.right &&
-      p.y - item.h / 2 >= area.top && p.y + item.h / 2 <= area.bottom;
-
-    const onTitle = (p, item) =>
-      p.x + item.w / 2 > title.left && p.x - item.w / 2 < title.right &&
-      p.y + item.h / 2 > title.top && p.y - item.h / 2 < title.bottom;
-
-    const apartFrom = (a, item, b, other) =>
-      Math.abs(a.x - b.x) >= (item.w + other.w) / 2 + gap ||
-      Math.abs(a.y - b.y) >= (item.h + other.h) / 2 + gap;
-
-    /* checked at 20 points of the movement plus the end */
-    const steps = [];
-    for (let k = 0; k <= 20; k++) {
-      steps.push(k / 20);
-    }
-
-    const random = seededRandom(seed);
-
-    /* clump centres: spread around TOOLS on the oval,
-       each a bit off its even place (fixed numbers) */
-    const clumps = [];
-    for (let k = 0; k < cloud.clumps; k++) {
-      const angle = (k / cloud.clumps) * 2 * Math.PI + (random() - 0.5) * 0.9;
-      const radius = 0.45 + random() * 0.3;
-      const p = Math.cos(angle) * radius * cloud.size.x;
-      const q = Math.sin(angle) * radius * cloud.size.y;
-      clumps.push({
-        u: cloud.shift.x + p * Math.cos(tilt) - q * Math.sin(tilt),
-        v: cloud.shift.y + p * Math.sin(tilt) + q * Math.cos(tilt)
-      });
-    }
-
-    /* longest labels first */
-    const order =
-      sizes.map((s, index) => ({ index, ...s }))
-        .sort((a, b) => b.w - a.w || a.index - b.index);
-
-    const placed = [];
-
-    for (const entry of order) {
-
-      const clump = clumps[entry.index % clumps.length];
-      const item = {
-        index: entry.index, w: entry.w, h: entry.h, wf: entry.wf, hf: entry.hf,
-        speed: speeds[entry.index], x: 0, y: 0
+      const layout = {
+        cx: width / 2,
+        cy: at.cy,
+        ax: width / 2 - margin,
+        ay: (at.bottom - at.top) / 2,
+        place: at,
+        spread: spreadScale,
+        variation: spreadVariation,
+        items: []
       };
-      let fallback = null;
-      let found = false;
 
-      for (let attempt = 0; attempt < 3000 && !found; attempt++) {
+      const area = {
+        left: margin,
+        right: width - margin,
+        top: at.top,
+        bottom: at.bottom
+      };
 
-        const spread = cloud.clumpSpread * (1 + attempt / 600);
-        const u = clump.u + (random() + random() + random() - 1.5) / 1.5 * spread;
-        const v = clump.v + (random() + random() + random() - 1.5) / 1.5 * spread;
+      const title = {
+        left: layout.cx - titleW / 2 - gap,
+        right: layout.cx + titleW / 2 + gap,
+        top: layout.cy - titleH / 2 - gap,
+        bottom: layout.cy + titleH / 2 + gap
+      };
 
-        if (!insideCloud(u, v) && attempt < 1500) {
-          continue;
-        }
+      const sizes =
+        toolButtons.map((b) => {
+          /* whole px for the layout, and the exact size for the
+             check of the exit (labels are a fraction of a px
+             bigger than offsetWidth / offsetHeight say) */
+          const r = b.getBoundingClientRect();
+          return { w: b.offsetWidth, h: b.offsetHeight, wf: r.width, hf: r.height };
+        });
 
-        item.x = layout.cx + u * layout.ax;
-        item.y = layout.cy + v * layout.ay;
+      /* the speed of every label, from −1 to 1: fixed numbers
+         from the seed, in the order of the TOOLS list */
+      const speedRandom = seededRandom(seed + 1);
+      const speeds = TOOLS.map(() => speedRandom() * 2 - 1);
 
-        /* at the start: inside the screen, off TOOLS */
-        const p = spreadPoint(item, layout, 0);
+      /* the uneven, tilted, shifted oval */
+      const tilt = cloud.tilt * Math.PI / 180;
 
-        if (!insideArea(p, item) || onTitle(p, item)) {
-          continue;
-        }
+      const insideCloud = (u, v) => {
+        const p = u - cloud.shift.x;
+        const q = v - cloud.shift.y;
+        const pr = p * Math.cos(-tilt) - q * Math.sin(-tilt);
+        const qr = p * Math.sin(-tilt) + q * Math.cos(-tilt);
+        const rho = Math.hypot(pr / cloud.size.x, qr / cloud.size.y);
+        const phi = Math.atan2(qr, pr);
+        const edge = 1 + cloud.wobble[0] * Math.sin(2 * phi + 1.3) + cloud.wobble[1] * Math.sin(3 * phi + 4.1);
+        return rho <= edge;
+      };
 
-        /* apart from the others all the way, each with its speed */
-        const apart = steps.every(
-          (t) => {
-            const a = spreadPoint(item, layout, t);
-            return !onTitle(a, item) &&
-              placed.every((other) => apartFrom(a, item, spreadPoint(other, layout, t), other));
+      const insideArea = (p, item) =>
+        p.x - item.w / 2 >= area.left && p.x + item.w / 2 <= area.right &&
+        p.y - item.h / 2 >= area.top && p.y + item.h / 2 <= area.bottom;
+
+      const onTitle = (p, item) =>
+        p.x + item.w / 2 > title.left && p.x - item.w / 2 < title.right &&
+        p.y + item.h / 2 > title.top && p.y - item.h / 2 < title.bottom;
+
+      const apartFrom = (a, item, b, other) =>
+        Math.abs(a.x - b.x) >= (item.w + other.w) / 2 + gap ||
+        Math.abs(a.y - b.y) >= (item.h + other.h) / 2 + gap;
+
+      /* checked at 20 points of the movement plus the end */
+      const steps = [];
+      for (let k = 0; k <= 20; k++) {
+        steps.push(k / 20);
+      }
+
+      const random = seededRandom(seed);
+
+      /* clump centres: spread around TOOLS on the oval,
+         each a bit off its even place (fixed numbers) */
+      const clumps = [];
+      for (let k = 0; k < cloud.clumps; k++) {
+        const angle = (k / cloud.clumps) * 2 * Math.PI + (random() - 0.5) * 0.9;
+        const radius = 0.45 + random() * 0.3;
+        const p = Math.cos(angle) * radius * cloud.size.x;
+        const q = Math.sin(angle) * radius * cloud.size.y;
+        clumps.push({
+          u: cloud.shift.x + p * Math.cos(tilt) - q * Math.sin(tilt),
+          v: cloud.shift.y + p * Math.sin(tilt) + q * Math.cos(tilt)
+        });
+      }
+
+      /* longest labels first */
+      const order =
+        sizes.map((s, index) => ({ index, ...s }))
+          .sort((a, b) => b.w - a.w || a.index - b.index);
+
+      const placed = [];
+      let fits = true;
+
+      for (const entry of order) {
+
+        const clump = clumps[entry.index % clumps.length];
+        const item = {
+          index: entry.index, w: entry.w, h: entry.h, wf: entry.wf, hf: entry.hf,
+          speed: speeds[entry.index], x: 0, y: 0
+        };
+        let fallback = null;
+        let found = false;
+
+        for (let attempt = 0; attempt < 3000 && !found; attempt++) {
+
+          const spread = cloud.clumpSpread * (1 + attempt / 600);
+          const u = clump.u + (random() + random() + random() - 1.5) / 1.5 * spread;
+          const v = clump.v + (random() + random() + random() - 1.5) / 1.5 * spread;
+
+          if (!insideCloud(u, v) && attempt < 1500) {
+            continue;
           }
-        );
 
-        if (!apart) {
-          continue;
+          item.x = layout.cx + u * layout.ax;
+          item.y = layout.cy + v * layout.ay;
+
+          /* at the start: inside the screen, off TOOLS */
+          const p = spreadPoint(item, layout, 0);
+
+          if (!insideArea(p, item) || onTitle(p, item)) {
+            continue;
+          }
+
+          /* apart from the others all the way, each with its speed */
+          const apart = steps.every(
+            (t) => {
+              const a = spreadPoint(item, layout, t);
+              return !onTitle(a, item) &&
+                placed.every((other) => apartFrom(a, item, spreadPoint(other, layout, t), other));
+            }
+          );
+
+          if (!apart) {
+            continue;
+          }
+
+          /* best: still inside the screen at the full spread */
+          if (insideArea(spreadPoint(item, layout, 1), item)) {
+            found = true;
+          }
+          else if (!fallback) {
+            fallback = { x: item.x, y: item.y };
+          }
+
         }
 
-        /* best: still inside the screen at the full spread */
-        if (insideArea(spreadPoint(item, layout, 1), item)) {
-          found = true;
+        if (!found) {
+          fits = false;
+          if (fallback) {
+            item.x = fallback.x;
+            item.y = fallback.y;
+          }
+          else {
+            if (last) {
+              console.warn("TOOLS: no free place for", TOOLS[item.index].label[currentLang]);
+            }
+          }
         }
-        else if (!fallback) {
-          fallback = { x: item.x, y: item.y };
-        }
+
+        placed.push(item);
 
       }
 
-      if (!found) {
-        if (fallback) {
-          item.x = fallback.x;
-          item.y = fallback.y;
-        }
-        else {
-          console.warn("TOOLS: no free place for", TOOLS[item.index].label[currentLang]);
-        }
+      return { layout, area, title, placed, fits, insideArea, onTitle, apartFrom, steps };
+
+    };
+
+    const tries = [place];
+
+    if (mobile) {
+      const phone = TOOLS_SETTINGS.phone;
+      let f = place.factor;
+      while (tries[tries.length - 1].safeBottom > place.min && f > 0.05) {
+        f = Math.max(0, +(f - 0.1).toFixed(2));
+        tries.push(toolsPlace(width, height, f));
       }
-
-      placed.push(item);
-
+      for (let sh = place.shift - 2; sh >= phone.opticalShiftMin; sh -= 2) {
+        tries.push(toolsPlace(width, height, f, sh));
+      }
     }
+
+    let made = null;
+
+    for (let k = 0; k < tries.length; k++) {
+      made = attempt(tries[k], k === tries.length - 1);
+      if (made.fits) {
+        break;
+      }
+    }
+
+    const { layout, area, title, placed, insideArea, onTitle, apartFrom, steps } = made;
 
     /* 1) one common spread: as wanted, or less if a label at its
        middle speed would leave the screen or go under the header */
@@ -5639,7 +5784,11 @@
     const high = 1 + (layout.spread - 1) * (1 + layout.variation);
     const report =
       `TOOLS ${width}×${height}: label speeds ${low.toFixed(4)}…${high.toFixed(4)}` +
-      ` (spread ${layout.spread.toFixed(4)}, variation ${layout.variation.toFixed(2)}, exit drift ×${layout.driftFactor.toFixed(2)})`;
+      ` (spread ${layout.spread.toFixed(4)}, variation ${layout.variation.toFixed(2)}, exit drift ×${layout.driftFactor.toFixed(2)})` +
+      (mobile
+        ? `; bottom band ${layout.place.safeBottom}px (factor ${layout.place.factor}), optical shift ${layout.place.shift}px` +
+          (layout.place !== place ? " – made smaller to fit" : "")
+        : "");
 
     if (narrowed || layout.spread < spreadScale) {
       console.warn(report + " – narrowed to stay clear");
@@ -5713,9 +5862,15 @@
     const gone = exit * exitSpeed >= height;
 
 
-    /* TOOLS: from below to the centre, then up with the page */
+    /* TOOLS: from below to the centre of the composition (on
+       phones a bit above the middle of the scene, see
+       toolsPlace), then up with the page */
+    const centreY = toolsLayout
+      ? toolsLayout.cy
+      : toolsPlace(window.innerWidth, height).cy;
+
     const titleTop =
-      lerp(height + 3, height / 2 - titleH / 2, comeIn) - extraY;
+      lerp(height + 3, centreY - titleH / 2, comeIn) - extraY;
 
     toolsLabel.style.top = `${titleTop}px`;
     toolsLabel.style.visibility =
