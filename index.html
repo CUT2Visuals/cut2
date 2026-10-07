@@ -148,7 +148,13 @@
       font-weight: 400;
     }
 
-    /* language button on the right: looks like plain text */
+    /*
+      Language button on the right: plain text that looks exactly
+      like the logo on the left (same size, weight, line height and
+      letter spacing, on desktop and on phone). It has no hover
+      effect and no animation; it only changes its text when the
+      language changes.
+    */
     .lang-button {
       /* the touch area is bigger than the text (at least 44px
          high, 12px wider on each side); the negative margin
@@ -166,21 +172,19 @@
       background: none;
       color: #000;
 
+      /* the same as .logo */
       font-family: inherit;
-      font-size: 12px;
+      font-size: 16px;
       font-weight: 400;
       line-height: normal;
-
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
+      letter-spacing: normal;
+      text-transform: none;
 
       cursor: pointer;
-    }
 
-    .lang-button:hover {
-      text-decoration: underline;
-      text-decoration-thickness: 1px;
-      text-underline-offset: 3px;
+      /* no animation, no grey flash when tapped on iPhone */
+      transition: none;
+      -webkit-tap-highlight-color: transparent;
     }
 
     .lang-button:focus {
@@ -230,9 +234,18 @@
        MAIN SYSTEM
     ================================================== */
 
+    /*
+      The script sets the exact height from TOOLS_SETTINGS.timing
+      (817vh + 100vh × (comeIn + hold + spreadScroll + holdAfter)).
+      The values here are the same numbers for the default
+      settings, so the page has the right length before the
+      script runs:
+        desktop 817 + 40 + 40 + 50 + 40   = 987vh
+        phone   817 + 50 + 50 + 60 + 50   = 1027vh
+    */
     .asset-system {
       position: relative;
-      height: 839vh;
+      height: 987vh;
     }
 
     .sticky-stage {
@@ -1101,10 +1114,6 @@
         padding: 0 16px;
       }
 
-      .lang-button {
-        font-size: 10px;
-      }
-
       .lang-hint {
         top: 60px;
         right: 16px;
@@ -1114,12 +1123,24 @@
         font-size: 10px;
       }
 
+      /*
+        Phone browsers (Safari) move their address bar and
+        tool bar while the page is scrolled, and the visible
+        height changes. The scene must not follow that, so it
+        is as tall as the LARGEST visible height (bars folded
+        away): 100lvh. 100vh is the fallback for old browsers
+        (in Safari it means the same). The scene is then
+        always big enough, never cut off above the bottom edge,
+        and its size does not change while scrolling.
+      */
       .asset-system {
-        height: 839vh;
+        height: 1027vh;
+        height: 1027lvh;
       }
 
       .sticky-stage {
-        height: 100svh;
+        height: 100vh;
+        height: 100lvh;
       }
 
       .project-label,
@@ -1316,7 +1337,7 @@
         class="project-label"
         id="projectLabel"
       >
-        <span class="visually-hidden">CUT2 / ONE PROJECT</span><span
+        <span class="visually-hidden" data-i18n="projectSr">CUT2 / ONE PROJECT</span><span
           class="project-sizer"
           id="projectSizer"
           aria-hidden="true"
@@ -1355,6 +1376,7 @@
       <div
         class="platforms-label"
         id="platformsLabel"
+        data-i18n="multiplePlatforms"
       >
         MULTIPLE PLATFORMS
       </div>
@@ -1453,7 +1475,7 @@
         id="assetCard"
       >
 
-        <div class="asset-label">
+        <div class="asset-label" data-i18n="oneAsset">
           ONE ASSET
         </div>
 
@@ -1491,6 +1513,7 @@
       <div
         class="multiple-label"
         id="multipleLabel"
+        data-i18n="multipleRepresentations"
       >
         MULTIPLE REPRESENTATIONS
       </div>
@@ -1542,6 +1565,7 @@
       <div
         class="tools-label"
         id="toolsLabel"
+        data-i18n="toolsTitle"
       >
         TOOLS
       </div>
@@ -1579,7 +1603,7 @@
     aria-labelledby="videoTitle"
   >
 
-    <h2 class="section-title" id="videoTitle">DEMO</h2>
+    <h2 class="section-title" id="videoTitle" data-i18n="demoTitle">DEMO</h2>
 
     <div class="video-frame" id="videoFrame"></div>
 
@@ -1600,7 +1624,7 @@
     aria-labelledby="accessTitle"
   >
 
-    <h2 class="section-title" id="accessTitle">ACCESS</h2>
+    <h2 class="section-title" id="accessTitle" data-i18n="accessTitle">ACCESS</h2>
 
     <ul class="access-list" id="accessList"></ul>
 
@@ -1616,7 +1640,7 @@
     aria-labelledby="contactTitle"
   >
 
-    <h2 class="section-title" id="contactTitle">CONTACT</h2>
+    <h2 class="section-title" id="contactTitle" data-i18n="contactTitle">CONTACT</h2>
 
     <p class="contact-intro section-small" id="contactIntro"></p>
 
@@ -1637,34 +1661,221 @@
   ================================================== */
 
   /*
-    currentLang    language of the page now: "en" or "ru"
+    The site is one page in two languages; the button in the
+    header switches between them at once, without reloading.
+
+    defaultLang    language when nothing else says otherwise
+    autoDetect     false = the browser language is ignored;
+                   true = a browser set to Russian opens the
+                   Russian page (only if nothing else is set)
     labels         text on the button for each current language:
                    it names the language the button switches to
                    (on the English page the button says RU)
-    ruAvailable    false = pressing the button only shows the
-                   note comingSoonText; true = it calls
-                   switchLanguage()
-    comingSoonText the note under the button
-    hintMs         how long the note stays, milliseconds (it also
-                   goes away on Esc, on scrolling and on a click
-                   elsewhere)
+    ruAvailable    true = the button switches the language;
+                   false = it only shows the note comingSoonText
+                   (as before the Russian version existed)
+    comingSoonText the note under the button (only when
+                   ruAvailable is false)
+    hintMs         how long that note stays, milliseconds
+    storageKey     name under which the browser remembers the
+                   chosen language
 
-    When the Russian version is ready: set ruAvailable = true
-    and write switchLanguage() below. Today it is a stub that
-    does nothing. Later the same function will also change
-    videoLang in VIDEO_SETTINGS (the video language).
+    Which language opens:
+      1) ?lang=ru or ?lang=en in the address (only for this
+         visit, it does not change what is remembered);
+      2) the language chosen earlier with the button;
+      3) defaultLang.
   */
 
   const LANG_SETTINGS = {
-    currentLang: "en",
+    defaultLang: "en",
+    autoDetect: false,
     labels: { en: "RU", ru: "EN" },
-    ruAvailable: false,
+    ruAvailable: true,
     comingSoonText: "RUSSIAN VERSION COMING SOON",
-    hintMs: 2500
+    hintMs: 2500,
+    storageKey: "cut2-lang"
   };
 
-  function switchLanguage() {
-    console.log("language switch not implemented");
+
+  /* ==================================================
+     TEXTS IN TWO LANGUAGES
+     (safe to tweak)
+  ================================================== */
+
+  /*
+    Every text of the page that changes with the language. The
+    English ones are exactly the texts the page had before.
+    Big words of the scene and small captions are shown in
+    capitals by the CSS anyway; write them in capitals here too.
+    Not translated on purpose (the same in both languages):
+    CUT2, CUT2 TOOLS, the platform names (AUTOCAD, SKETCHUP,
+    INDESIGN), the captions under the representation pictures,
+    MVP, the asset card. The names and descriptions of the
+    tools are in the TOOLS list (label / description).
+  */
+
+  const I18N = {
+
+    en: {
+      /* browser tab */
+      pageTitle: "CUT2 — one project, multiple platforms",
+
+      /* the language button: what a screen reader says
+         (the language it switches to, in that language) */
+      langButtonAria: "Russian version",
+      langButtonAriaLang: "ru",
+
+      /* big words of the scene (the start of the scene,
+         CUT2 → ONE PROJECT, is drawn letter by letter, see
+         INTRO_CELLS and INTRO_CELLS_RU; this is only what a
+         screen reader says there) */
+      projectSr: "CUT2 / ONE PROJECT",
+      multiplePlatforms: "MULTIPLE PLATFORMS",
+      oneAsset: "ONE ASSET",
+      multipleRepresentations: "MULTIPLE REPRESENTATIONS",
+      toolsTitle: "TOOLS",
+
+      /* the type under each representation picture (on the
+         right; the platform on the left is not translated) */
+      representationTypes: {
+        "MINIMAL": "MINIMAL",
+        "CONDITIONAL": "CONDITIONAL",
+        "REALISTIC": "REALISTIC",
+        "REALISTIC FACE ME": "REALISTIC FACE ME",
+        "IMAGE": "IMAGE"
+      },
+
+      /* section titles */
+      demoTitle: "DEMO",
+      accessTitle: "ACCESS",
+      contactTitle: "CONTACT",
+
+      /* DEMO */
+      videoLabel: "Demo of CUT2 plugins for SketchUp",
+      videoCaption: "SKETCHUP PLUGINS · MVP",
+      watchFull: "WATCH FULL VERSION →",
+      fullComingSoon: "FULL VERSION COMING SOON",
+      demoComingSoon: "DEMO COMING SOON",
+
+      /* ACCESS: status of each platform (see ACCESS_SETTINGS),
+         the button, and the message after the click (it must
+         not promise anything) */
+      status: { comingSoon: "COMING SOON", mvp: "MVP" },
+      requestAccess: "REQUEST ACCESS",
+      accessMessage: "NOT AVAILABLE YET — THANK YOU FOR YOUR INTEREST.",
+
+      /* CONTACT */
+      contactIntro: "CUT2 IS AN INDEPENDENT R&D PROJECT BY ANTON BRATKOV.",
+      contactsComingSoon: "CONTACTS COMING SOON"
+    },
+
+    ru: {
+      pageTitle: "CUT2 — один проект, несколько платформ",
+
+      langButtonAria: "English version",
+      langButtonAriaLang: "en",
+
+      projectSr: "CUT2 / ОДИН ПРОЕКТ",
+      multiplePlatforms: "НЕСКОЛЬКО ПЛАТФОРМ",
+      oneAsset: "ОДИН АССЕТ",
+      multipleRepresentations: "НЕСКОЛЬКО ПРЕДСТАВЛЕНИЙ",
+      toolsTitle: "ИНСТРУМЕНТЫ",
+
+      representationTypes: {
+        "MINIMAL": "МИНИМАЛИСТИЧНОЕ",
+        "CONDITIONAL": "УСЛОВНОЕ",
+        "REALISTIC": "РЕАЛИСТИЧНОЕ",
+        "REALISTIC FACE ME": "РЕАЛИСТИЧНОЕ · FACE ME",
+        "IMAGE": "ИЗОБРАЖЕНИЕ"
+      },
+
+      demoTitle: "ДЕМО",
+      accessTitle: "ДОСТУП",
+      contactTitle: "КОНТАКТЫ",
+
+      videoLabel: "Демонстрация плагинов CUT2 для SketchUp",
+      videoCaption: "ПЛАГИНЫ ДЛЯ SKETCHUP · MVP",
+      watchFull: "СМОТРЕТЬ ПОЛНУЮ ВЕРСИЮ →",
+      fullComingSoon: "ПОЛНАЯ ВЕРСИЯ СКОРО",
+      demoComingSoon: "ДЕМО СКОРО",
+
+      status: { comingSoon: "СКОРО", mvp: "MVP" },
+      requestAccess: "ЗАПРОСИТЬ ДОСТУП",
+      accessMessage: "ПОКА НЕДОСТУПНО — СПАСИБО ЗА ИНТЕРЕС.",
+
+      contactIntro: "CUT2 — НЕЗАВИСИМЫЙ R&D-ПРОЕКТ АНТОНА БРАТКОВА.",
+      contactsComingSoon: "КОНТАКТЫ СКОРО"
+    }
+
+  };
+
+
+  /* ---------- which language the page opens in ---------- */
+
+  /* the browser memory may be switched off (for example in a
+     private tab in Safari): then the choice lives only while
+     the page is open */
+  function readStoredLang() {
+    try {
+      return window.localStorage.getItem(LANG_SETTINGS.storageKey);
+    }
+    catch (error) {
+      return null;
+    }
+  }
+
+  function storeLang(lang) {
+    try {
+      window.localStorage.setItem(LANG_SETTINGS.storageKey, lang);
+    }
+    catch (error) {
+      /* not available: keep it in memory only */
+    }
+  }
+
+  function detectLanguage() {
+
+    const known = (value) => value === "en" || value === "ru";
+
+    if (!LANG_SETTINGS.ruAvailable) {
+      return "en";
+    }
+
+    let fromAddress = null;
+
+    try {
+      fromAddress = new URL(window.location.href).searchParams.get("lang");
+    }
+    catch (error) {
+      fromAddress = null;
+    }
+
+    if (known(fromAddress)) {
+      return fromAddress;
+    }
+
+    const stored = readStoredLang();
+
+    if (known(stored)) {
+      return stored;
+    }
+
+    if (LANG_SETTINGS.autoDetect &&
+        /^ru\b/i.test(navigator.language || "")) {
+      return "ru";
+    }
+
+    return known(LANG_SETTINGS.defaultLang) ? LANG_SETTINGS.defaultLang : "en";
+
+  }
+
+  /* the language of the page right now */
+  let currentLang = detectLanguage();
+
+  /* the text "key" in the current language */
+  function t(key) {
+    return I18N[currentLang][key];
   }
 
 
@@ -1778,6 +1989,41 @@
   ];
 
 
+  /*
+    The same for the Russian page: CUT2 → ОДИН ПРОЕКТ.
+    Same rules and fields as INTRO_CELLS above. The line of
+    cells, left to right: О Д И Н _ П Р О Е К C U T 2.
+    Only T is shared: the Latin T and the Cyrillic Т of IBM
+    Plex Mono are exactly the same letter, so it simply
+    stays. C, U and 2 hide under their neighbours (U and 2
+    under T, C under К right after К has come out of it);
+    all the letters of ОДИН ПРОЕКТ come out of neighbours,
+    like a tree: К from C, Н and Р from К, Д from Н, then the
+    last six at once, each in its own gap.
+    The two languages are independent: change one, the other
+    stays as it is.
+  */
+
+  const INTRO_CELLS_EN = INTRO_CELLS;
+
+  const INTRO_CELLS_RU = [
+    { char: "О", parent: "Д", show: "in",   dir: "left",  start: 0.75, duration: 0.25, closePockets: true },
+    { char: "Д", parent: "Н", show: "in",   dir: "left",  start: 0.50, duration: 0.25, closePockets: true },
+    { char: "И", parent: "Н", show: "in",   dir: "left",  start: 0.76, duration: 0.24, closePockets: true },
+    { char: "Н", parent: "К", show: "in",   dir: "left",  start: 0.28, duration: 0.22, closePockets: true },
+    { char: " ", parent: "Н", show: "in",   dir: "right", start: 0.77, duration: 0.23, closePockets: true },
+    { char: "П", parent: "Р", show: "in",   dir: "left",  start: 0.75, duration: 0.25, closePockets: true },
+    { char: "Р", parent: "К", show: "in",   dir: "left",  start: 0.52, duration: 0.23, closePockets: true },
+    { char: "О", parent: "Р", show: "in",   dir: "right", start: 0.78, duration: 0.22, closePockets: true },
+    { char: "Е", parent: "К", show: "in",   dir: "left",  start: 0.76, duration: 0.24, closePockets: true },
+    { char: "К", parent: "C", show: "in",   dir: "left",  start: 0.02, duration: 0.25, closePockets: true },
+    { char: "C", parent: "К", show: "out",  dir: "left",  start: 0.27, duration: 0.25, closePockets: true },
+    { char: "U", parent: "T", show: "out",  dir: "right", start: 0.00, duration: 0.25, closePockets: true },
+    { char: "T", parent: "",  show: "stay", dir: "",      start: 0,    duration: 1,    closePockets: true },
+    { char: "2", parent: "T", show: "out",  dir: "left",  start: 0.12, duration: 0.25, closePockets: true }
+  ];
+
+
   /* ==================================================
      SETTINGS: TOOLS
      (safe to tweak)
@@ -1788,33 +2034,235 @@
 
     platform     "AUTOCAD" / "SKETCHUP" / "INDESIGN"
                  (chooses the icon in the window)
-    label        name in the cloud (shown in capitals)
-    description  text in the window
-    Later a second language can be added next to these
-    fields (for an EN / RU switch).
+    label        name in the cloud (shown in capitals), in
+                 English (en) and Russian (ru)
+    description  text in the window, in both languages
+                 (shown as written, not in capitals)
+    The cloud is laid out separately for each language (the
+    names have different lengths), with the same rules.
   */
 
   const TOOLS = [
-    { platform: "AUTOCAD",  label: "Source Data Cleanup",              description: "Organizes and sorts information from source data files into layers, assembling a clean working base for the project with a configurable set of xrefs." },
-    { platform: "AUTOCAD",  label: "Constraints Plan",                 description: "Automatically compiles site constraints into a single plan with customizable graphics and layers. Highlights violations as you design." },
-    { platform: "AUTOCAD",  label: "Fire Access Roads",                description: "A semi-automatic generator of fire access roads per SP (Set of Rules) and STU (Special Technical Specifications). Observes required setbacks from buildings, connects to the existing or planned road network, and automatically generates turning radii, pads, and centerlines." },
-    { platform: "AUTOCAD",  label: "Schedules",                        description: "Turn design blocks, lines, and hatches into ready-made schedules, with no manual counting or retyping of data." },
-    { platform: "AUTOCAD",  label: "DWG to SketchUp",                  description: "Automatically prepares DWG files for transfer to SketchUp, with no manual preparation or post-processing." },
-    { platform: "AUTOCAD",  label: "Tagging",                          description: "Automatically places element tags and keeps them linked to objects and schedules." },
-    { platform: "AUTOCAD",  label: "Paving from SketchUp to AutoCAD",  description: "Paving changes made in SketchUp flow back into AutoCAD, turning two tools into a single system. Especially handy for layouts and schedules." },
-    { platform: "AUTOCAD",  label: "Mixes from SketchUp",              description: "Edit planting mixes in SketchUp, and the data flows back into AutoCAD as a planting plan." },
-    { platform: "AUTOCAD",  label: "Pavement Build-Up Generator",      description: "A customizable library of pavement build-ups. The callout becomes the control: change a layer's thickness in the text, and the section redraws automatically." },
-    { platform: "SKETCHUP", label: "Sun Hours",                        description: "Shows how much sunlight a space receives throughout the day for a given location and date. Legend colors can be customized to match your palette." },
-    { platform: "SKETCHUP", label: "Shadow Envelope",                  description: "Generates a shadow envelope over a specified time interval. Legend colors can be customized to match your palette." },
-    { platform: "SKETCHUP", label: "Lighting Analysis",                description: "Speeds up lighting analysis at early design stages by showing illuminance levels and the number of fixtures required." },
-    { platform: "SKETCHUP", label: "2D → 3D",                          description: "Turns flat design information into a working 3D model. Also lets you add elements from the library right inside SketchUp." },
-    { platform: "SKETCHUP", label: "Shovel",                           description: "Places CUT2 plants across surfaces and hills in one click." },
-    { platform: "SKETCHUP", label: "Plant Light Exposure",             description: "Checks the light exposure of a specific CUT2 plant, highlighting it according to its needs. Every plant is evaluated against its own requirements. Legend colors can be customized to match your palette." },
-    { platform: "SKETCHUP", label: "Hill Generator",                   description: "Creates smooth, lightweight terrain geometry from the parameters you set. Up to 30 hills in one click, in seconds." },
-    { platform: "SKETCHUP", label: "Pattern Generator",                description: "Generates paving, decking, and other layouts by rules rather than by hand: change parameters, not hundreds of individual elements." },
-    { platform: "SKETCHUP", label: "Styles",                           description: "Creates a ready-made graphic presentation directly in SketchUp, with no export to Illustrator and no manual graphic processing. Ready-made presets can be adjusted and customized." },
-    { platform: "INDESIGN", label: "Schedule Transfer",                description: "Brings schedules from AutoCAD straight into your presentation and updates them when the source data changes. Customizable presentation styles." },
-    { platform: "INDESIGN", label: "Bloom Calendar",                   description: "Automatically builds a bloom calendar from project data and turns it into ready-to-use presentation graphics." }
+    {
+      platform: "AUTOCAD",
+      label: {
+        en: "Source Data Cleanup",
+        ru: "Очистка исходных данных"
+      },
+      description: {
+        en: "Organizes and sorts information from source data files into layers, assembling a clean working base for the project with a configurable set of xrefs.",
+        ru: "Раскладывает информацию из исходных файлов по слоям и собирает чистую рабочую основу проекта с настраиваемым набором внешних ссылок (xref)."
+      }
+    },
+    {
+      platform: "AUTOCAD",
+      label: {
+        en: "Constraints Plan",
+        ru: "План ограничений"
+      },
+      description: {
+        en: "Automatically compiles site constraints into a single plan with customizable graphics and layers. Highlights violations as you design.",
+        ru: "Автоматически собирает ограничения участка в единый план с настраиваемой графикой и слоями. Подсвечивает нарушения по ходу проектирования."
+      }
+    },
+    {
+      platform: "AUTOCAD",
+      label: {
+        en: "Fire Access Roads",
+        ru: "Пожарные проезды"
+      },
+      description: {
+        en: "A semi-automatic generator of fire access roads per SP (Set of Rules) and STU (Special Technical Specifications). Observes required setbacks from buildings, connects to the existing or planned road network, and automatically generates turning radii, pads, and centerlines.",
+        ru: "Полуавтоматический генератор пожарных проездов по СП и СТУ. Соблюдает нормативные отступы от зданий, подключается к существующей или проектируемой сети дорог и автоматически строит радиусы поворота, площадки и осевые линии."
+      }
+    },
+    {
+      platform: "AUTOCAD",
+      label: {
+        en: "Schedules",
+        ru: "Ведомости"
+      },
+      description: {
+        en: "Turn design blocks, lines, and hatches into ready-made schedules, with no manual counting or retyping of data.",
+        ru: "Превращает блоки, линии и штриховки проекта в готовые ведомости, без ручного подсчёта и перепечатывания данных."
+      }
+    },
+    {
+      platform: "AUTOCAD",
+      label: {
+        en: "DWG to SketchUp",
+        ru: "DWG в SketchUp"
+      },
+      description: {
+        en: "Automatically prepares DWG files for transfer to SketchUp, with no manual preparation or post-processing.",
+        ru: "Автоматически готовит файлы DWG к переносу в SketchUp, без ручной подготовки и доработки после импорта."
+      }
+    },
+    {
+      platform: "AUTOCAD",
+      label: {
+        en: "Tagging",
+        ru: "Маркировка"
+      },
+      description: {
+        en: "Automatically places element tags and keeps them linked to objects and schedules.",
+        ru: "Автоматически расставляет марки элементов и сохраняет их связь с объектами и ведомостями."
+      }
+    },
+    {
+      platform: "AUTOCAD",
+      label: {
+        en: "Paving from SketchUp to AutoCAD",
+        ru: "Мощение из SketchUp в AutoCAD"
+      },
+      description: {
+        en: "Paving changes made in SketchUp flow back into AutoCAD, turning two tools into a single system. Especially handy for layouts and schedules.",
+        ru: "Изменения мощения в SketchUp возвращаются в AutoCAD, и два инструмента работают как единая система. Особенно удобно для планов раскладки и ведомостей."
+      }
+    },
+    {
+      platform: "AUTOCAD",
+      label: {
+        en: "Mixes from SketchUp",
+        ru: "Миксы из SketchUp"
+      },
+      description: {
+        en: "Edit planting mixes in SketchUp, and the data flows back into AutoCAD as a planting plan.",
+        ru: "Редактируйте миксы озеленения в SketchUp, и данные возвращаются в AutoCAD в виде плана посадок."
+      }
+    },
+    {
+      platform: "AUTOCAD",
+      label: {
+        en: "Pavement Build-Up Generator",
+        ru: "Генератор КДО"
+      },
+      description: {
+        en: "A customizable library of pavement build-ups. The callout becomes the control: change a layer's thickness in the text, and the section redraws automatically.",
+        ru: "Настраиваемая библиотека конструкций дорожных одежд. Выноска становится управляющей: измените толщину слоя в тексте, и разрез автоматически перечертится."
+      }
+    },
+    {
+      platform: "SKETCHUP",
+      label: {
+        en: "Sun Hours",
+        ru: "Солнечные часы"
+      },
+      description: {
+        en: "Shows how much sunlight a space receives throughout the day for a given location and date. Legend colors can be customized to match your palette.",
+        ru: "Показывает, сколько солнечного света получает пространство в течение дня для заданного места и даты. Цвета легенды настраиваются под вашу палитру."
+      }
+    },
+    {
+      platform: "SKETCHUP",
+      label: {
+        en: "Shadow Envelope",
+        ru: "Конверт теней"
+      },
+      description: {
+        en: "Generates a shadow envelope over a specified time interval. Legend colors can be customized to match your palette.",
+        ru: "Строит конверт теней за заданный интервал времени. Цвета легенды настраиваются под вашу палитру."
+      }
+    },
+    {
+      platform: "SKETCHUP",
+      label: {
+        en: "Lighting Analysis",
+        ru: "Светотехнический анализ"
+      },
+      description: {
+        en: "Speeds up lighting analysis at early design stages by showing illuminance levels and the number of fixtures required.",
+        ru: "Ускоряет светотехнические расчёты на ранних стадиях проектирования: показывает уровни освещённости и необходимое количество светильников."
+      }
+    },
+    {
+      platform: "SKETCHUP",
+      label: {
+        en: "2D → 3D",
+        ru: "2D → 3D"
+      },
+      description: {
+        en: "Turns flat design information into a working 3D model. Also lets you add elements from the library right inside SketchUp.",
+        ru: "Превращает плоскую проектную информацию в рабочую 3D-модель. Также позволяет добавлять элементы из библиотеки прямо в SketchUp."
+      }
+    },
+    {
+      platform: "SKETCHUP",
+      label: {
+        en: "Shovel",
+        ru: "Shovel"
+      },
+      description: {
+        en: "Places CUT2 plants across surfaces and hills in one click.",
+        ru: "Размещает растения CUT2 по поверхностям и холмам в один клик."
+      }
+    },
+    {
+      platform: "SKETCHUP",
+      label: {
+        en: "Plant Light Exposure",
+        ru: "Освещённость растений"
+      },
+      description: {
+        en: "Checks the light exposure of a specific CUT2 plant, highlighting it according to its needs. Every plant is evaluated against its own requirements. Legend colors can be customized to match your palette.",
+        ru: "Проверяет световой режим конкретного растения CUT2 и подсвечивает его в соответствии с потребностями. Каждое растение оценивается по своим требованиям. Цвета легенды настраиваются под вашу палитру."
+      }
+    },
+    {
+      platform: "SKETCHUP",
+      label: {
+        en: "Hill Generator",
+        ru: "Генератор холмов"
+      },
+      description: {
+        en: "Creates smooth, lightweight terrain geometry from the parameters you set. Up to 30 hills in one click, in seconds.",
+        ru: "Создаёт гладкую и лёгкую геометрию рельефа по заданным параметрам. До 30 холмов в один клик, за секунды."
+      }
+    },
+    {
+      platform: "SKETCHUP",
+      label: {
+        en: "Pattern Generator",
+        ru: "Генератор паттернов"
+      },
+      description: {
+        en: "Generates paving, decking, and other layouts by rules rather than by hand: change parameters, not hundreds of individual elements.",
+        ru: "Генерирует мощение, настилы и другие раскладки по правилам, а не вручную: меняйте параметры, а не сотни отдельных элементов."
+      }
+    },
+    {
+      platform: "SKETCHUP",
+      label: {
+        en: "Styles",
+        ru: "Стили"
+      },
+      description: {
+        en: "Creates a ready-made graphic presentation directly in SketchUp, with no export to Illustrator and no manual graphic processing. Ready-made presets can be adjusted and customized.",
+        ru: "Создаёт готовую графическую подачу прямо в SketchUp, без экспорта в Illustrator и ручной обработки. Готовые пресеты можно менять и настраивать."
+      }
+    },
+    {
+      platform: "INDESIGN",
+      label: {
+        en: "Schedule Transfer",
+        ru: "Перенос ведомостей"
+      },
+      description: {
+        en: "Brings schedules from AutoCAD straight into your presentation and updates them when the source data changes. Customizable presentation styles.",
+        ru: "Переносит ведомости из AutoCAD прямо в презентацию и обновляет их при изменении исходных данных. Настраиваемые стили оформления."
+      }
+    },
+    {
+      platform: "INDESIGN",
+      label: {
+        en: "Bloom Calendar",
+        ru: "Календарь цветения"
+      },
+      description: {
+        en: "Automatically builds a bloom calendar from project data and turns it into ready-to-use presentation graphics.",
+        ru: "Автоматически строит календарь цветения по данным проекта и превращает его в готовую графику для презентации."
+      }
+    }
   ];
 
 
@@ -1826,24 +2274,58 @@
   };
 
 
-  /*
-    How TOOLS goes, with no pause anywhere:
-      1) representations leave, TOOLS comes to the centre
-         (TOOLS_COME_IN, in screen heights of scrolling);
-      2) at its end the labels appear all at once, and the
-         scene stops being pinned: TOOLS and the cloud go up
-         with the page like normal content, while the cloud
-         keeps spreading; the next section comes up from
-         below at the same time.
-    If you change TOOLS_COME_IN (now 0.22), also change the
-    height of .asset-system in CSS (two places):
-      817vh + 100vh × TOOLS_COME_IN   (0.22 → 839vh)
-  */
-
-  const TOOLS_COME_IN = 0.22;
-
-
   const TOOLS_SETTINGS = {
+
+    /*
+      How TOOLS goes, in screen heights of scrolling (1 = one
+      full screen of scrolling). Separate for the desktop and
+      for the phone (window up to 700px wide):
+
+        comeIn        the representations leave and TOOLS comes
+                      up to the centre (longer = calmer)
+        hold          TOOLS stands still in the centre, alone,
+                      with nothing around it: a short stop
+                      before the burst (about a second of
+                      ordinary scrolling)
+        spreadScroll  the burst: all the labels appear at once
+                      and at that very moment start to move
+                      apart; this is how much scrolling it takes
+                      (shorter = faster)
+        holdAfter     the stop after the burst: the cloud stands
+                      still, the scene stays pinned.
+                      null = the same as hold, so the two stops
+                      change together. To make them different,
+                      write a number here instead of null.
+
+      After the second stop the scene goes up with the page and
+      the cloud leaves under the header (exitSpeed below). While
+      it goes up, the labels keep drifting outwards, only softer:
+
+        exitDriftStart  how fast they drift at the start of the
+                        exit, as a part of their speed in the
+                        burst (0.5 = half as fast)
+        exitDriftEnd    the same at the end of the exit (0.2);
+                        in between it fades evenly, never to zero
+        exitDriftRamp   how much scrolling it takes the drift to
+                        get up to speed when the scene starts to
+                        move (so there is no jerk), in screen
+                        heights
+
+      Each label drifts with its own speed (spreadVariation), and
+      sideways each one stops softly at its own side margin
+      (margin below), depending on its own width; up and down
+      there is no limit, the labels leave the scene anyway.
+
+      The height of the whole scene section is worked out from
+      these numbers by the script (nothing to change in CSS; the
+      CSS only holds the same numbers for the first moment before
+      the script runs: 987vh desktop and 1027vh phone for the
+      default settings, see .asset-system).
+    */
+    timing: {
+      desktop: { comeIn: 0.4, hold: 0.4, spreadScroll: 0.5, holdAfter: null, exitDriftStart: 1.0, exitDriftEnd: 0.4, exitDriftRamp: 0.15 },
+      phone:   { comeIn: 0.5, hold: 0.5, spreadScroll: 0.6, holdAfter: null, exitDriftStart: 1.0, exitDriftEnd: 0.4, exitDriftRamp: 0.15 }
+    },
 
     /* label size: copied from the captions under the
        representations pictures (.representation-info) */
@@ -1889,11 +2371,12 @@
     },
 
     /*
-      While the scene goes up, the cloud grows around TOOLS:
-      every label moves away from TOOLS, from 1 to about
-      spreadScale (1.15 = 15 % further away). It grows evenly
-      with the scroll, from the moment the labels appear to
-      the moment the scene has left the screen.
+      The cloud grows around TOOLS: every label moves away
+      from TOOLS, from 1 to about spreadScale (1.15 = 15 %
+      further away). It grows evenly with the scroll (one
+      smooth movement, no steps), from the moment the labels
+      appear over the length spreadScroll (see timing above),
+      and then stands still for holdAfter.
     */
     spreadScale: 1.15,
 
@@ -1995,21 +2478,18 @@
     One row per platform, in this order.
     platform     "AUTOCAD" / "SKETCHUP" / "INDESIGN"
                  (name and icon)
-    status       small text next to the name
-    buttonLabel  text on the button
-    ACCESS_MESSAGE replaces the button after the click.
-    It must not promise anything (no counter is connected
-    yet, no e-mails are sent).
+    status       which status text is shown next to the name:
+                 "comingSoon" or "mvp" (the texts themselves are
+                 in I18N → status, in both languages)
+    The button text and the message after the click are in
+    I18N too (requestAccess, accessMessage).
   */
 
   const ACCESS_SETTINGS = [
-    { platform: "AUTOCAD",  status: "COMING SOON", buttonLabel: "REQUEST ACCESS" },
-    { platform: "SKETCHUP", status: "MVP",         buttonLabel: "REQUEST ACCESS" },
-    { platform: "INDESIGN", status: "COMING SOON", buttonLabel: "REQUEST ACCESS" }
+    { platform: "AUTOCAD",  status: "comingSoon" },
+    { platform: "SKETCHUP", status: "mvp" },
+    { platform: "INDESIGN", status: "comingSoon" }
   ];
-
-  const ACCESS_MESSAGE =
-    "NOT AVAILABLE YET — THANK YOU FOR YOUR INTEREST.";
 
 
   /* ==================================================
@@ -2018,7 +2498,6 @@
   ================================================== */
 
   /*
-    CONTACT_INTRO   small line under the CONTACT title
     CONTACT_SETTINGS  one row per contact:
       label   small name in front of the value, e.g. "EMAIL"
               (empty = not shown)
@@ -2028,11 +2507,9 @@
               a new tab). An e-mail value with an empty href
               becomes a mailto link by itself.
     Only rows with a value are shown. With no rows at all
-    the section says CONTACT_EMPTY.
+    the section says contactsComingSoon (in I18N). The line
+    under the title is contactIntro (in I18N).
   */
-
-  const CONTACT_INTRO =
-    "CUT2 IS AN INDEPENDENT R&D PROJECT BY ANTON BRATKOV.";
 
   /*
     The contact is the e-mail on the cut2.tools domain. To
@@ -2043,8 +2520,6 @@
     { label: "", value: "hello@cut2.tools", href: "mailto:hello@cut2.tools" }
   ];
 
-  const CONTACT_EMPTY =
-    "CONTACTS COMING SOON";
 
 
   /* ==================================================
@@ -2054,10 +2529,10 @@
 
   /*
     Texts and files that depend on the language are written as
-    { en: "…", ru: "…" }. videoLang chooses which one the page
-    shows now; later the EN / RU switch will change only this
-    parameter. Only the chosen language is used: the other
-    video file is never downloaded.
+    { en: "…", ru: "…" }. videoLang is the language shown now;
+    the EN / RU button in the header sets it (you do not need
+    to change it here). Only the chosen language is used: the
+    other video file is not downloaded.
 
     videoSrc          path to the mp4 file for each language
                       (empty = a black box with the "coming
@@ -2069,14 +2544,13 @@
                       the right space on the page, so nothing
                       jumps while the video loads. Change it if
                       you replace the video with another shape.
-    videoLabel        what the video is, for screen readers
     caption           small text under the video, per language
-                      (empty = nothing)
+                      (empty = the text videoCaption from I18N)
     fullVersionHref   address of the long version for each
                       language (opens in a new tab); empty = the
                       link is shown as not available yet
-    fullVersionLabel  text of that link
-    comingSoon...     texts used while something is empty
+    The other texts (what the video is for screen readers,
+    the link text, the "coming soon" texts) are in I18N.
   */
 
   const VIDEO_SETTINGS = {
@@ -2087,7 +2561,6 @@
     },
     posterSrc: "assets/video/demo-poster.jpg",
     aspect: { width: 1760, height: 1036 },
-    videoLabel: "Demo of CUT2 plugins for SketchUp",
     caption: {
       en: "SKETCHUP PLUGINS · MVP",
       ru: ""
@@ -2095,10 +2568,7 @@
     fullVersionHref: {
       en: "",
       ru: ""
-    },
-    fullVersionLabel: "WATCH FULL VERSION →",
-    comingSoonVideo: "DEMO COMING SOON",
-    comingSoonFullVersion: "FULL VERSION COMING SOON"
+    }
   };
 
 
@@ -2176,6 +2646,56 @@
       deep: { left: 396, right: 291.05 }
     },
   };
+
+
+  /*
+    Cyrillic letters of ОДИН ПРОЕКТ, from the same official
+    font file (IBM Plex Mono Regular 2.3, Cyrillic part), the
+    same kind of data as GLYPHS. "closed" here is the outer
+    contour with every pocket closed by straight lines (for
+    example between the arms of К, or between the foot and
+    the leg of Д). О, Р, Е and Т are not repeated: they are
+    exactly the Latin O, P, E and T of the font.
+  */
+
+  const GLYPHS_RU = {
+    "Д": {
+      ink: "M14 73L74 73Q119 137 142 237.5Q165 338 165 493L165 698L491 698L491 73L576 73L576 -150L499 -150L499 0L91 0L91 -150L14 -150ZM407 625L247 625L247 487Q247 328 225.5 228Q204 128 170 73L407 73Z",
+      outer: "M14 73L74 73Q119 137 142 237.5Q165 338 165 493L165 698L491 698L491 73L576 73L576 -150L499 -150L499 0L91 0L91 -150L14 -150Z",
+      closed: "M14 -150L576 -150L576 73L491 698L165 698L14 73Z",
+      deep: { left: 165, right: 491 }
+    },
+    "И": {
+      ink: "M80 698L164 698L164 346L150 144L155 144L440 698L520 698L520 0L436 0L436 352L450 554L445 554L160 0L80 0Z",
+      outer: "M80 698L164 698L164 346L150 144L155 144L440 698L520 698L520 0L436 0L436 352L450 554L445 554L160 0L80 0Z",
+      closed: "M80 0L520 0L520 698L80 698Z",
+      deep: { left: 80, right: 520 }
+    },
+    "Н": {
+      ink: "M436 317L164 317L164 0L80 0L80 698L164 698L164 390L436 390L436 698L520 698L520 0L436 0Z",
+      outer: "M436 317L164 317L164 0L80 0L80 698L164 698L164 390L436 390L436 698L520 698L520 0L436 0Z",
+      closed: "M80 0L520 0L520 698L80 698Z",
+      deep: { left: 80, right: 520 }
+    },
+    "П": {
+      ink: "M83 698L517 698L517 0L433 0L433 625L167 625L167 0L83 0Z",
+      outer: "M83 698L517 698L517 0L433 0L433 625L167 625L167 0L83 0Z",
+      closed: "M83 0L517 0L517 698L83 698Z",
+      deep: { left: 83, right: 517 }
+    },
+    "К": {
+      ink: "M80 698L164 698L164 390L287 390L435 698L524 698L391 422Q374 387 359 373.5Q344 360 326 357L326 352Q348 347 363 331.5Q378 316 396 275L486 73L551 73L551 0L488 0Q458 0 435 17.5Q412 35 395 74L287 318L164 318L164 0L80 0Z",
+      outer: "M80 698L164 698L164 390L287 390L435 698L524 698L391 422Q374 387 359 373.5Q344 360 326 357L326 352Q348 347 363 331.5Q378 316 396 275L486 73L551 73L551 0L488 0Q458 0 435 17.5Q412 35 395 74L287 318L164 318L164 0L80 0Z",
+      closed: "M80 0L551 0L551 73L524 698L80 698Z",
+      deep: { left: 80, right: 326 }
+    }
+  };
+
+  /* Cyrillic letters that are drawn exactly like Latin ones */
+  const GLYPH_SAME = { "О": "O", "Р": "P", "Е": "E", "Т": "T" };
+
+  const glyphOf = (char) =>
+    GLYPHS[char] || GLYPHS_RU[char] || GLYPHS[GLYPH_SAME[char]];
 
 
   /* ==================================================
@@ -2261,7 +2781,7 @@
       return { d: null, deep: edge === "left" ? 0 : 600 };
     }
 
-    const glyph = GLYPHS[char];
+    const glyph = glyphOf(char);
 
     return {
       d: closePockets ? glyph.closed : glyph.outer,
@@ -2308,7 +2828,7 @@
     canvas.height = 800;
 
     const g = canvas.getContext("2d", { willReadFrequently: true });
-    const childPath = new Path2D(GLYPHS[child].ink);
+    const childPath = new Path2D(glyphOf(child).ink);
 
     const sticksOut = (depth) => {
 
@@ -2358,8 +2878,26 @@
   /* filled by buildIntroLetters() once the font is ready */
   let introLetters = [];
 
+  /* the cells the letters were built for (English or Russian) */
+  let introCells = INTRO_CELLS;
 
-  function buildIntroLetters() {
+  /* the last progress drawn, to redraw at once after a rebuild */
+  let lastIntroProgress = 0;
+
+
+  /*
+    Builds the letters for the current language. Runs once the
+    font is ready, and again (rebuild) when the language
+    changes; "redraw" then puts them in place right away.
+  */
+  function buildIntroLetters(rebuild) {
+
+    projectSvg.replaceChildren();
+
+    const INTRO_CELLS =
+      currentLang === "ru" ? INTRO_CELLS_RU : INTRO_CELLS_EN;
+
+    introCells = INTRO_CELLS;
 
     projectSvg.setAttribute("shape-rendering", "geometricPrecision");
 
@@ -2373,7 +2911,7 @@
     const zoneIdOf = (char, edge, closePockets) => {
 
       const key =
-        `${char === "2" ? "two" : char}-${edge}-${closePockets ? "c" : "o"}`;
+        `${char === "2" ? "two" : /^[A-Za-z0-9]$/.test(char) ? char : "u" + char.codePointAt(0)}-${edge}-${closePockets ? "c" : "o"}`;
 
       if (!zoneIds[key]) {
 
@@ -2537,7 +3075,30 @@
       }
     );
 
-    updateAnimation();
+    if (rebuild) {
+      updateIntroCells(lastIntroProgress);
+    }
+    else {
+      updateAnimation();
+    }
+
+  }
+
+
+  /* the language changed: build the start of the scene again in
+     that language, after its font is loaded (the scroll and
+     everything else stay as they are) */
+  function rebuildIntroLetters() {
+
+    const lang = currentLang;
+
+    Promise.all([latinLoaded, langFontReady(lang)]).then(
+      () => {
+        if (lang === currentLang && introLetters.length) {
+          buildIntroLetters(true);
+        }
+      }
+    );
 
   }
 
@@ -2563,7 +3124,9 @@
   const fontsLoaded =
     Promise.all([latinLoaded, arrowsLoaded]);
 
-  latinLoaded.then(buildIntroLetters);
+  Promise.all([latinLoaded, langFontReady(currentLang)]).then(
+    () => buildIntroLetters(false)
+  );
 
   const projectArrow =
     document.getElementById("projectArrow");
@@ -2694,6 +3257,7 @@
 
         image.className = "representation-image is-hidden";
         image.alt = `${item.platform} ${item.type}`;
+        image.dataset.altEn = image.alt;
 
         representationVisual.appendChild(image);
 
@@ -2774,6 +3338,35 @@
   /* the first picture is already in the page */
   let shownRepresentation = 0;
 
+  representationImage.dataset.altEn = representationImage.alt;
+
+  /* the type of a representation in the current language */
+  function representationTypeText(type) {
+    const types = I18N[currentLang].representationTypes || {};
+    return types[type] || type;
+  }
+
+  /*
+    The language changed: only the caption of the picture on the
+    screen and the alt texts change; the picture, its movement
+    and the scroll stay as they are.
+  */
+  function updateRepresentationLanguage() {
+
+    representationType.textContent =
+      representationTypeText(representations[shownRepresentation].type);
+
+    representationImages.forEach(
+      (image, index) => {
+        const item = representations[index];
+        image.alt = currentLang === "en"
+          ? image.dataset.altEn
+          : `${item.platform} ${representationTypeText(item.type)}`;
+      }
+    );
+
+  }
+
   /*
     Called every frame with the wanted index; picture and text
     are touched only when the index really changes and the new
@@ -2800,7 +3393,7 @@
     representationImages[index].classList.remove("is-hidden");
 
     representationPlatform.textContent = current.platform;
-    representationType.textContent = current.type;
+    representationType.textContent = representationTypeText(current.type);
 
     shownRepresentation = index;
 
@@ -2848,10 +3441,15 @@
 
   function updateIntroCells(introProgress) {
 
+    lastIntroProgress = introProgress;
+
     /* letters are built when the font is ready */
     if (!introLetters.length) {
       return;
     }
+
+    /* the cells of the language the letters were built for */
+    const INTRO_CELLS = introCells;
 
     const charWidth =
       projectSizer.offsetWidth / 11;
@@ -2954,6 +3552,53 @@
       document.querySelector("header");
 
 
+    /*
+      Height of the scene (CSS 100vh, on phones 100lvh) and the
+      length of the TOOLS part, all in px. The section is made
+      exactly as long as the scene needs; it is set before the
+      positions are read.
+    */
+    const stageH = stage.offsetHeight;
+
+    const pauseAt = 0.53;
+    const pauseLength = 0.07;
+
+    const toolsPhone = window.innerWidth <= 700;
+    const toolsTiming =
+      TOOLS_SETTINGS.timing[toolsPhone ? "phone" : "desktop"];
+
+    /* where the TOOLS part starts: the old timeline
+       (1 unit = 6 screen heights) ends here */
+    const toolsStartPx =
+      (INTRO_LENGTH + 1 + pauseLength) * 6 * stageH;
+
+    const toolsComeLen = toolsTiming.comeIn * stageH;
+    const toolsHoldLen = toolsTiming.hold * stageH;
+    const toolsSpreadLen = toolsTiming.spreadScroll * stageH;
+
+    /* the stop after the burst: the same as the first stop
+       unless holdAfter is a number */
+    const toolsHoldAfterLen =
+      (toolsTiming.holdAfter == null
+        ? toolsTiming.hold
+        : toolsTiming.holdAfter) * stageH;
+
+    /* the labels appear here and, in the same moment, start
+       to spread */
+    const toolsAppearPx =
+      toolsStartPx + toolsComeLen + toolsHoldLen;
+
+    /* the scene stays pinned through the burst and the stop
+       after it; then it goes up with the page (one more screen
+       height of scrolling) */
+    const sectionPx =
+      toolsAppearPx + toolsSpreadLen + toolsHoldAfterLen + stageH;
+
+    if (section.dataset.px !== String(sectionPx)) {
+      section.style.height = `${sectionPx}px`;
+      section.dataset.px = String(sectionPx);
+    }
+
     const sectionRect =
       section.getBoundingClientRect();
 
@@ -2964,9 +3609,16 @@
       header.getBoundingClientRect();
 
 
+    /*
+      The height of the scene (stageH, worked out at the top)
+      does not change when the browser bars move, unlike
+      window.innerHeight, so everything below is measured from
+      it: scroll progress, positions, the place where blocks
+      come in from below.
+    */
     const scrollable =
-      section.offsetHeight -
-      window.innerHeight;
+      sectionPx -
+      stageH;
 
     const passed =
       clamp(
@@ -2980,38 +3632,28 @@
       1) CUT2 → ONE PROJECT (INTRO_LENGTH),
       2) the old timeline, with a pause on
          ONE ASSET: pauseLength holds the timeline
-         at pauseAt.
-      3) TOOLS coming in (TOOLS_COME_IN, in screen
-         heights; 1 screen height = 1/6 of the old
-         timeline).
-      Section height: 700vh + 600vh × (INTRO_LENGTH
-      + pauseLength) + 100vh × TOOLS_COME_IN = 839vh.
-      Every old block keeps its length in pixels.
-      After the section ends the scene is unpinned and
-      goes up; pastEnd counts those pixels.
+         at pauseAt. One unit of this timeline is 6
+         screen heights of scrolling, so every old block
+         keeps its length in pixels,
+      3) TOOLS (TOOLS_SETTINGS.timing): comes in, stands
+         still (hold), then the labels spread,
+      after the section ends the scene is unpinned and goes
+      up; pastEnd counts those pixels.
     */
 
-    const pauseAt = 0.53;
-    const pauseLength = 0.07;
-
-    const toolsLength =
-      TOOLS_COME_IN / 6;
+    /* scrolled from the start of the section, px (can be
+       more than the pinned length) */
+    const scrollPos =
+      -sectionRect.top;
 
     const rawTimeline =
-      passed / scrollable *
-      (1 + INTRO_LENGTH + pauseLength + toolsLength);
+      passed / (6 * stageH);
 
-    /* time inside the TOOLS part (old timeline units) */
-    const toolsTime =
-      Math.max(
-        0,
-        rawTimeline - INTRO_LENGTH - 1 - pauseLength
-      );
-
-    /* step 1 of TOOLS: representations leave upwards */
+    /* step 1 of TOOLS: representations leave upwards while
+       TOOLS comes in (the same length) */
     const toolsLeave =
       smoothstep(
-        clamp(toolsTime / toolsLength, 0, 1)
+        clamp((scrollPos - toolsStartPx) / toolsComeLen, 0, 1)
       );
 
     /* scrolled past the end of the section, px
@@ -3047,7 +3689,7 @@
 
 
     const centerY =
-      window.innerHeight / 2;
+      stageH / 2;
 
     const headerGap =
       24;
@@ -3642,7 +4284,7 @@
 
 
     const cardTravel =
-      window.innerHeight * 0.82;
+      stageH * 0.82;
 
 
     const cardY =
@@ -3746,7 +4388,7 @@
       (3 - 2 * labelEntryProgress);
 
     const labelEntryShift =
-      window.innerHeight +
+      stageH +
       3 -
       (centerY - labelHeight / 2);
 
@@ -4050,7 +4692,24 @@
        12. TOOLS
     ================================================== */
 
-    updateTools(toolsTime, pastEnd);
+    updateTools(
+      scrollPos,
+      pastEnd,
+      stageH,
+      {
+        startPx: toolsStartPx,
+        comeLen: toolsComeLen,
+        appearPx: toolsAppearPx,
+        spreadLen: toolsSpreadLen,
+        drift: {
+          spreadLen: toolsSpreadLen,
+          start: toolsTiming.exitDriftStart,
+          end: toolsTiming.exitDriftEnd,
+          length: stageH,
+          rampLen: toolsTiming.exitDriftRamp * stageH
+        }
+      }
+    );
 
 
     requestAnimationFrame(
@@ -4090,7 +4749,7 @@
 
         button.type = "button";
         button.className = "tool-label";
-        button.textContent = tool.label;
+        button.textContent = tool.label[currentLang];
         button.setAttribute("aria-expanded", "false");
         button.setAttribute("aria-controls", "toolPopup");
 
@@ -4152,11 +4811,181 @@
   }
 
 
+  /*
+    How far the drift has gone after "e" px of the exit, in px of
+    "burst scrolling": the drift speed is
+      ramp(e) × (start + (end − start) × e / length)
+    of the burst speed, where ramp goes smoothly from 0 to 1 over
+    the first rampLen px (so the labels start moving gently when
+    the scene starts to move). This is that speed added up (an
+    exact formula, so the positions are smooth and the same in
+    both scroll directions).
+  */
+  function exitDriftAmount(e, start, end, length, rampLen) {
+
+    if (e <= 0) {
+      return 0;
+    }
+
+    const m = (end - start) / length;
+
+    /* inside the ramp: speed = smoothstep(x / R) × (start + m·x) */
+    const inRamp = (x) => {
+      const u = x / rampLen;
+      return rampLen * (
+        start * (u * u * u - u * u * u * u / 2) +
+        m * rampLen * (3 * u * u * u * u / 4 - 2 * u * u * u * u * u / 5)
+      );
+    };
+
+    if (e <= rampLen) {
+      return inRamp(e);
+    }
+
+    return inRamp(rampLen) +
+      start * (e - rampLen) +
+      m * (e * e - rampLen * rampLen) / 2;
+
+  }
+
+
+  /*
+    Sideways a drifting label must not go past its own margin.
+    d is how far it would go, room how far it may go: it moves
+    freely, and in the last "soft" px it slows down smoothly and
+    stops at the margin (no sudden stop).
+  */
+  function softLimit(d, room) {
+
+    if (room <= 0.01) {
+      return 0;
+    }
+
+    const soft = Math.min(room, 24);
+    const free = room - soft;
+
+    if (d <= free) {
+      return d;
+    }
+
+    return free + soft * Math.tanh((d - free) / soft);
+
+  }
+
+
+  /* where a label is "e" px into the exit (the end of the burst
+     plus the drift) */
+  function exitPoint(item, layout, e, drift) {
+
+    const end = spreadPoint(item, layout, 1);
+
+    if (e <= 0) {
+      return end;
+    }
+
+    /* the burst speed of this label, in "scale" per px */
+    const rate =
+      (layout.spread - 1) * (1 + layout.variation * item.speed) / drift.spreadLen;
+
+    /* driftFactor: 1, or less if the layout had to soften the
+       drift to keep the labels apart (see layoutTools) */
+    const extra =
+      rate * exitDriftAmount(e, drift.start, drift.end, drift.length, drift.rampLen) *
+      (layout.driftFactor == null ? 1 : layout.driftFactor);
+
+    /* sideways: up to this label's own margin */
+    const dx = (item.x - layout.cx) * extra;
+    const room = dx >= 0
+      ? layout.right - item.w / 2 - end.x
+      : end.x - (layout.left + item.w / 2);
+
+    const side = softLimit(Math.abs(dx), Math.max(0, room));
+    const x = end.x + Math.sign(dx) * side;
+
+    /* up and down: free. The part of the drift that the margin
+       holds back sideways goes up or down instead (away from
+       TOOLS), so a label at its margin keeps floating */
+    const blocked = Math.abs(dx) - side;
+    const away = item.y >= layout.cy ? 1 : -1;
+    const y = end.y + (item.y - layout.cy) * extra + away * blocked;
+
+    return { x, y };
+
+  }
+
+
+  /* language, width and scene height of the last layout, and
+     the layouts already made (one per language and size) */
+  let toolsLayoutKey = "";
+  const toolsLayouts = {};
+
+  /* the Cyrillic font file is loaded only when Russian is
+     used; the layout waits for it (the names are measured) */
+  function langFontReady(lang) {
+
+    if (lang !== "ru") {
+      return Promise.resolve();
+    }
+
+    return document.fonts
+      .load('400 16px "IBM Plex Mono"', "ИНСТРУМЕНТЫ АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ")
+      .catch(() => {});
+
+  }
+
+  /* the language changed: close the window, take the layout
+     of this language (made once, after its font is loaded) */
+  function refreshToolsLanguage() {
+
+    if (openToolIndex >= 0) {
+      closeToolPopup(false);
+    }
+
+    const lang = currentLang;
+
+    /* the names in the new language (the layout measures them) */
+    toolButtons.forEach(
+      (button, index) => { button.textContent = TOOLS[index].label[lang]; }
+    );
+
+    /* until the layout of this language is ready the cloud is
+       not drawn (no frame with new names in old places) */
+    toolsLayout = null;
+
+    Promise.all([fontsLoaded, langFontReady(lang)]).then(
+      () => {
+        if (lang === currentLang) {
+          layoutTools();
+        }
+      }
+    );
+
+  }
+
   function layoutTools() {
 
     const width = window.innerWidth;
-    const height = window.innerHeight;
+
+    /* the height of the scene, not of the window: it does not
+       change when the browser bars move */
+    const height = document.querySelector(".sticky-stage").offsetHeight;
     const mobile = width <= 700;
+
+    /* same language and size as last time: the layout would
+       come out exactly the same, so do nothing; a layout made
+       earlier for this language and size is taken as it is */
+    const key = currentLang + ":" + width + "x" + height;
+
+    if (key === toolsLayoutKey && toolsLayout) {
+      return;
+    }
+
+    toolsLayoutKey = key;
+
+    if (toolsLayouts[key]) {
+      toolsLayout = toolsLayouts[key];
+      return;
+    }
 
     const { gap, margin, seed, spreadScale, spreadVariation } = TOOLS_SETTINGS;
     const cloud = mobile ? TOOLS_SETTINGS.cloudMobile : TOOLS_SETTINGS.cloud;
@@ -4204,7 +5033,13 @@
     };
 
     const sizes =
-      toolButtons.map((b) => ({ w: b.offsetWidth, h: b.offsetHeight }));
+      toolButtons.map((b) => {
+        /* whole px for the layout, and the exact size for the
+           check of the exit (labels are a fraction of a px
+           bigger than offsetWidth / offsetHeight say) */
+        const r = b.getBoundingClientRect();
+        return { w: b.offsetWidth, h: b.offsetHeight, wf: r.width, hf: r.height };
+      });
 
     /* the speed of every label, from −1 to 1: fixed numbers
        from the seed, in the order of the TOOLS list */
@@ -4270,7 +5105,7 @@
 
       const clump = clumps[entry.index % clumps.length];
       const item = {
-        index: entry.index, w: entry.w, h: entry.h,
+        index: entry.index, w: entry.w, h: entry.h, wf: entry.wf, hf: entry.hf,
         speed: speeds[entry.index], x: 0, y: 0
       };
       let fallback = null;
@@ -4325,7 +5160,7 @@
           item.y = fallback.y;
         }
         else {
-          console.warn("TOOLS: no free place for", TOOLS[item.index].label);
+          console.warn("TOOLS: no free place for", TOOLS[item.index].label[currentLang]);
         }
       }
 
@@ -4352,7 +5187,7 @@
 
     /* 2) the whole movement with the own speeds: nothing touches
        another label, TOOLS, the header or the screen edge */
-    const allClear = () =>
+    const burstClear = () =>
       steps.every(
         (t) => placed.every(
           (item, i) => {
@@ -4363,12 +5198,73 @@
         )
       );
 
+    /* the side margins, for the drift while the scene leaves */
+    layout.left = area.left;
+    layout.right = area.right;
+    layout.driftFactor = 1;
+
+    /* 3) the exit: while the scene goes up, the labels keep
+       drifting; the ones still on the screen (below the header,
+       above the bottom) must not touch each other or TOOLS */
+    const timing = TOOLS_SETTINGS.timing[mobile ? "phone" : "desktop"];
+    const drift = {
+      spreadLen: timing.spreadScroll * height,
+      start: timing.exitDriftStart,
+      end: timing.exitDriftEnd,
+      length: height,
+      rampLen: timing.exitDriftRamp * height
+    };
+
+    /* every 1px of the exit, so even a short touch is found */
+    const exitSteps = [];
+    for (let e = 1; e <= height; e += 1) {
+      exitSteps.push(e);
+    }
+
+    /* the real box of a label: it starts where the layout puts
+       it (centre minus half the whole-px size) and is exactly
+       as big as it is drawn */
+    const box = (p, item) => {
+      const left = p.x - item.w / 2, top = p.y - item.h / 2;
+      return { left, top, right: left + item.wf, bottom: top + item.hf };
+    };
+
+    const touching = (a, item, b, other) => {
+      const A = box(a, item), B = box(b, other);
+      return A.left < B.right && B.left < A.right && A.top < B.bottom && B.top < A.bottom;
+    };
+
+    const exitClear = () =>
+      exitSteps.every(
+        (e) => {
+          const shown = placed
+            .map((item) => ({ item, p: exitPoint(item, layout, e, drift) }))
+            .filter(({ item, p }) => box(p, item).bottom - e > headerBottom && box(p, item).top - e < height);
+          const titleShown = title.bottom - gap - e > headerBottom;
+          return shown.every(
+            ({ item, p }, i) =>
+              !(titleShown &&
+                p.x + item.w / 2 > title.left + gap && p.x - item.w / 2 < title.right - gap &&
+                p.y + item.h / 2 > title.top + gap && p.y - item.h / 2 < title.bottom - gap) &&
+              shown.every(({ item: other, p: q }, j) => j <= i || !touching(p, item, q, other))
+          );
+        }
+      );
+
+    const allClear = () => burstClear() && exitClear();
+
     /* if not, the range of speeds is narrowed step by step,
-       and as the last resort the common spread too */
+       then the drift on the exit is made softer, and as the
+       last resort the common spread is made smaller */
     let narrowed = false;
 
     while (!allClear() && layout.variation > 0) {
       layout.variation = Math.max(0, +(layout.variation - 0.01).toFixed(2));
+      narrowed = true;
+    }
+
+    for (let k = 0; k < 30 && burstClear() && !exitClear(); k++) {
+      layout.driftFactor *= 0.9;
       narrowed = true;
     }
 
@@ -4381,7 +5277,7 @@
     const high = 1 + (layout.spread - 1) * (1 + layout.variation);
     const report =
       `TOOLS ${width}×${height}: label speeds ${low.toFixed(4)}…${high.toFixed(4)}` +
-      ` (spread ${layout.spread.toFixed(4)}, variation ${layout.variation.toFixed(2)})`;
+      ` (spread ${layout.spread.toFixed(4)}, variation ${layout.variation.toFixed(2)}, exit drift ×${layout.driftFactor.toFixed(2)})`;
 
     if (narrowed || layout.spread < spreadScale) {
       console.warn(report + " – narrowed to stay clear");
@@ -4395,12 +5291,21 @@
     }
 
     layout.items = placed.sort((a, b) => a.index - b.index);
+
     toolsLayout = layout;
+    toolsLayouts[key] = layout;
 
   }
 
 
-  /* recompute the layout on resize, after the size settles */
+  /*
+    Recompute the layout when the window size really changes
+    (width, rotation, a different window), after the size
+    settles. A change of the visible height only because the
+    browser bars moved does not change the scene height, so
+    layoutTools() sees the same size and keeps the cloud as
+    it is.
+  */
   let toolsResizeTimer = null;
 
   window.addEventListener(
@@ -4411,20 +5316,24 @@
     }
   );
 
-  fontsLoaded.then(layoutTools);
+  Promise.all([fontsLoaded, langFontReady(currentLang)]).then(layoutTools);
 
 
   /*
-    toolsTime – time inside the TOOLS part (old timeline units)
-    pastEnd   – px scrolled past the end of the section
+    scrollPos – px scrolled from the start of the section
+    pastEnd   – px scrolled past the end of the pinned part
                 (below 0 while the scene is still pinned)
+    height    – height of the scene in px
+    tl        – the TOOLS part in px: startPx (TOOLS starts to
+                come in), comeLen (how long it comes in),
+                appearPx (the labels appear), spreadLen (how
+                long they spread)
   */
-  function updateTools(toolsTime, pastEnd) {
+  function updateTools(scrollPos, pastEnd, height, tl) {
 
     const comeIn =
-      smoothstep(clamp(toolsTime / (TOOLS_COME_IN / 6), 0, 1));
+      smoothstep(clamp((scrollPos - tl.startPx) / tl.comeLen, 0, 1));
 
-    const height = window.innerHeight;
     const titleH = toolsLabel.offsetHeight;
     const { exitSpeed } = TOOLS_SETTINGS;
 
@@ -4433,8 +5342,12 @@
     const exit = Math.max(0, pastEnd);
     const extraY = (exitSpeed - 1) * exit;
 
-    /* the cloud grows evenly until it has left the screen */
-    const spreadTime = clamp(exit * exitSpeed / height, 0, 1);
+    /* the cloud grows evenly with the scroll, from the moment
+       the labels appear */
+    const spreadTime =
+      clamp((scrollPos - tl.appearPx) / tl.spreadLen, 0, 1);
+
+    /* the scene has gone up out of the screen */
     const gone = exit * exitSpeed >= height;
 
 
@@ -4444,13 +5357,13 @@
 
     toolsLabel.style.top = `${titleTop}px`;
     toolsLabel.style.visibility =
-      toolsTime > 0 && !gone ? "visible" : "hidden";
+      scrollPos > tl.startPx && !gone ? "visible" : "hidden";
 
 
-    /* the cloud: all labels switch on together when TOOLS
-       has arrived, i.e. at the end of the section */
+    /* the cloud: all labels switch on together after the
+       stop of TOOLS in the centre */
     const cloudOn =
-      pastEnd > -0.5 && !gone && toolsLayout;
+      scrollPos >= tl.appearPx && !gone && toolsLayout;
 
     if (!cloudOn) {
 
@@ -4468,7 +5381,12 @@
       (item) => {
 
         const button = toolButtons[item.index];
-        const p = spreadPoint(item, toolsLayout, spreadTime);
+
+        /* before the exit: the burst (and the stop after it);
+           on the exit: the end of the burst plus the drift */
+        const p = exit > 0
+          ? exitPoint(item, toolsLayout, exit, tl.drift)
+          : spreadPoint(item, toolsLayout, spreadTime);
 
         button.style.visibility = "visible";
         button.style.transform =
@@ -4501,12 +5419,12 @@
     const button = toolButtons[index];
 
     toolPopupIcon.src = TOOL_ICONS[tool.platform];
-    toolPopupText.textContent = tool.description;
+    toolPopupText.textContent = tool.description[currentLang];
     toolPopupText.style.textTransform =
       TOOLS_SETTINGS.descriptionUppercase ? "uppercase" : "none";
 
     /* the name is not shown, but screen readers get it */
-    toolPopup.setAttribute("aria-label", tool.label);
+    toolPopup.setAttribute("aria-label", tool.label[currentLang]);
 
     toolPopup.hidden = false;
     button.setAttribute("aria-expanded", "true");
@@ -4634,12 +5552,19 @@
      VIDEO: filled from VIDEO_SETTINGS
   ================================================== */
 
+  /*
+    Fills the DEMO section for the current language. Runs at the
+    start and again when the language changes. Only the file of
+    the current language is loaded. If a video is playing when
+    the language changes, it stops and goes back to the start:
+    the other language is another file, so it can not go on
+    from the same moment.
+  */
   function buildVideo() {
 
     const frame = document.getElementById("videoFrame");
     const link = document.getElementById("videoFullLink");
 
-    /* the value for the chosen language */
     const lang = VIDEO_SETTINGS.videoLang;
     const pick = (value) =>
       value && typeof value === "object" ? value[lang] : value;
@@ -4653,45 +5578,76 @@
       `${VIDEO_SETTINGS.aspect.width} / ${VIDEO_SETTINGS.aspect.height}`
     );
 
+    /* the caption from VIDEO_SETTINGS, or the I18N text when
+       it is empty for this language */
     document.getElementById("videoCaption").textContent =
-      pick(VIDEO_SETTINGS.caption) || "";
+      pick(VIDEO_SETTINGS.caption) || t("videoCaption");
+
+    let video = frame.querySelector("video");
 
     if (videoSrc) {
 
-      const video = document.createElement("video");
+      frame.querySelectorAll(".video-placeholder").forEach((box) => box.remove());
 
-      video.src = videoSrc;
-      video.controls = true;
-      video.playsInline = true;
-      video.preload = "metadata";
-      video.setAttribute("playsinline", "");
-      video.setAttribute("aria-label", VIDEO_SETTINGS.videoLabel);
+      if (!video) {
 
-      if (VIDEO_SETTINGS.posterSrc) {
-        video.poster = VIDEO_SETTINGS.posterSrc;
+        video = document.createElement("video");
+
+        video.controls = true;
+        video.playsInline = true;
+        video.preload = "metadata";
+        video.setAttribute("playsinline", "");
+
+        if (VIDEO_SETTINGS.posterSrc) {
+          video.poster = VIDEO_SETTINGS.posterSrc;
+        }
+
+        frame.appendChild(video);
+
       }
 
-      frame.appendChild(video);
+      if (video.getAttribute("src") !== videoSrc) {
+        video.pause();
+        video.setAttribute("src", videoSrc);
+        video.load();
+      }
+
+      video.setAttribute("aria-label", t("videoLabel"));
 
     }
 
     else {
 
-      const box = document.createElement("div");
+      if (video) {
+        video.pause();
+        video.remove();
+      }
 
-      box.className = "video-placeholder section-small";
-      box.textContent = VIDEO_SETTINGS.comingSoonVideo;
+      let box = frame.querySelector(".video-placeholder");
 
-      frame.appendChild(box);
+      if (!box) {
+        box = document.createElement("div");
+        box.className = "video-placeholder section-small";
+        frame.appendChild(box);
+      }
+
+      box.textContent = t("demoComingSoon");
 
     }
+
+    link.removeAttribute("href");
+    link.removeAttribute("target");
+    link.removeAttribute("rel");
+    link.removeAttribute("role");
+    link.removeAttribute("aria-disabled");
+    link.removeAttribute("tabindex");
 
     if (fullHref) {
 
       link.href = fullHref;
       link.target = "_blank";
       link.rel = "noopener";
-      link.textContent = VIDEO_SETTINGS.fullVersionLabel;
+      link.textContent = t("watchFull");
 
     }
 
@@ -4702,12 +5658,13 @@
       link.setAttribute("role", "link");
       link.setAttribute("aria-disabled", "true");
       link.tabIndex = 0;
-      link.textContent = VIDEO_SETTINGS.comingSoonFullVersion;
+      link.textContent = t("fullComingSoon");
 
     }
 
   }
 
+  VIDEO_SETTINGS.videoLang = currentLang;
   buildVideo();
 
 
@@ -4719,9 +5676,13 @@
      page: trackInterest is called only once for each */
   const requestedPlatforms = new Set();
 
+  /* runs at the start and again when the language changes;
+     a platform already requested keeps showing the message */
   function buildAccess() {
 
     const list = document.getElementById("accessList");
+
+    list.replaceChildren();
 
     ACCESS_SETTINGS.forEach(
       (row) => {
@@ -4743,7 +5704,8 @@
 
         const status = document.createElement("span");
         status.className = "section-small access-status";
-        status.textContent = row.status;
+        status.textContent =
+          I18N[currentLang].status[row.status] || row.status;
 
         names.append(name, status);
 
@@ -4752,11 +5714,25 @@
         action.className = "access-action";
         action.setAttribute("aria-live", "polite");
 
+        const showMessage = () => {
+
+          const message = document.createElement("p");
+          message.className = "access-message section-small";
+          message.textContent = t("accessMessage");
+          message.tabIndex = -1;
+
+          action.classList.add("is-done");
+          action.replaceChildren(message);
+
+          return message;
+
+        };
+
         const button = document.createElement("button");
         button.type = "button";
         button.className = "access-button section-small";
-        button.textContent = row.buttonLabel;
-        button.setAttribute("aria-label", row.buttonLabel + ": " + row.platform);
+        button.textContent = t("requestAccess");
+        button.setAttribute("aria-label", t("requestAccess") + ": " + row.platform);
 
         button.addEventListener(
           "click",
@@ -4767,21 +5743,18 @@
               trackInterest(row.platform);
             }
 
-            const message = document.createElement("p");
-            message.className = "access-message section-small";
-            message.textContent = ACCESS_MESSAGE;
-            message.tabIndex = -1;
-
-            action.classList.add("is-done");
-            action.replaceChildren(message);
-
             /* keep the keyboard in the same place */
-            message.focus({ preventScroll: true });
+            showMessage().focus({ preventScroll: true });
 
           }
         );
 
-        action.appendChild(button);
+        if (requestedPlatforms.has(row.platform)) {
+          showMessage();
+        }
+        else {
+          action.appendChild(button);
+        }
         item.append(icon, names, action);
         list.appendChild(item);
 
@@ -4797,12 +5770,15 @@
      CONTACT: rows from CONTACT_SETTINGS
   ================================================== */
 
+  /* runs at the start and again when the language changes */
   function buildContact() {
 
     const body = document.getElementById("contactBody");
 
+    body.replaceChildren();
+
     document.getElementById("contactIntro").textContent =
-      CONTACT_INTRO;
+      t("contactIntro");
 
     const rows =
       CONTACT_SETTINGS.filter((row) => row.value && row.value.trim());
@@ -4811,7 +5787,7 @@
 
       const empty = document.createElement("p");
       empty.className = "contact-empty section-small";
-      empty.textContent = CONTACT_EMPTY;
+      empty.textContent = t("contactsComingSoon");
 
       body.appendChild(empty);
       return;
@@ -4887,30 +5863,72 @@
 
   function setupLangButton() {
 
-    const { currentLang, labels, ruAvailable } = LANG_SETTINGS;
+    const { labels, ruAvailable } = LANG_SETTINGS;
 
     langText.textContent = labels[currentLang];
 
-    /* what a screen reader says: the language it switches to */
-    if (currentLang === "en") {
-
-      langButton.setAttribute(
-        "aria-label",
-        ruAvailable ? "Русская версия" : "Russian version (coming soon)"
-      );
-
-      if (ruAvailable) {
-        langButton.setAttribute("lang", "ru");
-      }
-      else {
-        langButton.removeAttribute("lang");
-      }
-
+    /* what a screen reader says: the language it switches to,
+       in that language */
+    if (!ruAvailable) {
+      langButton.setAttribute("aria-label", "Russian version (coming soon)");
+      langButton.removeAttribute("lang");
+      return;
     }
 
-    else {
-      langButton.setAttribute("aria-label", "English version");
-      langButton.setAttribute("lang", "en");
+    langButton.setAttribute("aria-label", t("langButtonAria"));
+    langButton.setAttribute("lang", t("langButtonAriaLang"));
+
+  }
+
+
+  /*
+    Puts the whole page into "lang" at once: texts, the browser
+    tab, the language of the page, the video, the access and
+    contact rows, the TOOLS cloud. The scroll position stays.
+  */
+  function applyLanguage(lang) {
+
+    currentLang = lang;
+
+    document.documentElement.lang = lang;
+    document.title = t("pageTitle");
+
+    document.querySelectorAll("[data-i18n]").forEach(
+      (element) => {
+        element.textContent = t(element.dataset.i18n);
+      }
+    );
+
+    setupLangButton();
+
+    VIDEO_SETTINGS.videoLang = lang;
+    buildVideo();
+    buildAccess();
+    buildContact();
+
+    refreshToolsLanguage();
+    rebuildIntroLetters();
+    updateRepresentationLanguage();
+
+  }
+
+  /* the button: the other language, remembered, and the
+     address updated (?lang=…) without reloading */
+  function switchLanguage() {
+
+    const next = currentLang === "en" ? "ru" : "en";
+
+    applyLanguage(next);
+    storeLang(next);
+
+    try {
+      const address = new URL(window.location.href);
+      address.searchParams.set("lang", next);
+      window.history.replaceState(window.history.state, "", address.toString());
+    }
+    catch (error) {
+      /* the address can not be changed here (for example a
+         local file in some browsers): the language still works */
     }
 
   }
@@ -4984,7 +6002,13 @@
     { passive: true }
   );
 
-  setupLangButton();
+  /* the page opens in the detected language */
+  if (currentLang !== "en") {
+    applyLanguage(currentLang);
+  }
+  else {
+    setupLangButton();
+  }
 
 
   updateAnimation();
