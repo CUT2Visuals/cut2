@@ -24,9 +24,10 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="theme-color" content="#f3f0e8">
 
-  <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="icon" href="favicon.svg?v=2" type="image/svg+xml">
+  <link rel="icon" href="favicon-32.png?v=2" type="image/png" sizes="32x32">
+  <link rel="icon" href="favicon.ico?v=2" sizes="any">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=2">
 
   <!-- the font is part of the site (fonts/), no Google Fonts -->
   <link
@@ -143,9 +144,96 @@
       z-index: 100;
     }
 
+    /*
+      CUT2 TOOLS on the left: a link to the very top of the page.
+      It looks exactly as before (plain black text). Like the
+      language button it has a touch area at least 44px high and
+      12px wider than the text; the negative margin gives that
+      space back, so the text stays where it was.
+    */
     .logo {
+      min-height: 44px;
+      margin: 0 0 0 -12px;
+      padding: 0 12px;
+
+      display: flex;
+      align-items: center;
+
+      color: #000;
+      text-decoration: none;
+
       font-size: 16px;
       font-weight: 400;
+
+      transition: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .logo:focus {
+      outline: none;
+    }
+
+    .logo:focus-visible .logo-text {
+      outline: 1px solid #000;
+      outline-offset: 3px;
+    }
+
+    /*
+      The section links in the middle (DEMO / ACCESS / CONTACT).
+      Desktop: the group is centred on the page (not between
+      the logo and the button), with equal gaps. The group
+      itself lets clicks through; only the links take them.
+    */
+    .site-nav {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+
+      height: 100%;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      gap: 40px;
+
+      pointer-events: none;
+    }
+
+    /* same look as the language button: plain text, no
+       underline, no hover effect, no animation */
+    .site-nav a {
+      min-height: 44px;
+      margin: 0 -12px;
+      padding: 0 12px;
+
+      display: flex;
+      align-items: center;
+
+      color: #000;
+      text-decoration: none;
+
+      font-size: 16px;
+      font-weight: 400;
+      line-height: normal;
+      letter-spacing: normal;
+      text-transform: uppercase;
+      white-space: nowrap;
+
+      pointer-events: auto;
+
+      transition: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .site-nav a:focus {
+      outline: none;
+    }
+
+    .site-nav a:focus-visible .nav-text {
+      outline: 1px solid #000;
+      outline-offset: 3px;
     }
 
     /*
@@ -839,6 +927,16 @@
        apart; side space as in the header */
     .page-section {
       padding: 64px 28px;
+
+      /* a jump to #demo / #access / #contact stops with the
+         section right under the header */
+      scroll-margin-top: 64px;
+    }
+
+    /* the section titles take the focus after a jump from the
+       header; they are not buttons, so no frame */
+    .section-title:focus {
+      outline: none;
     }
 
     /* the same size as TOOLS and the other big words,
@@ -965,6 +1063,15 @@
       justify-content: space-between;
 
       gap: 12px;
+    }
+
+    /* the link to the long version: its touch area is at least
+       44px high (12px above the text, so it never reaches the
+       video controls, and 19px below); the negative margins
+       give that room back, so nothing on the page moves */
+    .video-info .text-link {
+      padding: 12px 0 19px;
+      margin: -12px 0 -19px;
     }
 
 
@@ -1196,6 +1303,22 @@
         height: 48svh;
       }
 
+      /*
+        In-app browsers (Telegram and others) change the
+        visible height, and with it 100lvh / 100svh, while the
+        page is scrolled. So on phones the script measures
+        those heights and keeps ONE stable value of each
+        (SCENE_HEIGHT): the scene and the pictures in it take
+        their size from it, not from the window.
+      */
+      .stable-stage .sticky-stage {
+        height: var(--stage-h);
+      }
+
+      .stable-stage .representation-visual {
+        height: calc(var(--stage-small-h) * 0.48);
+      }
+
       .representation-image {
         width: 70%;
         height: 70%;
@@ -1208,6 +1331,67 @@
 
       .page-section {
         padding: 52px 16px;
+        scroll-margin-top: 52px;
+      }
+
+      /*
+        Phone: CUT2 TOOLS, the three links and the language
+        button are all the same size (16px) and spread evenly
+        over the width: four equal spaces between them; the logo
+        stays at the left edge, the button at the right edge.
+
+        All five together are 18em wide in Russian (30 letters
+        of the monospaced font, 0.6em each: CUT2 TOOLS, ДЕМО,
+        ДОСТУП, КОНТАКТЫ, EN) and 17.4em in English (29). Below
+        about 352px wide 16px would leave less than 8px between
+        them, so there all five get smaller together (the same
+        size for all of them, computed for Russian).
+
+        --nav-half is half of one space: every touch area reaches
+        exactly that far to each side, so neighbouring touch
+        areas meet but never cover each other. The negative
+        margins give the room back, so the text stays in place.
+      */
+      header {
+        --nav-size: min(16px, calc((100vw - 32px - 4 * 8px) / 18));
+        --nav-chars: 17.4;
+        --nav-half: min(12px, calc((100vw - 32px - var(--nav-chars) * var(--nav-size)) / 8 - 0.05px));
+      }
+
+      html:lang(ru) header {
+        --nav-chars: 18;
+      }
+
+      .site-nav {
+        position: static;
+
+        height: auto;
+
+        flex: 1 1 auto;
+        justify-content: space-evenly;
+
+        gap: 0;
+      }
+
+      .site-nav a {
+        margin: 0 calc(-1 * var(--nav-half));
+        padding: 0 var(--nav-half);
+
+        font-size: var(--nav-size);
+      }
+
+      .logo {
+        margin-right: calc(-1 * var(--nav-half));
+        padding-right: var(--nav-half);
+
+        font-size: var(--nav-size);
+      }
+
+      .lang-button {
+        margin-left: calc(-1 * var(--nav-half));
+        padding-left: var(--nav-half);
+
+        font-size: var(--nav-size);
       }
 
       .section-title {
@@ -1295,9 +1479,14 @@
 
 <header>
 
-  <div class="logo">
-    CUT2 TOOLS
-  </div>
+  <!-- the name is not translated -->
+  <a class="logo" href="#" id="homeLink"><span class="logo-text">CUT2 TOOLS</span></a>
+
+  <nav class="site-nav" aria-label="Sections" data-i18n-aria="navLabel">
+    <a href="#demo" lang="en" data-nav="demo" data-i18n-aria="navDemo" aria-label="Demo"><span class="nav-text" data-i18n="demoTitle">DEMO</span></a>
+    <a href="#access" lang="en" data-nav="access" data-i18n-aria="navAccess" aria-label="Access"><span class="nav-text" data-i18n="accessTitle">ACCESS</span></a>
+    <a href="#contact" lang="en" data-nav="contact" data-i18n-aria="navContact" aria-label="Contact"><span class="nav-text" data-i18n="contactTitle">CONTACT</span></a>
+  </nav>
 
   <button
     type="button"
@@ -1600,10 +1789,11 @@
 
   <section
     class="page-section video-section"
+    id="demo"
     aria-labelledby="videoTitle"
   >
 
-    <h2 class="section-title" id="videoTitle" data-i18n="demoTitle">DEMO</h2>
+    <h2 class="section-title" id="videoTitle" data-i18n="demoTitle" tabindex="-1">DEMO</h2>
 
     <div class="video-frame" id="videoFrame"></div>
 
@@ -1621,10 +1811,11 @@
 
   <section
     class="page-section"
+    id="access"
     aria-labelledby="accessTitle"
   >
 
-    <h2 class="section-title" id="accessTitle" data-i18n="accessTitle">ACCESS</h2>
+    <h2 class="section-title" id="accessTitle" data-i18n="accessTitle" tabindex="-1">ACCESS</h2>
 
     <ul class="access-list" id="accessList"></ul>
 
@@ -1637,10 +1828,11 @@
 
   <section
     class="page-section"
+    id="contact"
     aria-labelledby="contactTitle"
   >
 
-    <h2 class="section-title" id="contactTitle" data-i18n="contactTitle">CONTACT</h2>
+    <h2 class="section-title" id="contactTitle" data-i18n="contactTitle" tabindex="-1">CONTACT</h2>
 
     <p class="contact-intro section-small" id="contactIntro"></p>
 
@@ -1726,6 +1918,14 @@
       langButtonAria: "Russian version",
       langButtonAriaLang: "ru",
 
+      /* the section links in the header: what a screen reader
+         says (the visible names are demoTitle, accessTitle,
+         contactTitle) */
+      navLabel: "Sections",
+      navDemo: "Demo",
+      navAccess: "Access",
+      navContact: "Contact",
+
       /* big words of the scene (the start of the scene,
          CUT2 → ONE PROJECT, is drawn letter by letter, see
          INTRO_CELLS and INTRO_CELLS_RU; this is only what a
@@ -1775,6 +1975,11 @@
 
       langButtonAria: "English version",
       langButtonAriaLang: "en",
+
+      navLabel: "Разделы",
+      navDemo: "Демо",
+      navAccess: "Доступ",
+      navContact: "Контакты",
 
       projectSr: "CUT2 / ОДИН ПРОЕКТ",
       multiplePlatforms: "НЕСКОЛЬКО ПЛАТФОРМ",
@@ -1877,6 +2082,39 @@
   function t(key) {
     return I18N[currentLang][key];
   }
+
+
+  /*
+    Diagnostics for a real phone: open the page with ?debug=1
+    in the address and a small text panel at the bottom shows
+    the sizes, the scroll, the TOOLS phase and the work of the
+    cloud layout. Without ?debug=1 nothing of it exists.
+  */
+  const DEBUG = /[?&]debug=1(&|$)/.test(window.location.search);
+
+  const debugStats = { layoutCalls: 0, layoutNew: 0, layoutMs: 0, layoutKey: "" };
+
+
+  /* ==================================================
+     SETTINGS: HEADER LINKS (CUT2 TOOLS, DEMO, ACCESS, CONTACT)
+     (safe to tweak)
+  ================================================== */
+
+  /*
+    scrollMs   how the page moves after a click on a header link:
+               0 = at once (jumps straight to the place);
+               more than 0 = a short smooth move that takes this
+               many milliseconds (gentle start and stop). A smooth
+               move stops as soon as the visitor scrolls (wheel,
+               touch, keys). Visitors who asked their system for
+               less motion always get the jump.
+    The page stops with the section right under the header;
+    CUT2 TOOLS goes to the very top.
+  */
+
+  const NAV_SETTINGS = {
+    scrollMs: 0
+  };
 
 
   /* ==================================================
@@ -2360,6 +2598,47 @@
       clumpSpread: 0.28
     },
 
+    /*
+      Phones only (≤ 700px wide): where TOOLS and the cloud
+      stand. The cloud keeps clear of a band at the bottom of
+      the scene (safeBottom), because there the browser's own
+      bars can cover the page. The band is worked out from the
+      difference between the largest and the smallest visible
+      height of this browser (Safari with its bars: big band;
+      an app's built-in browser without bars: small band), so it
+      does not change while the bars move.
+        safeBottomFactor   1 = the band exactly as big as the
+                           bars; less = less empty space at the
+                           bottom, but the lowest label may go
+                           under the bar
+        safeBottomFallback the band, px, when the browser does
+                           not tell its heights
+        safeBottomMin      the band is never smaller, px
+        safeBottomMax      … and never bigger, px
+        opticalShift       optical centre: the composition stands
+                           this many px above the middle of the
+                           free space, then it looks centred
+        opticalShiftMin    on low screens where the 20 labels do
+                           not fit, first the band is made smaller
+                           (not below safeBottomMin), then the
+                           shift (not below this), px
+        tinyScreenStageH   a scene lower than this (px) is a tiny
+                           screen (iPhone SE 1st generation,
+                           320×568): there the 20 labels need
+                           more room, so…
+        safeBottomMinTiny  … the band may get this small there
+                           (instead of safeBottomMin), px
+    */
+    phone: {
+      safeBottomFactor: 1.0,
+      safeBottomFallback: 96,
+      safeBottomMin: 56,
+      safeBottomMax: 160,
+      opticalShift: 16,
+      opticalShiftMin: 8,
+      tinyScreenStageH: 600,
+      safeBottomMinTiny: 48
+    },
     /* the same for screens ≤ 700px wide */
     cloudMobile: {
       shift: { x: 0.05, y: 0.06 },
@@ -2566,8 +2845,8 @@
       ru: ""
     },
     fullVersionHref: {
-      en: "",
-      ru: ""
+      en: "https://youtu.be/L21RvyLpEHM",
+      ru: "https://rutube.ru/video/52c544eaffa20d4acb16d5a93044a30d/"
     }
   };
 
@@ -3537,10 +3816,123 @@
 
 
   /* ==================================================
+     STABLE SCENE HEIGHT (phones)
+  ================================================== */
+
+  /*
+    On phones (700px wide or less) the scene does not follow
+    every change of the visible height. Two invisible probes
+    measure 100lvh and 100svh; the remembered values change
+    only when
+      - the width or the orientation changes,
+      - the height grows above the remembered one,
+      - it shrinks by more than shrinkRatio and stays so for
+        longer than shrinkMs.
+    In Safari 100lvh / 100svh do not move, so nothing changes
+    there; in in-app browsers they do, and the scene keeps
+    its size.
+  */
+  const SCENE_HEIGHT = {
+    shrinkRatio: 0.25,
+    shrinkMs: 400
+  };
+
+  const stageProbes = ["100lvh", "100svh"].map(
+    (unit) => {
+      const probe = document.createElement("div");
+      probe.className = "stage-probe-" + unit.slice(3);
+      probe.setAttribute("aria-hidden", "true");
+      probe.style.cssText =
+        "position:fixed;top:0;left:0;width:0;height:100vh;" +
+        "visibility:hidden;pointer-events:none;";
+      probe.style.height = unit;
+      document.body.appendChild(probe);
+      return probe;
+    }
+  );
+
+  const stableHeights = [
+    { key: "", h: 0, since: 0 },
+    { key: "", h: 0, since: 0 }
+  ];
+
+  function stableSceneHeights() {
+
+    const width = window.innerWidth;
+    const now = performance.now();
+
+    return stableHeights.map(
+      (state, index) => {
+
+        const raw = Math.max(
+          stageProbes[index].offsetHeight,
+          index === 0 ? window.innerHeight : 0
+        );
+
+        const key = width + (width > raw ? "L" : "P");
+
+        if (key !== state.key || raw > state.h) {
+          state.key = key;
+          state.h = raw;
+          state.since = 0;
+        }
+        else if (raw < state.h * (1 - SCENE_HEIGHT.shrinkRatio)) {
+          if (!state.since) {
+            state.since = now;
+          }
+          else if (now - state.since > SCENE_HEIGHT.shrinkMs) {
+            state.h = raw;
+            state.since = 0;
+          }
+        }
+        else {
+          state.since = 0;
+        }
+
+        return state.h;
+
+      }
+    );
+
+  }
+
+  /* sets the stable height on phones (CSS variables), or
+     takes it away on wider screens */
+  function applySceneHeight() {
+
+    const root = document.documentElement;
+
+    if (window.innerWidth > 700) {
+      if (root.classList.contains("stable-stage")) {
+        root.classList.remove("stable-stage");
+        root.style.removeProperty("--stage-h");
+        root.style.removeProperty("--stage-small-h");
+      }
+      return;
+    }
+
+    const [large, small] = stableSceneHeights();
+
+    if (root.style.getPropertyValue("--stage-h") !== large + "px") {
+      root.style.setProperty("--stage-h", large + "px");
+    }
+
+    if (root.style.getPropertyValue("--stage-small-h") !== small + "px") {
+      root.style.setProperty("--stage-small-h", small + "px");
+    }
+
+    root.classList.add("stable-stage");
+
+  }
+
+
+  /* ==================================================
      ANIMATION
   ================================================== */
 
   function updateAnimation() {
+
+    applySceneHeight();
 
     const section =
       document.querySelector(".asset-system");
@@ -3553,8 +3945,9 @@
 
 
     /*
-      Height of the scene (CSS 100vh, on phones 100lvh) and the
-      length of the TOOLS part, all in px. The section is made
+      Height of the scene (CSS 100vh, on phones the stable
+      height from SCENE_HEIGHT) and the length of the TOOLS
+      part, all in px. The section is made
       exactly as long as the scene needs; it is set before the
       positions are read.
     */
@@ -4914,6 +5307,66 @@
   }
 
 
+  /*
+    Where TOOLS and the cloud stand, for a scene of this
+    height. Desktop: TOOLS in the middle of the scene, the
+    cloud down to margin above the bottom (as always). Phone:
+    the free space goes from the header (plus margin) down to
+    the band safeBottom (TOOLS_SETTINGS.phone); TOOLS stands
+    opticalShift above its middle. With factor / shift the
+    layout can ask for a smaller band or shift (low screens).
+  */
+  function toolsPlace(width, height, factor, shift) {
+
+    const { margin } = TOOLS_SETTINGS;
+    const headerBottom =
+      document.querySelector("header").getBoundingClientRect().bottom;
+
+    if (width > 700) {
+      return {
+        cy: height / 2,
+        top: headerBottom + margin,
+        bottom: height - margin,
+        safeBottom: margin,
+        factor: 1,
+        shift: 0
+      };
+    }
+
+    const phone = TOOLS_SETTINGS.phone;
+    const f = factor === undefined ? phone.safeBottomFactor : factor;
+    const sh = shift === undefined ? phone.opticalShift : shift;
+
+    /* the stable heights of the scene (see SCENE_HEIGHT), not
+       the window height of this moment */
+    const lvh = stableHeights[0].h;
+    const svh = stableHeights[1].h;
+    const known = lvh > 0 && svh > 0 && svh <= lvh;
+    const bars = known ? lvh - svh + 16 : phone.safeBottomFallback;
+
+    const min = height < phone.tinyScreenStageH
+      ? phone.safeBottomMinTiny
+      : phone.safeBottomMin;
+
+    const safeBottom =
+      Math.round(clamp(bars * f, min, phone.safeBottomMax));
+
+    const top = headerBottom + margin;
+    const bottom = height - safeBottom;
+
+    return {
+      cy: (top + bottom) / 2 - sh,
+      top,
+      bottom,
+      safeBottom,
+      min,
+      factor: f,
+      shift: sh
+    };
+
+  }
+
+
   /* language, width and scene height of the last layout, and
      the layouts already made (one per language and size) */
   let toolsLayoutKey = "";
@@ -4962,7 +5415,27 @@
 
   }
 
+  /* counts every layout of the cloud, only with ?debug=1 */
   function layoutTools() {
+
+    if (!DEBUG) {
+      layoutToolsNow();
+      return;
+    }
+
+    const t0 = performance.now();
+    const keyBefore = toolsLayoutKey;
+    layoutToolsNow();
+    debugStats.layoutCalls++;
+    if (toolsLayoutKey !== keyBefore) {
+      debugStats.layoutNew++;
+    }
+    debugStats.layoutMs = performance.now() - t0;
+    debugStats.layoutKey = toolsLayoutKey;
+
+  }
+
+  function layoutToolsNow() {
 
     const width = window.innerWidth;
 
@@ -4974,7 +5447,9 @@
     /* same language and size as last time: the layout would
        come out exactly the same, so do nothing; a layout made
        earlier for this language and size is taken as it is */
-    const key = currentLang + ":" + width + "x" + height;
+    const place = toolsPlace(width, height);
+    const key = currentLang + ":" + width + "x" + height +
+      (mobile ? ":" + place.safeBottom : "");
 
     if (key === toolsLayoutKey && toolsLayout) {
       return;
@@ -5004,169 +5479,211 @@
     const headerBottom =
       document.querySelector("header").getBoundingClientRect().bottom;
 
-    /* TOOLS rests in the centre of the screen */
+    /* TOOLS rests in the centre of the composition */
     const titleW = toolsLabel.offsetWidth;
     const titleH = toolsLabel.offsetHeight;
 
-    const layout = {
-      cx: width / 2,
-      cy: height / 2,
-      ax: width / 2 - margin,
-      ay: height / 2 - margin - headerBottom / 2,
-      spread: spreadScale,
-      variation: spreadVariation,
-      items: []
-    };
+    /*
+      One try of the placement for the place "at". On phones,
+      if not all 20 labels find a place, it is tried again with
+      a smaller bottom band (down to safeBottomMin), then with a
+      smaller optical shift (down to opticalShiftMin).
+    */
+    const attempt = (at, last) => {
 
-    const area = {
-      left: margin,
-      right: width - margin,
-      top: headerBottom + margin,
-      bottom: height - margin
-    };
-
-    const title = {
-      left: layout.cx - titleW / 2 - gap,
-      right: layout.cx + titleW / 2 + gap,
-      top: layout.cy - titleH / 2 - gap,
-      bottom: layout.cy + titleH / 2 + gap
-    };
-
-    const sizes =
-      toolButtons.map((b) => {
-        /* whole px for the layout, and the exact size for the
-           check of the exit (labels are a fraction of a px
-           bigger than offsetWidth / offsetHeight say) */
-        const r = b.getBoundingClientRect();
-        return { w: b.offsetWidth, h: b.offsetHeight, wf: r.width, hf: r.height };
-      });
-
-    /* the speed of every label, from −1 to 1: fixed numbers
-       from the seed, in the order of the TOOLS list */
-    const speedRandom = seededRandom(seed + 1);
-    const speeds = TOOLS.map(() => speedRandom() * 2 - 1);
-
-    /* the uneven, tilted, shifted oval */
-    const tilt = cloud.tilt * Math.PI / 180;
-
-    const insideCloud = (u, v) => {
-      const p = u - cloud.shift.x;
-      const q = v - cloud.shift.y;
-      const pr = p * Math.cos(-tilt) - q * Math.sin(-tilt);
-      const qr = p * Math.sin(-tilt) + q * Math.cos(-tilt);
-      const rho = Math.hypot(pr / cloud.size.x, qr / cloud.size.y);
-      const phi = Math.atan2(qr, pr);
-      const edge = 1 + cloud.wobble[0] * Math.sin(2 * phi + 1.3) + cloud.wobble[1] * Math.sin(3 * phi + 4.1);
-      return rho <= edge;
-    };
-
-    const insideArea = (p, item) =>
-      p.x - item.w / 2 >= area.left && p.x + item.w / 2 <= area.right &&
-      p.y - item.h / 2 >= area.top && p.y + item.h / 2 <= area.bottom;
-
-    const onTitle = (p, item) =>
-      p.x + item.w / 2 > title.left && p.x - item.w / 2 < title.right &&
-      p.y + item.h / 2 > title.top && p.y - item.h / 2 < title.bottom;
-
-    const apartFrom = (a, item, b, other) =>
-      Math.abs(a.x - b.x) >= (item.w + other.w) / 2 + gap ||
-      Math.abs(a.y - b.y) >= (item.h + other.h) / 2 + gap;
-
-    /* checked at 20 points of the movement plus the end */
-    const steps = [];
-    for (let k = 0; k <= 20; k++) {
-      steps.push(k / 20);
-    }
-
-    const random = seededRandom(seed);
-
-    /* clump centres: spread around TOOLS on the oval,
-       each a bit off its even place (fixed numbers) */
-    const clumps = [];
-    for (let k = 0; k < cloud.clumps; k++) {
-      const angle = (k / cloud.clumps) * 2 * Math.PI + (random() - 0.5) * 0.9;
-      const radius = 0.45 + random() * 0.3;
-      const p = Math.cos(angle) * radius * cloud.size.x;
-      const q = Math.sin(angle) * radius * cloud.size.y;
-      clumps.push({
-        u: cloud.shift.x + p * Math.cos(tilt) - q * Math.sin(tilt),
-        v: cloud.shift.y + p * Math.sin(tilt) + q * Math.cos(tilt)
-      });
-    }
-
-    /* longest labels first */
-    const order =
-      sizes.map((s, index) => ({ index, ...s }))
-        .sort((a, b) => b.w - a.w || a.index - b.index);
-
-    const placed = [];
-
-    for (const entry of order) {
-
-      const clump = clumps[entry.index % clumps.length];
-      const item = {
-        index: entry.index, w: entry.w, h: entry.h, wf: entry.wf, hf: entry.hf,
-        speed: speeds[entry.index], x: 0, y: 0
+      const layout = {
+        cx: width / 2,
+        cy: at.cy,
+        ax: width / 2 - margin,
+        ay: (at.bottom - at.top) / 2,
+        place: at,
+        spread: spreadScale,
+        variation: spreadVariation,
+        items: []
       };
-      let fallback = null;
-      let found = false;
 
-      for (let attempt = 0; attempt < 3000 && !found; attempt++) {
+      const area = {
+        left: margin,
+        right: width - margin,
+        top: at.top,
+        bottom: at.bottom
+      };
 
-        const spread = cloud.clumpSpread * (1 + attempt / 600);
-        const u = clump.u + (random() + random() + random() - 1.5) / 1.5 * spread;
-        const v = clump.v + (random() + random() + random() - 1.5) / 1.5 * spread;
+      const title = {
+        left: layout.cx - titleW / 2 - gap,
+        right: layout.cx + titleW / 2 + gap,
+        top: layout.cy - titleH / 2 - gap,
+        bottom: layout.cy + titleH / 2 + gap
+      };
 
-        if (!insideCloud(u, v) && attempt < 1500) {
-          continue;
-        }
+      const sizes =
+        toolButtons.map((b) => {
+          /* whole px for the layout, and the exact size for the
+             check of the exit (labels are a fraction of a px
+             bigger than offsetWidth / offsetHeight say) */
+          const r = b.getBoundingClientRect();
+          return { w: b.offsetWidth, h: b.offsetHeight, wf: r.width, hf: r.height };
+        });
 
-        item.x = layout.cx + u * layout.ax;
-        item.y = layout.cy + v * layout.ay;
+      /* the speed of every label, from −1 to 1: fixed numbers
+         from the seed, in the order of the TOOLS list */
+      const speedRandom = seededRandom(seed + 1);
+      const speeds = TOOLS.map(() => speedRandom() * 2 - 1);
 
-        /* at the start: inside the screen, off TOOLS */
-        const p = spreadPoint(item, layout, 0);
+      /* the uneven, tilted, shifted oval */
+      const tilt = cloud.tilt * Math.PI / 180;
 
-        if (!insideArea(p, item) || onTitle(p, item)) {
-          continue;
-        }
+      const insideCloud = (u, v) => {
+        const p = u - cloud.shift.x;
+        const q = v - cloud.shift.y;
+        const pr = p * Math.cos(-tilt) - q * Math.sin(-tilt);
+        const qr = p * Math.sin(-tilt) + q * Math.cos(-tilt);
+        const rho = Math.hypot(pr / cloud.size.x, qr / cloud.size.y);
+        const phi = Math.atan2(qr, pr);
+        const edge = 1 + cloud.wobble[0] * Math.sin(2 * phi + 1.3) + cloud.wobble[1] * Math.sin(3 * phi + 4.1);
+        return rho <= edge;
+      };
 
-        /* apart from the others all the way, each with its speed */
-        const apart = steps.every(
-          (t) => {
-            const a = spreadPoint(item, layout, t);
-            return !onTitle(a, item) &&
-              placed.every((other) => apartFrom(a, item, spreadPoint(other, layout, t), other));
+      const insideArea = (p, item) =>
+        p.x - item.w / 2 >= area.left && p.x + item.w / 2 <= area.right &&
+        p.y - item.h / 2 >= area.top && p.y + item.h / 2 <= area.bottom;
+
+      const onTitle = (p, item) =>
+        p.x + item.w / 2 > title.left && p.x - item.w / 2 < title.right &&
+        p.y + item.h / 2 > title.top && p.y - item.h / 2 < title.bottom;
+
+      const apartFrom = (a, item, b, other) =>
+        Math.abs(a.x - b.x) >= (item.w + other.w) / 2 + gap ||
+        Math.abs(a.y - b.y) >= (item.h + other.h) / 2 + gap;
+
+      /* checked at 20 points of the movement plus the end */
+      const steps = [];
+      for (let k = 0; k <= 20; k++) {
+        steps.push(k / 20);
+      }
+
+      const random = seededRandom(seed);
+
+      /* clump centres: spread around TOOLS on the oval,
+         each a bit off its even place (fixed numbers) */
+      const clumps = [];
+      for (let k = 0; k < cloud.clumps; k++) {
+        const angle = (k / cloud.clumps) * 2 * Math.PI + (random() - 0.5) * 0.9;
+        const radius = 0.45 + random() * 0.3;
+        const p = Math.cos(angle) * radius * cloud.size.x;
+        const q = Math.sin(angle) * radius * cloud.size.y;
+        clumps.push({
+          u: cloud.shift.x + p * Math.cos(tilt) - q * Math.sin(tilt),
+          v: cloud.shift.y + p * Math.sin(tilt) + q * Math.cos(tilt)
+        });
+      }
+
+      /* longest labels first */
+      const order =
+        sizes.map((s, index) => ({ index, ...s }))
+          .sort((a, b) => b.w - a.w || a.index - b.index);
+
+      const placed = [];
+      let fits = true;
+
+      for (const entry of order) {
+
+        const clump = clumps[entry.index % clumps.length];
+        const item = {
+          index: entry.index, w: entry.w, h: entry.h, wf: entry.wf, hf: entry.hf,
+          speed: speeds[entry.index], x: 0, y: 0
+        };
+        let fallback = null;
+        let found = false;
+
+        for (let attempt = 0; attempt < 3000 && !found; attempt++) {
+
+          const spread = cloud.clumpSpread * (1 + attempt / 600);
+          const u = clump.u + (random() + random() + random() - 1.5) / 1.5 * spread;
+          const v = clump.v + (random() + random() + random() - 1.5) / 1.5 * spread;
+
+          if (!insideCloud(u, v) && attempt < 1500) {
+            continue;
           }
-        );
 
-        if (!apart) {
-          continue;
+          item.x = layout.cx + u * layout.ax;
+          item.y = layout.cy + v * layout.ay;
+
+          /* at the start: inside the screen, off TOOLS */
+          const p = spreadPoint(item, layout, 0);
+
+          if (!insideArea(p, item) || onTitle(p, item)) {
+            continue;
+          }
+
+          /* apart from the others all the way, each with its speed */
+          const apart = steps.every(
+            (t) => {
+              const a = spreadPoint(item, layout, t);
+              return !onTitle(a, item) &&
+                placed.every((other) => apartFrom(a, item, spreadPoint(other, layout, t), other));
+            }
+          );
+
+          if (!apart) {
+            continue;
+          }
+
+          /* best: still inside the screen at the full spread */
+          if (insideArea(spreadPoint(item, layout, 1), item)) {
+            found = true;
+          }
+          else if (!fallback) {
+            fallback = { x: item.x, y: item.y };
+          }
+
         }
 
-        /* best: still inside the screen at the full spread */
-        if (insideArea(spreadPoint(item, layout, 1), item)) {
-          found = true;
+        if (!found) {
+          fits = false;
+          if (fallback) {
+            item.x = fallback.x;
+            item.y = fallback.y;
+          }
+          else {
+            if (last) {
+              console.warn("TOOLS: no free place for", TOOLS[item.index].label[currentLang]);
+            }
+          }
         }
-        else if (!fallback) {
-          fallback = { x: item.x, y: item.y };
-        }
+
+        placed.push(item);
 
       }
 
-      if (!found) {
-        if (fallback) {
-          item.x = fallback.x;
-          item.y = fallback.y;
-        }
-        else {
-          console.warn("TOOLS: no free place for", TOOLS[item.index].label[currentLang]);
-        }
+      return { layout, area, title, placed, fits, insideArea, onTitle, apartFrom, steps };
+
+    };
+
+    const tries = [place];
+
+    if (mobile) {
+      const phone = TOOLS_SETTINGS.phone;
+      let f = place.factor;
+      while (tries[tries.length - 1].safeBottom > place.min && f > 0.05) {
+        f = Math.max(0, +(f - 0.1).toFixed(2));
+        tries.push(toolsPlace(width, height, f));
       }
-
-      placed.push(item);
-
+      for (let sh = place.shift - 2; sh >= phone.opticalShiftMin; sh -= 2) {
+        tries.push(toolsPlace(width, height, f, sh));
+      }
     }
+
+    let made = null;
+
+    for (let k = 0; k < tries.length; k++) {
+      made = attempt(tries[k], k === tries.length - 1);
+      if (made.fits) {
+        break;
+      }
+    }
+
+    const { layout, area, title, placed, insideArea, onTitle, apartFrom, steps } = made;
 
     /* 1) one common spread: as wanted, or less if a label at its
        middle speed would leave the screen or go under the header */
@@ -5277,7 +5794,11 @@
     const high = 1 + (layout.spread - 1) * (1 + layout.variation);
     const report =
       `TOOLS ${width}×${height}: label speeds ${low.toFixed(4)}…${high.toFixed(4)}` +
-      ` (spread ${layout.spread.toFixed(4)}, variation ${layout.variation.toFixed(2)}, exit drift ×${layout.driftFactor.toFixed(2)})`;
+      ` (spread ${layout.spread.toFixed(4)}, variation ${layout.variation.toFixed(2)}, exit drift ×${layout.driftFactor.toFixed(2)})` +
+      (mobile
+        ? `; bottom band ${layout.place.safeBottom}px (factor ${layout.place.factor}), optical shift ${layout.place.shift}px` +
+          (layout.place !== place ? " – made smaller to fit" : "")
+        : "");
 
     if (narrowed || layout.spread < spreadScale) {
       console.warn(report + " – narrowed to stay clear");
@@ -5351,9 +5872,15 @@
     const gone = exit * exitSpeed >= height;
 
 
-    /* TOOLS: from below to the centre, then up with the page */
+    /* TOOLS: from below to the centre of the composition (on
+       phones a bit above the middle of the scene, see
+       toolsPlace), then up with the page */
+    const centreY = toolsLayout
+      ? toolsLayout.cy
+      : toolsPlace(window.innerWidth, height).cy;
+
     const titleTop =
-      lerp(height + 3, height / 2 - titleH / 2, comeIn) - extraY;
+      lerp(height + 3, centreY - titleH / 2, comeIn) - extraY;
 
     toolsLabel.style.top = `${titleTop}px`;
     toolsLabel.style.visibility =
@@ -5899,6 +6426,17 @@
       }
     );
 
+    /* what screen readers say, and the language of the links */
+    document.querySelectorAll("[data-i18n-aria]").forEach(
+      (element) => {
+        element.setAttribute("aria-label", t(element.dataset.i18nAria));
+      }
+    );
+
+    document.querySelectorAll(".site-nav a").forEach(
+      (link) => { link.setAttribute("lang", lang); }
+    );
+
     setupLangButton();
 
     VIDEO_SETTINGS.videoLang = lang;
@@ -6002,12 +6540,335 @@
     { passive: true }
   );
 
+  /* ==================================================
+     HEADER LINKS: jump to a section (or to the top)
+  ================================================== */
+
+  const NAV_SECTIONS = ["demo", "access", "contact"];
+
+  /* where the page has to stop: the top of the section right
+     under the header, measured now (not remembered); never
+     further than the page can scroll */
+  function navTargetY(id) {
+
+    if (!id) {
+      return 0;
+    }
+
+    const section = document.getElementById(id);
+    const headerBottom = document.querySelector("header").getBoundingClientRect().bottom;
+    const maxY = document.documentElement.scrollHeight - window.innerHeight;
+    const y = section.getBoundingClientRect().top + window.scrollY - headerBottom;
+
+    return Math.max(0, Math.min(Math.round(y), Math.floor(maxY)));
+
+  }
+
+  let navAnimation = null;
+
+  function stopNavAnimation() {
+    if (navAnimation) {
+      cancelAnimationFrame(navAnimation.frame);
+      navAnimation = null;
+    }
+  }
+
+  /* a visitor who scrolls takes over at once */
+  ["wheel", "touchstart"].forEach(
+    (type) => window.addEventListener(type, stopNavAnimation, { passive: true })
+  );
+
+  window.addEventListener(
+    "keydown",
+    (event) => {
+      if (["ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End", " "].includes(event.key)) {
+        stopNavAnimation();
+      }
+    }
+  );
+
+  function scrollPageTo(y, done) {
+
+    stopNavAnimation();
+
+    const reduce =
+      window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (!(NAV_SETTINGS.scrollMs > 0) || reduce) {
+      window.scrollTo(0, y);
+      done();
+      return;
+    }
+
+    const from = window.scrollY;
+    const start = performance.now();
+    const length = NAV_SETTINGS.scrollMs;
+
+    const step = (now) => {
+      const k = Math.min(1, (now - start) / length);
+      const e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+      window.scrollTo(0, Math.round(from + (y - from) * e));
+      if (k < 1) {
+        navAnimation.frame = requestAnimationFrame(step);
+      }
+      else {
+        navAnimation = null;
+        done();
+      }
+    };
+
+    navAnimation = { frame: requestAnimationFrame(step) };
+
+  }
+
+  /*
+    Goes to a section (or to the top when id is empty), puts the
+    keyboard on the section title and writes #section into the
+    address (or removes it) without a new history entry; ?lang
+    and the rest of the address stay.
+  */
+  function navigateTo(id, options) {
+
+    const opts = options || {};
+
+    scrollPageTo(
+      navTargetY(id),
+      () => {
+
+        if (id && opts.focus !== false) {
+          const title = document.getElementById(id).querySelector(".section-title");
+          if (title) {
+            title.focus({ preventScroll: true });
+          }
+        }
+
+        if (opts.address !== false) {
+          try {
+            const address = new URL(window.location.href);
+            address.hash = id ? "#" + id : "";
+            window.history.replaceState(window.history.state, "", address.toString());
+          }
+          catch (error) {
+            /* the address can not be changed here: the jump still works */
+          }
+        }
+
+      }
+    );
+
+  }
+
+  /* clicks: a normal click jumps; a click with Ctrl / Cmd /
+     Shift or the middle button does what the browser does */
+  const navClick = (id) => (event) => {
+
+    if (event.defaultPrevented || event.button !== 0 ||
+        event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+      return;
+    }
+
+    event.preventDefault();
+    navigateTo(id);
+
+  };
+
+  document.getElementById("homeLink").addEventListener("click", navClick(""));
+
+  document.querySelectorAll(".site-nav a").forEach(
+    (link) => link.addEventListener("click", navClick(link.dataset.nav))
+  );
+
+  /*
+    Opened with #demo, #access or #contact in the address: the
+    browser jumps there early, before the scene has its final
+    height and the fonts are loaded; once everything is ready
+    the page is put exactly on the section, once. A normal
+    reload or back / forward keeps the place the browser
+    restores.
+  */
+  (() => {
+
+    const id = window.location.hash.slice(1);
+
+    if (!NAV_SECTIONS.includes(id)) {
+      return;
+    }
+
+    let kind = "navigate";
+
+    try {
+      const entry = performance.getEntriesByType("navigation")[0];
+      kind = entry ? entry.type : "navigate";
+    }
+    catch (error) {
+      kind = "navigate";
+    }
+
+    if (kind === "reload" || kind === "back_forward") {
+      return;
+    }
+
+    Promise.all([fontsLoaded, langFontReady(currentLang)]).then(
+      () => requestAnimationFrame(
+        () => requestAnimationFrame(
+          () => navigateTo(id, { address: false })
+        )
+      )
+    );
+
+  })();
+
+
   /* the page opens in the detected language */
   if (currentLang !== "en") {
     applyLanguage(currentLang);
   }
   else {
     setupLangButton();
+  }
+
+
+  /* ==================================================
+     DIAGNOSTICS PANEL (only with ?debug=1)
+  ================================================== */
+
+  if (DEBUG) {
+
+    const panel = document.createElement("div");
+
+    panel.style.cssText =
+      "position:fixed;left:0;right:0;bottom:0;z-index:300;" +
+      "padding:4px 6px;margin:0;pointer-events:none;" +
+      "background:rgba(243,240,232,0.82);color:#000;" +
+      "font:10px/1.3 'IBM Plex Mono','Courier New',monospace;" +
+      "white-space:pre-wrap;overflow-wrap:anywhere;" +
+      "-webkit-text-size-adjust:100%;text-size-adjust:100%;";
+
+    panel.setAttribute("aria-hidden", "true");
+    document.body.appendChild(panel);
+
+    const dbg = { resize: 0, orientation: 0, longTasks: 0, longest: 0, gapMax: 0, gaps50: 0, labelJump: 0, last: null, lastFrame: performance.now(), hasLongtask: false };
+
+    window.addEventListener("resize", () => { dbg.resize++; });
+    window.addEventListener("orientationchange", () => { dbg.orientation++; });
+
+    /* the scene height: at load, the biggest one, how often and
+       by how much it changed */
+    const stageLog = { load: 0, max: 0, last: 0, changes: 0, deltas: [] };
+
+    /* what the browser gives for 100lvh / 100svh right now */
+    const unitProbes = ["100lvh", "100svh"].map(
+      (unit) => {
+        const probe = document.createElement("div");
+        probe.style.cssText =
+          "position:fixed;top:0;left:0;width:0;visibility:hidden;pointer-events:none;";
+        probe.style.height = unit;
+        document.body.appendChild(probe);
+        return probe;
+      }
+    );
+
+    /* a short user agent: Safari has "Safari/" in it, the
+       built-in browsers of apps (Telegram) usually do not */
+    const ua = navigator.userAgent;
+    const uaShort =
+      (/Safari\//.test(ua) ? "" : "[no Safari token] ") +
+      ua.replace(/^Mozilla\/5\.0 /, "").replace(/\(KHTML, like Gecko\) ?/, "");
+
+    try {
+      new PerformanceObserver(
+        (list) => {
+          for (const e of list.getEntries()) {
+            dbg.longTasks++;
+            dbg.longest = Math.max(dbg.longest, e.duration);
+          }
+        }
+      ).observe({ type: "longtask", buffered: true });
+      dbg.hasLongtask = PerformanceObserver.supportedEntryTypes &&
+        PerformanceObserver.supportedEntryTypes.includes("longtask");
+    }
+    catch (error) {
+      dbg.hasLongtask = false;
+    }
+
+    const stageEl = document.querySelector(".sticky-stage");
+    const sectionEl = document.querySelector(".asset-system");
+
+    const phaseOf = (pos, H) => {
+      const tm = TOOLS_SETTINGS.timing[window.innerWidth <= 700 ? "phone" : "desktop"];
+      const start = (INTRO_LENGTH + 1 + 0.07) * 6 * H;
+      const comeEnd = start + tm.comeIn * H;
+      const appear = comeEnd + tm.hold * H;
+      const spreadEnd = appear + tm.spreadScroll * H;
+      const pinEnd = spreadEnd + (tm.holdAfter == null ? tm.hold : tm.holdAfter) * H;
+      if (pos < start) return "scene before TOOLS";
+      if (pos < comeEnd) return "TOOLS comes in";
+      if (pos < appear) return "hold (TOOLS alone)";
+      if (pos < spreadEnd) return "spread (burst)";
+      if (pos < pinEnd) return "hold after burst";
+      if (pos < pinEnd + H) return "exit";
+      return "after the scene";
+    };
+
+    const tick = (now) => {
+
+      const gap = now - dbg.lastFrame;
+      dbg.lastFrame = now;
+      if (gap > dbg.gapMax) dbg.gapMax = gap;
+      if (gap > 50) dbg.gaps50++;
+
+      /* the biggest move of any cloud label between two frames,
+         measured against the scene (page scrolling excluded) */
+      const st = stageEl.getBoundingClientRect().top;
+      const pos = [...document.querySelectorAll(".tool-label")].map(
+        (b) => (getComputedStyle(b).visibility === "hidden" ? null : (() => { const r = b.getBoundingClientRect(); return [r.left, r.top - st]; })())
+      );
+      if (dbg.last) {
+        pos.forEach((q, i) => {
+          const o = dbg.last[i];
+          if (q && o) dbg.labelJump = Math.max(dbg.labelJump, Math.abs(q[0] - o[0]), Math.abs(q[1] - o[1]));
+        });
+      }
+      dbg.last = pos;
+
+      const H = stageEl.offsetHeight;
+      const vv = window.visualViewport ? window.visualViewport.height.toFixed(1) : "n/a";
+
+      if (!stageLog.load) {
+        stageLog.load = H;
+        stageLog.last = H;
+      }
+      if (H !== stageLog.last) {
+        stageLog.changes++;
+        stageLog.deltas.push(H - stageLog.last);
+        if (stageLog.deltas.length > 6) {
+          stageLog.deltas.shift();
+        }
+        stageLog.last = H;
+      }
+      stageLog.max = Math.max(stageLog.max, H);
+
+      const fmt = (d) => (d > 0 ? "+" : "") + d;
+
+      panel.textContent =
+        `window ${window.innerWidth}×${window.innerHeight}  visualViewport.h ${vv}  lvh ${unitProbes[0].offsetHeight} svh ${unitProbes[1].offsetHeight}\n` +
+        `stageH now ${H}, at load ${stageLog.load}, max ${stageLog.max}; changed ${stageLog.changes}×${stageLog.deltas.length ? " (last: " + stageLog.deltas.map(fmt).join(" ") + " px)" : ""}\n` +
+        `section ${sectionEl.style.height || sectionEl.offsetHeight + "px"}  scrollY ${Math.round(window.scrollY)}  lang ${currentLang}\n` +
+        `phase: ${phaseOf(-sectionEl.getBoundingClientRect().top, H)}\n` +
+        `layoutTools: ${debugStats.layoutCalls} calls, ${debugStats.layoutNew} new layouts, last ${debugStats.layoutMs.toFixed(1)} ms, key ${debugStats.layoutKey || "-"}\n` +
+        (dbg.hasLongtask
+          ? `long tasks: ${dbg.longTasks} (longest ${Math.round(dbg.longest)} ms)`
+          : `long tasks: n/a; frame gaps > 50 ms: ${dbg.gaps50}`) +
+        `  longest frame gap ${Math.round(dbg.gapMax)} ms\n` +
+        `resize ${dbg.resize}, orientationchange ${dbg.orientation}  max label jump between frames: ${dbg.labelJump.toFixed(1)} px\n` +
+        uaShort;
+
+      requestAnimationFrame(tick);
+
+    };
+
+    requestAnimationFrame(tick);
+
   }
 
 
