@@ -1065,6 +1065,15 @@
       gap: 12px;
     }
 
+    /* the link to the long version: its touch area is at least
+       44px high (12px above the text, so it never reaches the
+       video controls, and 19px below); the negative margins
+       give that room back, so nothing on the page moves */
+    .video-info .text-link {
+      padding: 12px 0 19px;
+      margin: -12px 0 -19px;
+    }
+
 
     /* ==================================================
        ACCESS
@@ -2836,8 +2845,8 @@
       ru: ""
     },
     fullVersionHref: {
-      en: "",
-      ru: ""
+      en: "https://youtu.be/L21RvyLpEHM",
+      ru: "https://rutube.ru/video/52c544eaffa20d4acb16d5a93044a30d/"
     }
   };
 
